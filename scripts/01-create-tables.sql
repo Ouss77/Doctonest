@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   is_active BOOLEAN DEFAULT true,
-  email_verified BOOLEAN DEFAULT false
+  email_verified BOOLEAN DEFAULT false 
 );
 
 -- Replacement doctors profiles

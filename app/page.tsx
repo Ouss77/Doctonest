@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useState, useEffect } from "react"; // Imported useEffect
+import { useState, useEffect } from "react"; // remove useRef import
 import Link from "next/link";
 import {
   Menu,
@@ -39,10 +39,24 @@ export default function HomePage() {
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // NEW: header scrolled state
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 30);
+    };
+    // initialize
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-        <header className="absolute top-0 left-0 w-full z-20 flex items-center justify-between px-10 py-8 bg-transparent">
+        <header
+          className={`fixed top-0 left-0 w-full z-50 pointer-events-auto flex items-center justify-between px-10 transition-all duration-300 ${scrolled ? 'py-4 bg-gray-900/95 backdrop-blur-md shadow-lg' : 'py-8 bg-transparent'}`}
+        >
           <div className="flex items-center gap-3">
             <img src="logo.png" alt="Logo Le Foyer Médical" className="w-10 h-10 rounded-full" />
             <span className="font-bold text-xl text-white">Le Foyer Médical</span>
@@ -50,8 +64,14 @@ export default function HomePage() {
           <nav className="hidden md:flex gap-10">
             <Link href="#features" className="text-white text-base font-medium hover:text-blue-200 transition">Fonctionnalités</Link>
             <Link href="#how-it-works" className="text-white text-base font-medium hover:text-blue-200 transition">Comment ça marche</Link>
+            <Link href="/annonces" className="text-white text-base font-medium hover:text-blue-200 transition">Annonces</Link>
           </nav>
           <div className="hidden md:flex items-center gap-2">
+            {/* Replace inline form trigger with a persistent link to the dedicated page */}
+            <Link href="/annonces/new" className="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold shadow-sm">
+              Déposer une annonce
+            </Link>
+
             <Link href="/login">
               <Button variant="ghost" className="text-white px-6 py-2 rounded-xl font-semibold">Connexion</Button>
             </Link>
@@ -67,9 +87,10 @@ export default function HomePage() {
               <nav className="flex flex-col items-start gap-4 p-4">
                 <Link href="#features" className="text-white text-base font-medium hover:text-blue-200 transition" onClick={() => setMobileOpen(false)}>Fonctionnalités</Link>
                 <Link href="#how-it-works" className="text-white text-base font-medium hover:text-blue-200 transition" onClick={() => setMobileOpen(false)}>Comment ça marche</Link>
+                <Link href="/annonces" className="text-white text-base font-medium hover:text-blue-200 transition" onClick={() => setMobileOpen(false)}>Annonces</Link>
                 <hr className="w-full border-gray-700 my-2" />
-                <Link href="/missions/new" onClick={() => setMobileOpen(false)}>
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl font-semibold shadow-lg">Publier une mission</Button>
+                <Link href="/annonces/new" onClick={() => setMobileOpen(false)} className="w-full">
+                  <button className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl font-semibold shadow-lg">Publier une mission</button>
                 </Link>
               </nav>
             </div>
@@ -346,6 +367,9 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* --- REMOVE inline "Déposer une annonce" form section --- */}
+        {/* ...existing content continues... */}
       </main>
 
       {/* Footer */}

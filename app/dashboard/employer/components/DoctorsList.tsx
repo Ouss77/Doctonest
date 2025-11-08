@@ -1,4 +1,4 @@
-  import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
   import { Badge } from "@/components/ui/badge";
   import { Button } from "@/components/ui/button";
   import { Input } from "@/components/ui/input";
@@ -239,10 +239,10 @@
                     {/* Header */}
                     <div className="flex items-center gap-6 mb-6">
                       <Avatar className="w-24 h-24 rounded-full ring-4 ring-blue-200 shadow-lg">
-                        <AvatarImage src={doctor.photo_url || "/placeholder-user.jpg"} />
-                        <AvatarFallback className="text-2xl font-bold bg-blue-100 text-blue-700">
-                          {doctor.first_name?.[0]}
-                          {doctor.last_name?.[0]}
+                        <AvatarImage src={doctor.photo_url || undefined} />
+                        <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-blue-100 to-indigo-200 text-blue-800 border-2 border-blue-300">
+                          {(doctor.first_name?.[0] || '?').toUpperCase()}
+                          {(doctor.last_name?.[0] || '').toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div>
