@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
@@ -7,7 +6,7 @@ function Header() {
     const [mobileOpen, setMobileOpen] = useState(false);
   return (
       <header className="bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg">
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+        <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-12 py-6">
           <Link href="/" className="flex items-center gap-3">
             <img src="/logo.png" alt="Logo Le Foyer Médical" className="w-10 h-10 rounded-full" />
             <span className="font-bold text-2xl text-white">Le Foyer Médical</span>
@@ -29,10 +28,11 @@ function Header() {
             </Link>
           </div>
           <button className="md:hidden p-2 rounded-lg hover:bg-white/20" onClick={() => setMobileOpen(!mobileOpen)}>
-            {mobileOpen ? <X size={28} className="text-white" /> : <Menu size={28} className="text-white" />}
+            {mobileOpen ? <X size={30} className="text-white" /> : <Menu size={30} className="text-white" />}
           </button>
           {mobileOpen && (
-            <div className="md:hidden bg-white shadow-lg border-t absolute top-full left-0 w-full z-50">
+            // fixed menu so it appears on top on mobile pages (offset by top-16 to sit under header)
+            <div className="md:hidden bg-white shadow-lg border-t fixed top-16 left-0 w-full z-50">
               <nav className="flex flex-col items-start gap-4 p-4">
                 <Link href="/#features" className="text-gray-600 text-base font-medium hover:text-blue-600 transition" onClick={() => setMobileOpen(false)}>Fonctionnalités</Link>
                 <Link href="/#how-it-works" className="text-gray-600 text-base font-medium hover:text-blue-600 transition" onClick={() => setMobileOpen(false)}>Comment ça marche</Link>

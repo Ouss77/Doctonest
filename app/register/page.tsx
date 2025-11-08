@@ -144,42 +144,82 @@ export default function RegisterPage() {
 
       {/* Right side: Registration Form - Modern Card */}
       <div className="lg:w-3/6 w-full mx-auto flex flex-col p-0 mt-4 ">
-        <CardContent className="p-0 w-[80%] mx-auto ">
+        <CardContent className="p-0 w-[95%] sm:w-[90%] md:w-[85%] lg:w-[80%] mx-auto ">
           <Tabs value={userType} onValueChange={(value: string) => setUserType(value as 'replacement' | 'employer')}>
-            <TabsList className="flex w-full mx-auto justify-center gap-6 mb-0 bg-transparent">
+            {/* Mobile-optimized: Grid layout for small screens, horizontal for larger */}
+            <TabsList className="grid grid-cols-2 md:flex md:flex-row w-full mx-auto gap-2.5 md:gap-4 lg:gap-6 mb-4 md:mb-6 bg-transparent p-0 h-auto">
               <TabsTrigger
                 value="replacement"
-                className="flex items-center justify-center gap-3 flex-1 max-w-sm py-6 px-6 text-lg font-semibold rounded-2xl border border-blue-700 
-                  transition-all duration-300
-                  data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105
-                  data-[state=inactive]:bg-gray-900 data-[state=inactive]:text-blue-400 hover:data-[state=inactive]:bg-gray-800
-                  focus:outline-none focus:ring-2 focus:ring-blue-400 "
+                className="group relative flex flex-col items-center justify-center gap-2 md:flex-row md:gap-3 
+                  w-full h-[110px] md:h-auto md:min-h-[70px]
+                  py-3.5 px-3 md:py-5 md:px-5 lg:py-6 lg:px-8 
+                  text-[18px] leading-tight md:text-base lg:text-lg font-semibold 
+                  rounded-xl md:rounded-xl lg:rounded-2xl 
+                  border-2 md:border
+                  transition-all duration-300 ease-in-out
+                  data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-600 data-[state=active]:via-purple-600 data-[state=active]:to-purple-700
+                  data-[state=active]:text-white data-[state=active]:border-blue-400 data-[state=active]:shadow-2xl 
+                  data-[state=active]:shadow-blue-500/30 data-[state=active]:scale-[0.97] md:data-[state=active]:scale-105
+                  data-[state=inactive]:bg-gray-800/60 data-[state=inactive]:text-blue-300/80 data-[state=inactive]:border-blue-600/40
+                  hover:data-[state=inactive]:bg-gray-700/70 hover:data-[state=inactive]:border-blue-500/60 hover:data-[state=inactive]:text-blue-200
+                  active:scale-[0.94] md:active:scale-100
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900
+                  touch-manipulation"
               >
+                {/* Icon with animation */}
                 <svg xmlns="http://www.w3.org/2000/svg" 
-                  className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 7.292M15 12h6m-3-3v6m-6 9a9 9 0 100-18 9 9 0 000 18z" />
+                  className="w-7 h-7 md:w-6 md:h-6 lg:w-7 lg:h-7 flex-shrink-0 transition-all duration-300
+                    data-[state=active]:scale-110 data-[state=active]:rotate-3" 
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 7.292M15 12h6m-3-3v6m-6 9a9 9 0 100-18 9 9 0 000 18z" />
                 </svg>
-                Médecin remplaçant
+                {/* Text optimized for mobile */}
+                <span className="text-center font-medium md:font-semibold">
+                  <span className="block md:inline">Médecin</span>
+                  <span className="block md:inline md:ml-1">remplaçant</span>
+                </span>
+                {/* Active badge indicator */}
+                {userType === "replacement" && (
+                  <div className="absolute -top-1 -right-1 md:hidden w-3 h-3 rounded-full bg-blue-400 border-2 border-gray-900 animate-pulse"></div>
+                )}
               </TabsTrigger>
 
               <TabsTrigger
                 value="employer"
-                className="flex items-center justify-center gap-3 flex-1 max-w-sm py-6 px-6 text-lg font-semibold rounded-2xl border border-blue-700
-                  transition-all duration-300
-                  data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105
-                  data-[state=inactive]:bg-gray-900 data-[state=inactive]:text-blue-400 hover:data-[state=inactive]:bg-gray-800
-                  focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="group relative flex flex-col items-center justify-center gap-2 md:flex-row md:gap-3 
+                  w-full h-[110px] md:h-auto md:min-h-[70px]
+                  py-3.5 px-3 md:py-5 md:px-5 lg:py-6 lg:px-8 
+                  text-[18px] leading-tight md:text-base lg:text-lg font-semibold 
+                  rounded-xl md:rounded-xl lg:rounded-2xl 
+                  border-2 md:border
+                  transition-all duration-300 ease-in-out
+                  data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-600 data-[state=active]:via-purple-600 data-[state=active]:to-purple-700
+                  data-[state=active]:text-white data-[state=active]:border-blue-400 data-[state=active]:shadow-2xl 
+                  data-[state=active]:shadow-blue-500/30 data-[state=active]:scale-[0.97] md:data-[state=active]:scale-105
+                  data-[state=inactive]:bg-gray-800/60 data-[state=inactive]:text-blue-300/80 data-[state=inactive]:border-blue-600/40
+                  hover:data-[state=inactive]:bg-gray-700/70 hover:data-[state=inactive]:border-blue-500/60 hover:data-[state=inactive]:text-blue-200
+                  active:scale-[0.94] md:active:scale-100
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900
+                  touch-manipulation"
               >
+                {/* Icon with animation */}
                 <svg xmlns="http://www.w3.org/2000/svg" 
-                  className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2h5m3-9a4 4 0 118 0 4 4 0 01-8 0z" />
+                  className="w-7 h-7 md:w-6 md:h-6 lg:w-7 lg:h-7 flex-shrink-0 transition-all duration-300
+                    data-[state=active]:scale-110 data-[state=active]:rotate-3" 
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2h5m3-9a4 4 0 118 0 4 4 0 01-8 0z" />
                 </svg>
-                Recruteur  
+                {/* Text */}
+                <span className="text-center font-medium md:font-semibold">Recruteur</span>
+                {/* Active badge indicator */}
+                {userType === "employer" && (
+                  <div className="absolute -top-1 -right-1 md:hidden w-3 h-3 rounded-full bg-blue-400 border-2 border-gray-900 animate-pulse"></div>
+                )}
               </TabsTrigger>
-            </TabsList>
+            </TabsList> 
 
-            <TabsContent value="replacement" className="-mt-4">
-              <ReplacementRegisterForm
+            <TabsContent value="replacement" className="mt-0">
+              <ReplacementRegisterForm 
                 formData={formData}
                 setFormData={setFormData}
                 showPassword={showPassword}
@@ -197,7 +237,7 @@ export default function RegisterPage() {
               </div>
             </TabsContent>
 
-            <TabsContent value="employer" className="-mt-4">
+            <TabsContent value="employer" className="mt-0">
               <EmployerRegisterForm
                 formData={formData}
                 setFormData={setFormData}
