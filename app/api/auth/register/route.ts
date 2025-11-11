@@ -23,12 +23,20 @@ export async function POST(request: NextRequest) {
     } = await request.json();
 
     // Validate required fields
-    if (!email || !password || !userType || !firstName || !lastName) {
-      return NextResponse.json(
-        { error: 'Tous les champs requis doivent être remplis' },
-        { status: 400 }
-      );
-    }
+    // if (!email || !password || !userType || !firstName || !lastName) {
+    //   return NextResponse.json(
+    //     { error: 'Tous les champs requis doivent être remplis' },
+    //     { status: 400 }
+    //   );
+    // }
+if (password) {
+  if (!email || !userType || !firstName) {
+    return NextResponse.json(
+      { error: 'Email, type et prénom requis pour la création de compte' },
+      { status: 400 }
+    );
+  }
+}
 
     // Validate medical specialty for doctors
     if (userType === 'replacement' && profession === 'Médecin' && !specialty) {
@@ -50,8 +58,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password
-
     // Create user
     const user = await sql`
       INSERT INTO users (email, password_hash, user_type, first_name, last_name, phone)
@@ -68,11 +74,30 @@ export async function POST(request: NextRequest) {
         VALUES (${userId}, ${profession || ''}, ${specialty || ''}, ${location || ''})
       `;
     } else if (userType === 'employer') {
-      await sql`
-        INSERT INTO employers (user_id, company_name, company_type, description, location)
-        VALUES (${userId}, ${companyName || ''}, ${companyType || ''}, ${description || ''}, ${location || ''})
-      `;
-    }
+  // Map frontend fields to DB schema
+  const organization_name = companyName || '';
+  const organization_type = companyType || 'independent';
+  const address = location || '';
+  const city = location || '';
+
+  await sql`
+    INSERT INTO employer_profiles (
+      user_id,organization_name,
+      organization_type,
+      address,
+      city,
+      description
+    ) VALUES (
+      ${userId},
+      ${organization_name},
+      ${organization_type},
+      ${address},
+      ${city},
+      ${description || ''}
+    )
+  `;
+}
+
 
     // Generate JWT token
     const token = jwt.sign(
@@ -103,11 +128,11 @@ export async function POST(request: NextRequest) {
 
     return response;
 
-  } catch (error) {
-    console.error('Registration error:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur lors de l\'inscription' },
-      { status: 500 }
-    );
-  }
+  } catch (error: any) {
+  console.error('Registration error details:', error);
+  return NextResponse.json(
+    { error: error.message || 'Erreur serveur lors de l\'inscription' },
+    { status: 500 }
+  );
+}
 }

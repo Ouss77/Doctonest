@@ -171,7 +171,7 @@ export default function AnnoncesPage() {
               <Select value={selectedCity} onValueChange={setSelectedCity}>
                 <SelectTrigger className="py-3 rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500">
                   <SelectValue placeholder="Ville" />
-                </SelectTrigger>
+                </SelectTrigger> 
                 <SelectContent>
                   <SelectItem value="all">Toutes les villes</SelectItem>
                   {cities.map((city) => (

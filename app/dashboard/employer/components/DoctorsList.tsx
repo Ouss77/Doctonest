@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
   import { Input } from "@/components/ui/input";
   import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
   import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-  import { Eye, Users, Star, MapPin, Euro, Search } from "lucide-react";
+  import { Eye, Users, Star, MapPin, Euro, Search, Mail } from "lucide-react";
   import React, { useEffect, useState } from "react";
   import { Dialog } from "@/components/ui/dialog";
   import { DialogContent, DialogClose } from "@/components/ui/dialog";
