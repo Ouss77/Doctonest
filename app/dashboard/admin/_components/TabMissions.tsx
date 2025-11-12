@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { FileText, MapPin, Calendar, BarChart3, Eye, CheckCircle, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import React from "react"
+import React, { useState } from "react"
 
 type Mission = {
   id: number;
@@ -24,6 +24,40 @@ interface TabMissionsProps {
 }
 
 export default function TabMissions({ missions, setSelectedMission, handleValidateMission }: TabMissionsProps) {
+  const [processingIds, setProcessingIds] = useState<number[]>([]);
+
+  const doValidate = async (missionId: number, action: string) => {
+    if (processingIds.includes(missionId)) return;
+    setProcessingIds((s) => [...s, missionId]);
+
+    try {
+      // call parent handler if provided (parent may refresh list)
+      if (handleValidateMission) {
+        await handleValidateMission(missionId, action);
+      } else {
+        // default: call API to update status
+        const status = action === 'approve' ? 'active' : 'rejected';
+        const res = await fetch(`/api/missions/${missionId}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data?.error || 'Erreur serveur');
+        }
+      }
+      alert(action === 'approve' ? 'Annonce approuvée.' : 'Annonce rejetée.');
+      // optional: refresh page or let parent handle refresh
+       location.reload();
+    } catch (err: any) {
+      console.error('Validation error:', err);
+      alert(err?.message || 'Erreur lors de la mise à jour du statut.');
+    } finally {
+      setProcessingIds((s) => s.filter((id) => id !== missionId));
+    }
+  };
+
   return (
     <div className="space-y-8">
       <Card className="bg-green-50/60 shadow rounded-2xl border-0">
@@ -75,12 +109,12 @@ export default function TabMissions({ missions, setSelectedMission, handleValida
                     <Eye className="h-4 w-4 mr-1" />
                     Détails
                   </Button>
-                  {mission.status === "pending" && (
+                  {mission.status === "pending" && ( 
                     <>
                       <Button
                         size="sm"
-                        onClick={() => handleValidateMission(mission.id, "approve")}
-                        className="bg-green-500 hover:bg-green-600 text-white rounded-xl"
+                        onClick={() => doValidate(mission.id, "approve")}
+                        className={`bg-green-500 hover:bg-green-600 text-white rounded-xl ${processingIds.includes(mission.id) ? 'opacity-70 pointer-events-none' : ''}`}
                       >
                         <CheckCircle className="h-4 w-4 mr-1" />
                         Approuver
@@ -88,7 +122,7 @@ export default function TabMissions({ missions, setSelectedMission, handleValida
                       <Button
                         size="sm"
                         variant="destructive"
-                        onClick={() => handleValidateMission(mission.id, "reject")}
+                        onClick={() => doValidate(mission.id, "reject")}
                         className="rounded-xl"
                       >
                         <XCircle className="h-4 w-4 mr-1" />

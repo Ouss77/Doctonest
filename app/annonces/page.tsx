@@ -18,6 +18,7 @@ interface Announcement {
   description: string;
   posted_date: string;
   urgency: string;
+  status?: string; // 'pending' | 'active' | 'rejected' etc.
 }
 
 const specialties = [
@@ -73,7 +74,9 @@ export default function AnnoncesPage() {
   }, []);
 
   const applyFilters = () => {
-    let filtered = announcements;
+    // Only consider approved/visible announcements for public listing.
+    // Keep backward compatibility: if announcement.status is undefined, treat as visible.
+    let filtered = announcements.filter(a => !a.status || a.status === 'active');
 
     if (searchKeyword.trim()) {
       filtered = filtered.filter(announcement =>
@@ -180,7 +183,7 @@ export default function AnnoncesPage() {
                     </SelectItem>
                   ))}
                 </SelectContent>
-              </Select>
+              </Select> 
             </div>
 
             {/* Action Buttons */}

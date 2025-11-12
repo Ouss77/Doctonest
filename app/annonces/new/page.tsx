@@ -61,6 +61,8 @@ export default function NewAnnouncementPage() {
 			return;
 		}
 
+		let employerId: string | null = null;
+
 		// If email + password provided, try to create a user account first
 		if (contactEmail && password) {
 			setLoading(true);
@@ -77,7 +79,6 @@ export default function NewAnnouncementPage() {
 						lastName: '',
 						phone: contactPhone || '',
 						location: location || '',
-						// additional optional fields omitted
 					}),
 				});
 
@@ -88,7 +89,8 @@ export default function NewAnnouncementPage() {
 					setLoading(false);
 					return;
 				}
-				// assume backend sends credentials email on successful registration
+				// assume backend returns created user id in userData.user.id
+				employerId = userData?.user?.id || null;
 			} catch (err) {
 				console.error('User creation error:', err);
 				setUserCreationError('Erreur lors de la création du compte. Réessayez.');
@@ -96,6 +98,28 @@ export default function NewAnnouncementPage() {
 				return;
 			}
 			// continue to create announcement
+		}
+
+		// If no employerId yet, try to get currently authenticated user
+		if (!employerId) {
+			try {
+				const meRes = await fetch('/api/auth/me');
+				if (meRes.ok) {
+					const meData = await meRes.json();
+					employerId = meData?.user?.id || null;
+				}
+			} catch (err) {
+				// ignore — we'll check employerId below
+				console.warn('Could not fetch current user:', err);
+			}
+		}
+
+		// If still no employerId, block and inform user
+		if (!employerId) {
+			setUserCreationError(
+				"Impossible d'identifier l'annonceur : connectez-vous ou fournissez un email et mot de passe pour créer un compte afin d'associer la mission à un utilisateur."
+			);
+			return;
 		}
 
 		// default dates (today) because DB requires start_date and end_date NOT NULL
@@ -114,17 +138,19 @@ Rôle annonceur : ${userRole === 'medecin' ? 'Médecin' : 'Institution'}
 
 		setLoading(true);
 		try {
-			const res = await fetch('/api/announcements', {
+			const res = await fetch('/api/missions', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					title: title.trim(),
 					description: fullDescription,
-					specialty,
+					specialty_required: specialty,
 					location: location.trim(),
 					start_date: today,
 					end_date: today,
 					mission_type: missionType,
+					status: 'pending', // mark for admin review
+					employer_id: employerId, // <-- NEW: associate mission to user
 				}),
 			});
 			const data = await res.json();
@@ -134,13 +160,13 @@ Rôle annonceur : ${userRole === 'medecin' ? 'Médecin' : 'Institution'}
 				return;
 			}
 
-			// NEW: message plus explicite + inclut l'email si fourni
-			const contactInfo = contactEmail ? `Nous avons envoyé vos identifiants à ${contactEmail}.` : "Si vous avez fourni un email, vous recevrez vos identifiants par email.";
+			// inform the user that the announcement was submitted for admin validation
+			const contactInfo = contactEmail ? `Nous avons envoyé vos identifiants à ${contactEmail}.` : 'Si vous avez fourni un email, vous recevrez vos identifiants par email.';
 			setPublishMessage(
-				`Annonce publiée avec succès ! ${contactInfo} Vérifiez votre boîte de réception (et les spams). Vous pouvez désormais vous connecter pour gérer votre annonce.`
+				`Annonce soumise avec succès ! Votre annonce est en attente de validation par un administrateur. ${contactInfo} Vous serez notifié(e) après validation.`
 			);
 			setPublishSuccess(true);
-			// redirect after short delay
+			// redirect after short delay (annonces publiques n'afficheront que les annonces approuvées)
 			setTimeout(() => {
 				router.push('/annonces');
 			}, 4000);

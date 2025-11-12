@@ -56,6 +56,11 @@ export default function AdminDashboard() {
   const [usersLoading, setUsersLoading] = useState(true);
   const [usersError, setUsersError] = useState<string | null>(null);
 
+  // --- NEW: missions state fetched from API (replace static data) ---
+  const [missions, setMissions] = useState<Mission[]>([]);
+  const [missionsLoading, setMissionsLoading] = useState<boolean>(true);
+  const [missionsError, setMissionsError] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchUsers = async () => {
       setUsersLoading(true);
@@ -100,37 +105,64 @@ export default function AdminDashboard() {
     fetchUsers();
   }, []);
 
-  const missions = [
-    {
-      id: 1,
-      title: "Remplacement Médecin Généraliste",
-      employer: "Cabinet Médical Central",
-      location: "Marseille",
-      dates: "15-20 Jan 2024",
-      salary: "400€/jour",
-      status: "active",
-      applicants: 5,
-      publishedDate: "2024-01-10",
-    },
-    {
-      id: 2,
-      title: "Urgentiste - Garde de nuit",
-      employer: "Hôpital Général",
-      location: "Toulouse",
-      dates: "22-25 Jan 2024",
-      salary: "500€/garde",
-      status: "pending",
-      applicants: 2,
-      publishedDate: "2024-01-12",
-    },
-  ]
+  useEffect(() => {
+    const fetchMissions = async () => {
+      setMissionsLoading(true);
+      setMissionsError(null);
+      try {
+        const res = await fetch("/api/missions");
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await res.json();
+        // Expecting data.missions array; map defensively to Mission type
+        const mapped: Mission[] = (data.missions || []).map((m: any) => ({
+          id: typeof m.id === "number" ? m.id : Number(m.id),
+          title: m.title || m.name || "Sans titre",
+          employer: m.employer || m.organization_name || m.posted_by || "",
+          location: m.location || m.city || "",
+          dates: m.dates || (m.start_date && m.end_date ? `${m.start_date} → ${m.end_date}` : ""),
+          salary: m.salary || m.rate || (m.daily_rate ? `${m.daily_rate}€/j` : ""),
+          status: m.status || "pending",
+          applicants: m.applicants_count ?? m.applicants ?? 0,
+          publishedDate: m.published_at || m.created_at || "",
+        }));
+        setMissions(mapped);
+      } catch (err: any) {
+        console.error("Error fetching missions:", err);
+        setMissionsError(err.message || "Erreur lors du chargement des missions");
+        setMissions([]);
+      } finally {
+        setMissionsLoading(false);
+      }
+    };
+    fetchMissions();
+  }, []);
 
   const handleValidateUser = (userId: number, action: string) => {
     console.log(`${action} user ${userId}`)
   }
 
-  const handleValidateMission = (missionId: number, action: string) => {
-    console.log(`${action} mission ${missionId}`)
+  // Replace the mock handler with a real API call that TabMissions can await
+  const handleValidateMission = async (missionId: number, action: string) => {
+    // action expected: 'approve' | 'reject'
+    try {
+      const res = await fetch(`/api/missions/${missionId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: action }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.error || `Erreur lors de la mise à jour du statut (${action})`);
+      }
+      // Update local state to reflect change (map action -> display status)
+      setMissions(prev =>
+        prev.map(m => (m.id === missionId ? { ...m, status: action === 'approve' ? 'active' : 'cancelled' } : m))
+      );
+      return Promise.resolve();
+    } catch (err: any) {
+      console.error("handleValidateMission error:", err);
+      return Promise.reject(err);
+    }
   }
 
   const sidebarItems = [
@@ -175,6 +207,8 @@ export default function AdminDashboard() {
       );
     }
     if (activeTab === "missions") {
+      if (missionsLoading) return <div className="p-8 text-center text-blue-600">Chargement des missions...</div>;
+      if (missionsError) return <div className="p-8 text-center text-red-600">{missionsError}</div>;
       return (
         <TabMissions
           missions={missions}

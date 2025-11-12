@@ -67,8 +67,8 @@ export async function POST(request: NextRequest) {
 
     if (!decoded) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })}
-    if (decoded.userType !== "employer") {
-      return NextResponse.json({ error: "Only employers can create missions" }, { status: 403 })}
+    // if (decoded.userType !== "employer") {
+    //   return NextResponse.json({ error: "Only employers can create missions" }, { status: 403 })}
     const body = await request.json()
     const {
       title, description, specialty_required, location
