@@ -114,17 +114,20 @@ export default function AdminDashboard() {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data = await res.json();
         // Expecting data.missions array; map defensively to Mission type
-        const mapped: Mission[] = (data.missions || []).map((m: any) => ({
-          id: typeof m.id === "number" ? m.id : Number(m.id),
-          title: m.title || m.name || "Sans titre",
-          employer: m.employer || m.organization_name || m.posted_by || "",
-          location: m.location || m.city || "",
-          dates: m.dates || (m.start_date && m.end_date ? `${m.start_date} → ${m.end_date}` : ""),
-          salary: m.salary || m.rate || (m.daily_rate ? `${m.daily_rate}€/j` : ""),
-          status: m.status || "pending",
-          applicants: m.applicants_count ?? m.applicants ?? 0,
-          publishedDate: m.published_at || m.created_at || "",
-        }));
+const mapped: Mission[] = (data.missions || []).map((m: any) => ({
+  id: m.id, // directly use id from DB (UUID)
+  title: m.title || "Sans titre",
+  employer: m.employer || m.organization_name || "",
+  location: m.location || m.city || "",
+  dates:
+    m.dates ||
+    (m.start_date && m.end_date ? `${m.start_date} → ${m.end_date}` : ""),
+  salary: m.salary || m.rate || (m.daily_rate ? `${m.daily_rate}€/j` : ""),
+  status: m.status || "pending",
+  applicants: m.applicants_count ?? m.applicants ?? 0,
+  publishedDate: m.published_at || m.created_at || "",
+}));
+
         setMissions(mapped);
       } catch (err: any) {
         console.error("Error fetching missions:", err);
@@ -141,29 +144,21 @@ export default function AdminDashboard() {
     console.log(`${action} user ${userId}`)
   }
 
-  // Replace the mock handler with a real API call that TabMissions can await
-  const handleValidateMission = async (missionId: number, action: string) => {
-    // action expected: 'approve' | 'reject'
-    try {
-      const res = await fetch(`/api/missions/${missionId}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: action }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.error || `Erreur lors de la mise à jour du statut (${action})`);
-      }
-      // Update local state to reflect change (map action -> display status)
-      setMissions(prev =>
-        prev.map(m => (m.id === missionId ? { ...m, status: action === 'approve' ? 'active' : 'cancelled' } : m))
-      );
-      return Promise.resolve();
-    } catch (err: any) {
-      console.error("handleValidateMission error:", err);
-      return Promise.reject(err);
-    }
-  }
+const handleValidateMission = async (missionId: string, action: string) => {
+  const status = action === "approve" ? "in_progress" : "cancelled";
+  const res = await fetch(`/api/missions/${missionId}/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error || "Erreur serveur");
+
+  setMissions(prev =>
+    prev.map(m => (m.id === missionId ? { ...m, status } : m))
+  );
+};
 
   const sidebarItems = [
     { id: "users", label: "Utilisateurs", icon: Users, badge: null },

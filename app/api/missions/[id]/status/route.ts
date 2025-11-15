@@ -1,18 +1,24 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { neon } from '@neondatabase/serverless';
+import { NextRequest, NextResponse } from "next/server";
+import { neon } from "@neondatabase/serverless";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 const sql = neon(process.env.DATABASE_URL!);
+
+const ALLOWED_STATUSES = ["open", "in_progress", "completed", "cancelled", "active", "rejected", "pending"];
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params;
-    if (!id) return NextResponse.json({ error: 'ID manquant' }, { status: 400 });
+
+    if (!id) {
+      return NextResponse.json({ error: "ID de mission invalide" }, { status: 400 });
+    }
 
     const body = await request.json();
     const { status } = body;
-    if (!status || !['open','in_progress','completed','cancelled','active','rejected','pending'].includes(status)) {
-      return NextResponse.json({ error: 'Statut invalide' }, { status: 400 });
+
+    if (!status || !ALLOWED_STATUSES.includes(status)) {
+      return NextResponse.json({ error: "Statut invalide" }, { status: 400 });
     }
 
     try {
@@ -22,20 +28,20 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         WHERE id = ${id}
         RETURNING id, status
       `;
+
       if (!updated || updated.length === 0) {
-        return NextResponse.json({ error: 'Mission introuvable' }, { status: 404 });
+        return NextResponse.json({ error: "Mission introuvable" }, { status: 404 });
       }
 
       return NextResponse.json({ success: true, mission: updated[0] });
     } catch (dbErr) {
-      console.error('DB update error (missions):', dbErr);
-      const message = process.env.NODE_ENV === 'production' ? 'Erreur base de données' : String(dbErr);
+      console.error("DB update error (missions):", dbErr);
+      const message = process.env.NODE_ENV === "production" ? "Erreur base de données" : String(dbErr);
       return NextResponse.json({ error: message }, { status: 500 });
     }
-
   } catch (err) {
-    console.error('PATCH /api/missions/[id]/status error:', err);
-    const message = process.env.NODE_ENV === 'production' ? 'Erreur serveur' : String(err);
+    console.error("PATCH /api/missions/[id]/status error:", err);
+    const message = process.env.NODE_ENV === "production" ? "Erreur serveur" : String(err);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -15,7 +15,7 @@ export async function GET() {
         'offer' as type,
         'medium' as urgency
       FROM missions m
-      WHERE m.status = 'open'
+      WHERE m.status = 'open' 
       ORDER BY m.created_at DESC
     `;
 

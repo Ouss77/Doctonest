@@ -107,9 +107,6 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       userType: string
     }
 
-    if (decoded.userType !== "employer") {
-      return NextResponse.json({ error: "Only employers can update missions" }, { status: 403 })
-    } 
 
     const body = await request.json()
     const {
@@ -138,4 +135,4 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     console.error("Mission update error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
-} 
+}

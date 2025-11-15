@@ -261,14 +261,15 @@ export default function AnnoncesPage() {
                     <p className="text-gray-600 text-sm line-clamp-3 mb-4">
                       {announcement.description}
                     </p>
-
+ 
                     {/* Posted Date */}
                     <p className="text-xs text-gray-400 mb-4">
                       Publié le {new Date(announcement.posted_date).toLocaleDateString('fr-FR')}
                     </p>
 
                     {/* Action Button */}
-                    <Link href={`/annonces/${encodeURIComponent(announcement.title.toLowerCase().replace(/ /g, '-'))}`}>
+                    {/* Use announcement id for dynamic route to avoid slug name conflicts */}
+                    <Link href={`/annonces/${encodeURIComponent(String(announcement.id))}`}>
                       <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md">
                         <Eye className="w-4 h-4 mr-2" />
                         Voir détails
