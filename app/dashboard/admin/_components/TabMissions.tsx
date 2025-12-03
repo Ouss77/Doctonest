@@ -10,7 +10,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
+import { 
   FileText,
   MapPin,
   Calendar,
@@ -23,7 +23,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 export type Mission = {
-  id: string; // UUID string
+  id: string;
   title: string;
   employer: string;
   location: string;
@@ -37,7 +37,10 @@ export type Mission = {
 interface TabMissionsProps {
   missions: Mission[];
   setSelectedMission: (mission: Mission) => void;
-  handleValidateMission?: (missionId: string, action: string) => Promise<void> | void;
+  handleValidateMission?: (
+    missionId: string,
+    action: string
+  ) => Promise<void> | void;
 }
 
 export default function TabMissions({
@@ -54,25 +57,43 @@ export default function TabMissions({
     setProcessingIds((s) => [...s, missionId]);
 
     try {
+      // For admin actions: approve -> in_progress (active), reject -> cancelled, hidden -> cancelled (or we could add a hidden status)
+      const statusMap: Record<string, string> = {
+        approve: "in_progress",    // Approve = make active (in_progress in DB)
+        active: "in_progress",      // Active = in_progress in DB
+        reject: "cancelled",        // Reject = cancelled in DB
+        rejected: "cancelled",      // Rejected = cancelled in DB
+        hidden: "cancelled",        // Hidden = cancelled (or we keep it as cancelled for now)
+      };
+
+      const dbStatus = statusMap[action.toLowerCase()];
+      if (!dbStatus) throw new Error("Action invalide");
+
       if (handleValidateMission) {
         await handleValidateMission(missionId, action);
       } else {
-        const status = action === "approve" ? "active" : "rejected";
+        // Send the action to API, which will map it correctly
         const res = await fetch(`/api/missions/${missionId}/status`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status }),
+          body: JSON.stringify({ status: action }), // Send action, let API map it
         });
 
         const data = await res.json();
         if (!res.ok) throw new Error(data?.error || "Erreur serveur");
-
-        setLocalMissions((prev) =>
-          prev.map((m) => (m.id === missionId ? { ...m, status } : m))
-        );
       }
 
-      alert(action === "approve" ? "Annonce approuvée." : "Annonce rejetée.");
+      // Update local state with the database status
+      setLocalMissions((prev) =>
+        prev.map((m) => (m.id === missionId ? { ...m, status: dbStatus } : m))
+      );
+      alert(
+        action === "approve"
+          ? "Mission approuvée."
+          : action === "reject"
+          ? "Mission rejetée."
+          : "Mission masquée."
+      );
       router.refresh();
     } catch (err: any) {
       console.error("Validation error:", err);
@@ -89,7 +110,7 @@ export default function TabMissions({
     setProcessingIds((s) => [...s, missionId]);
 
     try {
-      const res = await fetch(`/api/missions/${missionId}`, { method: "DELETE" });
+      const res = await fetch(`/api/missions/${missionId}?admin=true`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || "Erreur lors de la suppression");
 
@@ -104,6 +125,30 @@ export default function TabMissions({
     }
   };
 
+  // Map database statuses to UI statuses for display
+  const mapStatusForUI = (dbStatus: string): string => {
+    const statusMap: Record<string, string> = {
+      'open': 'pending',           // DB 'open' = UI 'pending' (needs approval)
+      'in_progress': 'active',     // DB 'in_progress' = UI 'active'
+      'completed': 'completed',     // DB 'completed' = UI 'completed'
+      'cancelled': 'rejected',      // DB 'cancelled' = UI 'rejected'
+      'pending': 'pending',         // Keep for backward compatibility
+      'active': 'active',
+      'rejected': 'rejected',
+      'hidden': 'hidden',
+    };
+    return statusMap[dbStatus.toLowerCase()] || dbStatus;
+  };
+
+  // Admin should see ALL missions (except truly deleted ones)
+  // Allow admin to manage missions regardless of their status
+  const visibleMissions = localMissions.filter((m) => {
+    const uiStatus = mapStatusForUI(m.status);
+    // Only filter out missions that are explicitly marked as deleted
+    // Show all other missions: pending, active, rejected, hidden, completed
+    return uiStatus !== "deleted";
+  });
+
   return (
     <div className="space-y-8">
       <Card className="bg-green-50/60 shadow rounded-2xl border-0">
@@ -117,7 +162,9 @@ export default function TabMissions({
         </CardHeader>
         <CardContent className="p-6">
           <div className="space-y-4">
-            {localMissions.map((mission) => (
+            {visibleMissions.map((mission) => {
+              const uiStatus = mapStatusForUI(mission.status);
+              return (
               <div
                 key={mission.id}
                 className="border border-green-100 rounded-xl p-4 hover:shadow-lg transition-shadow bg-white/80 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
@@ -128,13 +175,25 @@ export default function TabMissions({
                       {mission.title}
                     </h3>
                     <Badge
-                      variant={mission.status === "active" ? "default" : "secondary"}
+                      variant={
+                        uiStatus === "active"
+                          ? "default"
+                          : uiStatus === "hidden"
+                          ? "secondary"
+                          : uiStatus === "rejected"
+                          ? "destructive"
+                          : "secondary"
+                      }
                       className="text-xs px-2 py-1"
                     >
-                      {mission.status === "active"
+                      {uiStatus === "active"
                         ? "Active"
-                        : mission.status === "rejected"
+                        : uiStatus === "hidden"
+                        ? "Masquée"
+                        : uiStatus === "rejected"
                         ? "Rejetée"
+                        : uiStatus === "completed"
+                        ? "Terminée"
                         : "En attente"}
                     </Badge>
                   </div>
@@ -166,7 +225,7 @@ export default function TabMissions({
                   </div>
                 </div>
 
-                <div className="flex gap-2 flex-shrink-0">
+                <div className="flex gap-2 flex-shrink-0 flex-wrap">
                   <Button
                     size="sm"
                     variant="outline"
@@ -176,25 +235,117 @@ export default function TabMissions({
                     <Eye className="h-4 w-4 mr-1" />
                     Détails
                   </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => doValidate(mission.id, "approve")}
-                    disabled={processingIds.includes(mission.id)}
-                    className="bg-green-500 hover:bg-green-600 text-white rounded-xl"
-                  >
-                    <CheckCircle className="h-4 w-4 mr-1" />
-                    Approuver
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => doValidate(mission.id, "reject")}
-                    disabled={processingIds.includes(mission.id)}
-                    className="rounded-xl"
-                  >
-                    <XCircle className="h-4 w-4 mr-1" />
-                    Rejeter
-                  </Button>
+
+                  {/* Admin can always change status - Show all action buttons based on current status */}
+                  {/* If pending/open: show approve, reject, hide */}
+                  {uiStatus === "pending" && (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={() => doValidate(mission.id, "approve")}
+                        disabled={processingIds.includes(mission.id)}
+                        className="bg-green-500 hover:bg-green-600 text-white rounded-xl"
+                      >
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        Approuver
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => doValidate(mission.id, "reject")}
+                        disabled={processingIds.includes(mission.id)}
+                        className="rounded-xl"
+                      >
+                        <XCircle className="h-4 w-4 mr-1" />
+                        Rejeter
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => doValidate(mission.id, "hidden")}
+                        disabled={processingIds.includes(mission.id)}
+                        className="rounded-xl bg-yellow-400 hover:bg-yellow-500 text-white"
+                      >
+                        Masquer
+                      </Button>
+                    </>
+                  )}
+
+                  {/* If active/in_progress: show reject and hide options, but also allow to keep active */}
+                  {uiStatus === "active" && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => doValidate(mission.id, "hidden")}
+                        disabled={processingIds.includes(mission.id)}
+                        className="rounded-xl bg-yellow-400 hover:bg-yellow-500 text-white"
+                      >
+                        Masquer
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => doValidate(mission.id, "reject")}
+                        disabled={processingIds.includes(mission.id)}
+                        className="rounded-xl"
+                      >
+                        <XCircle className="h-4 w-4 mr-1" />
+                        Rejeter
+                      </Button>
+                    </>
+                  )}
+
+                  {/* If hidden or rejected: show approve to reactivate */}
+                  {(uiStatus === "hidden" || uiStatus === "rejected") && (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={() => doValidate(mission.id, "approve")}
+                        disabled={processingIds.includes(mission.id)}
+                        className="bg-green-500 hover:bg-green-600 text-white rounded-xl"
+                      >
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        Approuver
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => doValidate(mission.id, "hidden")}
+                        disabled={processingIds.includes(mission.id)}
+                        className="rounded-xl bg-yellow-400 hover:bg-yellow-500 text-white"
+                      >
+                        Masquer
+                      </Button>
+                    </>
+                  )}
+
+                  {/* If completed: show options to reactivate or reject */}
+                  {uiStatus === "completed" && (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={() => doValidate(mission.id, "approve")}
+                        disabled={processingIds.includes(mission.id)}
+                        className="bg-green-500 hover:bg-green-600 text-white rounded-xl"
+                      >
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        Réactiver
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => doValidate(mission.id, "reject")}
+                        disabled={processingIds.includes(mission.id)}
+                        className="rounded-xl"
+                      >
+                        <XCircle className="h-4 w-4 mr-1" />
+                        Rejeter
+                      </Button>
+                    </>
+                  )}
+
+                  {/* Delete always visible */}
                   <Button
                     size="sm"
                     variant="destructive"
@@ -207,7 +358,7 @@ export default function TabMissions({
                   </Button>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         </CardContent>
       </Card>

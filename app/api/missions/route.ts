@@ -21,15 +21,28 @@ function getUserFromJWT(req: NextRequest): DecodedToken | null {
 }
 
 /**
- * GET /api/missions
+ * GET /api/missions 
  * Supports filtering + employer restriction
  */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
 
-    const filters: Record<string, any> = {
-      status: searchParams.get("status") || "open",
+    const filters: Record<string, any> = {}
+
+    // Auth check
+    const decoded = getUserFromJWT(request)
+    
+    // Status filter: only apply if explicitly requested or for non-admin users
+    const statusParam = searchParams.get("status")
+    if (statusParam) {
+      filters.status = statusParam
+    } else if (decoded?.userType === "employer") {
+      // Employers see only open missions by default
+      filters.status = "open"
+    } else {
+      // Admin sees all missions by default (no status filter)
+      // Only filter if explicitly requested
     }
 
     // Optional filters
@@ -40,8 +53,6 @@ export async function GET(request: NextRequest) {
       filters.location = searchParams.get("location")
     }
 
-    // Auth check
-    const decoded = getUserFromJWT(request)
     if (decoded?.userType === "employer") {
       // Employers only see their own missions
       filters.employer_id = decoded.userId
@@ -63,40 +74,42 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const decoded = getUserFromJWT(request)
+    const decoded = getUserFromJWT(request);
+    const body = await request.json();
 
-    if (!decoded) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 })}
-    // if (decoded.userType !== "employer") {
-    //   return NextResponse.json({ error: "Only employers can create missions" }, { status: 403 })}
-    const body = await request.json()
     const {
-      title, description, specialty_required, location
-    } = body
+      title,
+      description,
+      specialty_required,
+      location,
+      employer_id: employerIdFromBody
+    } = body;
 
-    // Basic validation
-    if (!title || !description || !specialty_required || !location ) {
+    if (!title || !description || !specialty_required || !location) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    let mission
-    try {
-      mission = await db.createMission({
-        employer_id: decoded.userId,
-        title,
-        description,
-        specialty_required,
-        location
+    // NEW LOGIC:
+    const finalEmployerId =
+      employerIdFromBody ||
+      decoded?.userId ||
+      null;
 
-      })
-    } catch (dbError) {
-      console.error("DB createMission error:", dbError)
-      return NextResponse.json({ error: `DB error: ${dbError instanceof Error ? dbError.message : dbError}` }, { status: 500 })
+    if (!finalEmployerId) {
+      return NextResponse.json({
+        error: "No employer ID available. User must be logged in or email must match an existing user."
+      }, { status: 400 });
     }
 
-    return NextResponse.json({ mission }, { status: 201 })
-  } catch (error) {
-    console.error("POST /missions error:", error)
-    return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 })
+    const mission = await db.createMission({
+      employer_id: finalEmployerId,
+      ...body
+    });
+
+    return NextResponse.json({ mission }, { status: 201 });
+  }
+  catch (error) {
+    console.error("POST /missions error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

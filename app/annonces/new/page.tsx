@@ -2,7 +2,6 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { ArrowRight, FileText, User, Phone, Mail as MailIcon } from 'lucide-react';
 import Header from '@/components/annonces/header';
 
@@ -63,8 +62,8 @@ export default function NewAnnouncementPage() {
 
 		let employerId: string | null = null;
 
-		// If email + password provided, try to create a user account first
-		if (contactEmail && password) {
+		// Try to get/create user by email
+		if (contactEmail) {
 			setLoading(true);
 			try {
 				const userType = userRole === 'medecin' ? 'replacement' : 'employer';
@@ -81,23 +80,31 @@ export default function NewAnnouncementPage() {
 						location: location || '',
 					}),
 				});
-
 				const userData = await resUser.json();
-				if (!resUser.ok) {
-					// stop and show error so user can correct email/password
+				if (resUser.ok) {
+					employerId = userData?.user?.id || null;
+				} else if (userData?.error && userData.error.includes('existe déjà')) {
+					// Email exists, fetch user id by email
+					const resFind = await fetch(`/api/auth/find-by-email?email=${encodeURIComponent(contactEmail)}`);
+					const findData = await resFind.json();
+					if (resFind.ok && findData?.user?.id) {
+						employerId = findData.user.id;
+					} else {
+						setUserCreationError("Impossible de récupérer le compte existant.");
+						setLoading(false);
+						return;
+					}
+				} else {
 					setUserCreationError(userData?.error || 'Impossible de créer le compte utilisateur.');
 					setLoading(false);
 					return;
 				}
-				// assume backend returns created user id in userData.user.id
-				employerId = userData?.user?.id || null;
 			} catch (err) {
 				console.error('User creation error:', err);
 				setUserCreationError('Erreur lors de la création du compte. Réessayez.');
 				setLoading(false);
 				return;
 			}
-			// continue to create announcement
 		}
 
 		// If no employerId yet, try to get currently authenticated user
@@ -109,23 +116,19 @@ export default function NewAnnouncementPage() {
 					employerId = meData?.user?.id || null;
 				}
 			} catch (err) {
-				// ignore — we'll check employerId below
 				console.warn('Could not fetch current user:', err);
 			}
 		}
 
-		// If still no employerId, block and inform user
 		if (!employerId) {
 			setUserCreationError(
-				"Impossible d'identifier l'annonceur : connectez-vous ou fournissez un email et mot de passe pour créer un compte afin d'associer la mission à un utilisateur."
+				"Impossible d'identifier l'annonceur : connectez-vous ou fournissez un email pour associer la mission à un utilisateur."
 			);
 			return;
 		}
 
-		// default dates (today) because DB requires start_date and end_date NOT NULL
 		const today = new Date().toISOString().slice(0, 10);
 
-		// Append contact info into description so it's stored with the mission
 		const fullDescription = `${description.trim()}
 
 --- Contact de l'annonceur ---
@@ -149,8 +152,8 @@ Rôle annonceur : ${userRole === 'medecin' ? 'Médecin' : 'Institution'}
 					start_date: today,
 					end_date: today,
 					mission_type: missionType,
-					status: 'pending', // mark for admin review
-					employer_id: employerId, // <-- NEW: associate mission to user
+					status: 'pending',
+					employer_id: employerId,
 				}),
 			});
 			const data = await res.json();

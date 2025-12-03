@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'; 
 import { sql } from '@/lib/database';
 
 export async function GET() {
@@ -15,7 +15,7 @@ export async function GET() {
         'offer' as type,
         'medium' as urgency
       FROM missions m
-      WHERE m.status = 'open' 
+      WHERE m.status = 'in_progress' 
       ORDER BY m.created_at DESC
     `;
 

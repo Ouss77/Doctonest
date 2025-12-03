@@ -87,7 +87,7 @@ if (password) {
       address,
       city,
       description
-    ) VALUES (
+    ) VALUES ( 
       ${userId},
       ${organization_name},
       ${organization_type},

@@ -38,29 +38,40 @@ export async function DELETE(
       );
     }
 
-    if (decoded.userType !== "employer") {
-      console.error("User not employer:", decoded.userType);
-      return NextResponse.json(
-        { error: "Only employers can delete missions" },
-        { status: 403 }
-      );
+    const url = new URL(request.url);
+    const isAdmin = url.searchParams.get('admin') === 'true';
+
+    let deleted;
+    if (isAdmin) {
+      deleted = await sql`
+        DELETE FROM missions
+        WHERE id = ${params.id}
+        RETURNING id
+      `;
+    } else {
+      if (decoded.userType !== "employer") {
+        console.error("User not employer:", decoded.userType);
+        return NextResponse.json(
+          { error: "Only employers can delete missions" },
+          { status: 403 }
+        );
+      }
+
+      console.log("Deleting mission with ID:", params.id, "for employer:", decoded.userId);
+
+      deleted = await sql`
+        DELETE FROM missions 
+        WHERE id = ${params.id} AND employer_id = ${decoded.userId}
+        RETURNING id
+      `;
     }
 
-    console.log("Deleting mission with ID:", params.id, "for employer:", decoded.userId);
-
-const result = await sql`
-  DELETE FROM missions 
-  WHERE id = ${params.id} AND employer_id = ${decoded.userId}
-  RETURNING id
-`;
-
-if (result.length === 0) {
-  return NextResponse.json(
-    { error: "Mission not found or you don’t have permission" },
-    { status: 404 }
-  );
-}
-
+    if (!deleted || deleted.length === 0) {
+      return NextResponse.json(
+        { error: "Mission not found or you don’t have permission" },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({ message: "Mission deleted successfully" });
   } catch (error) {

@@ -123,7 +123,7 @@ const mapped: Mission[] = (data.missions || []).map((m: any) => ({
     m.dates ||
     (m.start_date && m.end_date ? `${m.start_date} → ${m.end_date}` : ""),
   salary: m.salary || m.rate || (m.daily_rate ? `${m.daily_rate}€/j` : ""),
-  status: m.status || "pending",
+  status: m.status || "open", // Keep database status (open, in_progress, completed, cancelled)
   applicants: m.applicants_count ?? m.applicants ?? 0,
   publishedDate: m.published_at || m.created_at || "",
 }));
@@ -145,18 +145,28 @@ const mapped: Mission[] = (data.missions || []).map((m: any) => ({
   }
 
 const handleValidateMission = async (missionId: string, action: string) => {
-  const status = action === "approve" ? "in_progress" : "cancelled";
+  // Send the action to API, which will map it to the correct database status
   const res = await fetch(`/api/missions/${missionId}/status`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status }),
+    body: JSON.stringify({ status: action }), // Send action, API will map it
   });
 
   const data = await res.json();
   if (!res.ok) throw new Error(data?.error || "Erreur serveur");
 
+  // Map action to database status for local state update
+  const statusMap: Record<string, string> = {
+    approve: "in_progress",
+    active: "in_progress",
+    reject: "cancelled",
+    rejected: "cancelled",
+    hidden: "cancelled",
+  };
+  const dbStatus = statusMap[action.toLowerCase()] || action;
+
   setMissions(prev =>
-    prev.map(m => (m.id === missionId ? { ...m, status } : m))
+    prev.map(m => (m.id === missionId ? { ...m, status: dbStatus } : m))
   );
 };
 
