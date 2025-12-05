@@ -124,164 +124,189 @@ export default function AnnoncesPage() {
     return type === 'offer' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700';
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Landing Page Header */}
-      <Header />
-
-      {/* Page Title Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-16">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h1 className="text-4xl font-bold mb-4">Annonces Médicales</h1>
-          <p className="text-lg text-blue-100 max-w-2xl mx-auto">Découvrez les opportunités d'emploi dans le secteur médical au Maroc</p>
+return (
+  <div className="min-h-screen bg-white">
+    <div
+      className="relative top-0 w-full bg-cover bg-center min-h-[500px]"
+      style={{
+        
+        backgroundImage: "url('annonces.png')"
+      }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-b from-[#071d45]/20 to-[#071d45]/30"></div>
+      {/* NAVBAR sur le même fond que le hero */}
+      <header className="relative top-5 z-20 max-w-7xl mx-auto px-10 py-3 mt-0 flex items-center justify-between bg-[#071d45]/40 backdrop-blur-md rounded-xl shadow">
+        <Link href="/" className="flex items-center gap-3 group">
+          <img src="/logo.png" className="w-10 h-10 rounded-xl" />
+          <span className="text-xl font-semibold text-white group-hover:text-blue-200 transition">Le Foyer Médical</span>
+        </Link>
+        {/* <nav className="hidden md:flex items-center gap-8">
+          <Link href="/features" className="text-white font-medium hover:text-blue-200 transition">Fonctionnalités</Link>
+          <Link href="/how-it-works" className="text-white font-medium hover:text-blue-200 transition">Comment ça marche</Link>
+          <Link href="/blog" className="text-white font-medium hover:text-blue-200 transition">Blog</Link>
+        </nav> */}
+        <div className="flex items-center gap-4">
+          <Link href="/login">
+            <Button className="border border-white/40 text-white px-4 py-2 rounded-lg hover:bg-white/10 transition">
+              Connexion
+            </Button>
+          </Link>
+          <Link href="/register">
+            <Button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+              S’inscrire
+            </Button>
+          </Link>
+        </div>
+      </header>
+      {/* HERO CONTENT */}
+      <div className="relative z-20 max-w-7xl mx-auto px-10 py-10">
+        <h1 className="text-3xl md:text-5xl font-bold text-white max-w-3xl leading-tight">
+          Annonces Médicales au Maroc :<br />Votre Avenir en Santé
+        </h1>
+        <p className="text-lg mt-4 text-blue-200 max-w-xl">
+          Explorez les opportunités d'emploi et de stages dans tout le Royaume.
+        </p>
+        <div className="flex gap-4 mt-6">
+          <Link href="/annonces/new">
+            <Button className="bg-white text-lg text-gray-900 h-15 font-semibold px-6 py-3 rounded-xl hover:bg-gray-200 transition">
+              Publier une demande
+            </Button>
+          </Link>
+          <Link href="/annonces/new">
+            <Button className="bg-blue-700 hover:bg-blue-800 text-lg h-15 text-white font-semibold px-6 py-3 rounded-xl transition">
+              Publier une Offre
+            </Button>
+          </Link>
         </div>
       </div>
+    </div>
 
-      {/* Filters Bar */}
-      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm shadow-sm border-b border-blue-100">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex flex-col lg:flex-row gap-4 items-center">
-            {/* Search */}
-            <div className="flex-1 relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <Input
-                placeholder="Rechercher par mot-clé, spécialité, employeur..."
-                value={searchKeyword}
-                onChange={(e) => setSearchKeyword(e.target.value)}
-                className="pl-10 py-3 rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-
-            {/* Specialty Filter */}
-            <div className="w-full lg:w-56">
-              <Select value={selectedSpecialty} onValueChange={setSelectedSpecialty}>
-                <SelectTrigger className="py-3 rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500">
-                  <SelectValue placeholder="Spécialité" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes les spécialités</SelectItem>
-                  {specialties.map((specialty) => (
-                    <SelectItem key={specialty} value={specialty.toLowerCase()}>
-                      {specialty}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* City Filter */}
-            <div className="w-full lg:w-56">
-              <Select value={selectedCity} onValueChange={setSelectedCity}>
-                <SelectTrigger className="py-3 rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500">
-                  <SelectValue placeholder="Ville" />
-                </SelectTrigger> 
-                <SelectContent>
-                  <SelectItem value="all">Toutes les villes</SelectItem>
-                  {cities.map((city) => (
-                    <SelectItem key={city} value={city.toLowerCase()}>
-                      {city}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select> 
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-2">
-              <Button onClick={resetFilters} variant="outline" className="px-4 py-3 rounded-lg">
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Réinitialiser
-              </Button>
-            </div>
-          </div>
+    {/* BARRE DE FILTRE SUR UNE SEULE LIGNE */}
+    <div className="relative z-30 max-w-7xl mx-auto -mt-10 px-10">
+      <div className="bg-white shadow-xl rounded-2xl p-5 border flex items-center gap-4">
+        {/* Input principal */}
+        <div className="relative flex-1">
+          <input
+            type="text"
+            placeholder="Rechercher par mot-clé, spécialité..."
+            value={searchKeyword}
+            onChange={e => setSearchKeyword(e.target.value)}
+            className="w-full pl-4 pr-4 py-3 rounded-xl border border-gray-300"
+          />
         </div>
+        {/* Select spécialité */}
+        <select
+          value={selectedSpecialty}
+          onChange={e => setSelectedSpecialty(e.target.value)}
+          className="border p-3 rounded-xl"
+        >
+          <option value="">Spécialité</option>
+          <option value="all">Toutes les spécialités</option>
+          {specialties.map((spec) => (
+            <option key={spec} value={spec.toLowerCase()}>{spec}</option>
+          ))}
+        </select>
+        {/* Select ville */}
+        <select
+          value={selectedCity}
+          onChange={e => setSelectedCity(e.target.value)}
+          className="border p-3 rounded-xl"
+        >
+          <option value="">Ville</option>
+          <option value="all">Toutes les villes</option>
+          {cities.map((city) => (
+            <option key={city} value={city.toLowerCase()}>{city}</option>
+          ))}
+        </select>
+        {/* Bouton réinitialiser sur la même ligne */}
+        <button
+          className="px-6 py-3 rounded-xl bg-gray-100 border hover:bg-gray-200"
+          onClick={resetFilters}
+        >
+          Réinitialiser
+        </button>
       </div>
+    </div>
 
-      {/* Announcements List */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
+    {/* Contenu principal */}
+    <main className="max-w-7xl mx-auto px-6 py-5">
+      {/* Liste des annonces */}
+      <div id="annonces-list" className="py-8">
         {error && (
-          <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg border border-red-200">
-            {error}
-          </div>
+          <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg border border-red-300">{error}</div>
         )}
-
+        
         {loading ? (
-          <div className="text-center text-gray-600 py-16">
+          <div className="text-center text-gray-700 py-16">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-lg">Chargement des annonces...</p>
+            <p className="text-lg font-medium">Chargement des annonces...</p>
           </div>
         ) : filteredAnnouncements.length === 0 ? (
-          <div className="text-center text-gray-600 py-16">
+          <div className="text-center text-gray-700 py-16">
             <div className="text-6xl mb-4">🔍</div>
             <h3 className="text-xl font-semibold mb-2">Aucune annonce trouvée</h3>
             <p>Essayez de modifier vos critères de recherche</p>
           </div>
         ) : (
-          <>
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-1">Résultats de recherche</h2>
-              <p className="text-gray-600">
-                {filteredAnnouncements.length} annonce{filteredAnnouncements.length > 1 ? 's' : ''} trouvée{filteredAnnouncements.length > 1 ? 's' : ''}
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredAnnouncements.map((announcement) => (
-                <Card key={announcement.id} className="hover:shadow-xl hover:scale-105 transition-all duration-300 rounded-xl border-0 bg-white shadow-md">
-                  <CardContent className="p-6">
-                    {/* Header */}
-                    <div className="mb-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <Badge className={`${getTypeColor(announcement.type)} border-0 text-xs px-3 py-1 rounded-full font-medium`}>
-                          {announcement.type === 'offer' ? 'Offre d\'emploi' : 'Demande d\'emploi'}
-                        </Badge>
-                        {announcement.urgency && (
-                          <Badge className={`${getUrgencyColor(announcement.urgency)} border-0 text-xs px-3 py-1 rounded-full font-medium`}>
-                            {announcement.urgency === 'high' ? 'Urgent' : 
-                             announcement.urgency === 'medium' ? 'Modéré' : 'Non urgent'}
-                          </Badge>
-                        )}
-                      </div>
-                      <h3 className="font-semibold text-lg text-gray-900 line-clamp-2 mb-2">
-                        {announcement.title}
-                      </h3>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {filteredAnnouncements.map((announcement) => (
+              <div
+                key={announcement.id}
+                className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full">
+                      {announcement.type === 'offer' ? "Offre d'emploi" : "Demande d'emploi"}
+                    </span>
+                    {announcement.urgency === 'high' && (
+                      <span className="bg-red-100 text-red-800 text-xs font-semibold px-3 py-1 rounded-full">
+                        Urgent
+                      </span>
+                    )}
+                  </div>
+                  
+                  <h3 className="font-bold text-lg text-gray-900 mb-3 line-clamp-2">
+                    {announcement.title}
+                  </h3>
+                  
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2 text-gray-600 text-sm">
+                      <MapPin className="w-4 h-4" />
+                      <span>{announcement.location}</span>
                     </div>
-
-                    {/* Info */}
-                    <div className="space-y-3 mb-4">
-                      <div className="flex items-center gap-3 text-sm text-gray-600">
-                        <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center">
-                          <MapPin className="w-4 h-4 text-blue-600" />
-                        </div>
-                        <span>{announcement.location}</span>
-                      </div>
+                    
+                    <div className="flex items-center gap-2 text-gray-600 text-sm">
+                      <Calendar className="w-4 h-4" />
+                      <span>
+                        {announcement.posted_date && `Publié le ${new Date(announcement.posted_date).toLocaleDateString('fr-FR')}`}
+                      </span>
                     </div>
-
-                    {/* Description */}
-                    <p className="text-gray-600 text-sm line-clamp-3 mb-4">
-                      {announcement.description}
-                    </p>
- 
-                    {/* Posted Date */}
-                    <p className="text-xs text-gray-400 mb-4">
-                      Publié le {new Date(announcement.posted_date).toLocaleDateString('fr-FR')}
-                    </p>
-
-                    {/* Action Button */}
-                    {/* Use announcement id for dynamic route to avoid slug name conflicts */}
-                    <Link href={`/annonces/${encodeURIComponent(String(announcement.id))}`}>
-                      <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md">
+                    
+                    <span className="inline-block bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1 rounded">
+                      {announcement.specialty}
+                    </span>
+                  </div>
+                  
+                  <p className="text-gray-700 text-sm line-clamp-3 mb-6">
+                    {announcement.description}
+                  </p>
+                  
+                  <Link href={`/annonces/${encodeURIComponent(String(announcement.id))}`}>
+                    <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition">
+                      <div className="flex items-center justify-center">
                         <Eye className="w-4 h-4 mr-2" />
                         Voir détails
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </>
+                      </div>
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
-      </main>
-    </div>
-  );
+      </div>
+    </main>
+  </div>
+);
 }

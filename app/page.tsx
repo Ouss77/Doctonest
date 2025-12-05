@@ -376,7 +376,7 @@ export default function HomePage() {
   <footer className="bg-gray-900 text-gray-300">
       <div className="container mx-auto px-6 py-12">
         
-        {/* === Section principale du footer === */}
+        {/* === Section principale du footer === */} 
         <div className="flex flex-col md:flex-row justify-between items-start gap-10 md:gap-16">
           
           {/* Col 1: Marque et Slogan */}
