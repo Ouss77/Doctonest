@@ -1,7 +1,5 @@
 'use client'; // Important! Forces client-side rendering
-
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react"; // remove useRef import
 import Link from "next/link";
 import {
@@ -63,7 +61,6 @@ export default function HomePage() {
           </div>
           <nav className="hidden md:flex gap-10">
             <Link href="#features" className="text-white text-base font-medium hover:text-blue-200 transition">Fonctionnalités</Link>
-            <Link href="#how-it-works" className="text-white text-base font-medium hover:text-blue-200 transition">Comment ça marche</Link>
             <Link href="/annonces" className="text-white text-base font-medium hover:text-blue-200 transition">Annonces</Link>
           </nav>
           <div className="hidden md:flex items-center gap-2">
@@ -103,9 +100,9 @@ export default function HomePage() {
       {/* Background Image and Overlay (Z-Index remains the same) */}
       <div 
         className="absolute inset-0 w-full h-full z-0" 
-        style={{ backgroundImage: 'url(/herofoyer.png)', backgroundSize: 'cover', backgroundPosition: 'center' }} 
+        style={{ backgroundImage: 'url(/bg-doctonest.png)', backgroundSize: 'cover', backgroundPosition: 'center' }} 
       />
-      <div className="absolute inset-0 w-full h-full bg-gray-900/60 z-10" />
+      <div className="absolute inset-0 w-full h-full bg-gray-600/10 z-10" />
       
       {/* Content Container */}
       {/* Updated: reduced the fixed gap-40. Changed to p-4 sm:p-10 for better padding on small devices. */}
@@ -116,73 +113,35 @@ export default function HomePage() {
         <div className="flex w-full flex-col justify-center items-center md:items-start text-center md:text-left gap-8 md:gap-10 mt-10 md:mt-0">
           <h1
             // Updated: text-4xl on mobile, text-6xl on md screens. Changed mb-6 to mb-2 for smaller screens.
-            className="text-white text-4xl sm:text-5xl md:text-6xl font-extrabold mb-2 md:mb-6 drop-shadow-lg tracking-tight"
-            style={{ fontFamily: 'Montserrat, Inter, Arial, sans-serif', letterSpacing: '-0.03em' }}
+            className="text-white text-4xl sm:text-5xl md:text-6xl font-bold mb-2 md:mb-6 drop-shadow-lg tracking-tight"
+            style={{ fontFamily: '', letterSpacing: '-0.01em' }}
           >
-            Simplifier les remplacements<br /> garantir les soins.
+        Votre Réseau Médical,<br/> Toujours Connecté.<br />Votre Remplacement, Assuré
           </h1>
           
           {/* CTA Buttons Container */}
-          {/* Updated: Changed w-full and max-w-sm on mobile for better flow. Added mx-auto for center alignment on mobile. */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full max-w-sm sm:max-w-lg mt-2 mx-auto md:mx-0">
-            {/* Button 1 */}
-            <Link href="/register?type=replacement" passHref legacyBehavior>
-              <a className="w-full">
-                {/* Updated: text-lg on mobile, text-2xl on larger screens. Reduced py/px for smaller buttons on mobile. */}
-                <button
-                  className="w-full text-lg sm:text-2xl py-4 sm:py-6 px-4 sm:px-8 rounded-xl sm:rounded-2xl font-bold bg-blue-600 text-white shadow-xl hover:bg-blue-700 transition-all duration-200"
-                  style={{ fontFamily: 'Montserrat, Inter, Arial, sans-serif' }}
-                >
-                  Vous cherchez une mission ?
-                </button>
-              </a>
-            </Link>
-            
-            {/* Button 2 */}
-            <Link href="/register?type=employer" passHref legacyBehavior>
-              <a className="w-full">
-                {/* Updated: text-lg on mobile, text-2xl on larger screens. Reduced py/px for smaller buttons on mobile. */}
-                <button
-                  className="w-full text-lg sm:text-2xl py-4 sm:py-6 px-4 sm:px-8 rounded-xl sm:rounded-2xl font-bold bg-purple-600 text-white shadow-xl hover:bg-purple-700 transition-all duration-200"
-                  style={{ fontFamily: 'Montserrat, Inter, Arial, sans-serif' }}
-                >
-                  Vous cherchez un médecin ?
-                </button>
-              </a>
-            </Link>
-          </div>
-        </div>
-        
-        {/* Right: Floating card */}
-        {/* Key change: Card is hidden on small screens and reappears on medium (md) screens, 
-            positioned to the right without the fixed ml-72 mt-32.
-            If you want it visible on mobile, remove 'hidden' and adjust the positioning. */}
-        <div className="hidden md:flex justify-center items-center md:pt-16 md:mt-0">
-          <div className="bg-white/90 rounded-2xl shadow-2xl p-6 w-[340px] max-w-full">
-            <div className="mb-4 flex items-center gap-2">
-              {/* NOTE: Replace Stethoscope with an actual icon component */}
-              <div className="bg-blue-100 rounded-lg p-2">{/* <Stethoscope className="w-6 h-6 text-blue-600" /> */}</div>
-              <span className="font-semibold text-gray-700">Médecin Disponible</span>
-              <span className="ml-auto text-gray-400">...</span>
+            {/* CTA Buttons - Side by side with auto width */}
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center md:justify-start">
+              {/* Button 1 */}
+              <Link href="/register?type=replacement">
+              <button
+                className="text-lg sm:text-xl py-3 sm:py-4 px-6 sm:px-8 rounded-xl sm:rounded-2xl font-bold bg-blue-600 text-white shadow-xl hover:bg-blue-700 transition-all duration-200 whitespace-nowrap"
+                style={{ fontFamily: 'Montserrat, Inter, Arial, sans-serif' }}
+              >
+                Rejoindre notre reseau
+              </button>
+              </Link>
+              
+              {/* Button 2 */}
+              <Link href="/register?type=employer">
+              <button
+                className="text-lg sm:text-xl py-3 sm:py-4 px-6 sm:px-8 rounded-xl sm:rounded-2xl font-bold bg-purple-600 text-white shadow-xl hover:bg-purple-700 transition-all duration-200 whitespace-nowrap"
+                style={{ fontFamily: 'Montserrat, Inter, Arial, sans-serif' }}
+              >
+                Trouver un remplaçant
+              </button>
+              </Link>
             </div>
-            <div className="mb-3 p-3 rounded-xl bg-white shadow flex flex-col gap-1">
-              <div className="font-bold text-gray-800">Medecin généraliste</div>
-              <div className="text-blue-600 text-sm">TAZA</div>
-                            <div className="text-gray-400 text-xs">Disponible Weekend</div>
-
-            </div>
-            <div className="mb-3 p-3 rounded-xl bg-white shadow flex flex-col gap-1">
-              <div className="font-bold text-gray-800">Cardiologue</div>
-              <div className="text-blue-600 text-sm">Rabat</div>
-              <div className="text-gray-400 text-xs">Temps plein</div>
-
-            </div>
-            <div className="mb-3 p-3 rounded-xl bg-white shadow flex flex-col gap-1">
-              <div className="font-bold text-gray-800">Pediatre</div>
-              <div className="text-blue-600 text-sm">Fata, Ile de l'rance</div>
-              <div className="text-gray-400 text-xs">Temps partiel</div>
-            </div>
-          </div>
         </div>
         
       </div>
@@ -230,121 +189,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* How it works */}
-        <section id="how-it-works" className="py-24 md:py-10 bg-gray-900">
-          <div className="container mx-auto px-6 lg:px-12">
-            {/* En-tête de la section */}
-            <div className="text-center mb-16 md:mb-20">
-              <Badge className="mb-4 bg-purple-100 text-purple-700 border-0">
-                Processus
-              </Badge>
-              <h2 className="text-3xl sm:text-4xl font-serif font-bold text-white mb-6">
-                Comment ça marche ?
-              </h2>
-              <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-                Un processus simple et efficace pour tous
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-24">
-              
-              {/* === Carte pour les Remplaçants === */}
-              <div className="relative">
-                {/* Le Titre qui chevauche */}
-                <h3 className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 text-xl font-serif font-bold bg-white text-gray-900 px-6 py-3 rounded-full shadow-lg border border-gray-200">
-                  Pour les Remplaçants
-                </h3>
-                
-                {/* Conteneur de la carte avec l'image de fond */}
-                <div className="relative flex flex-col rounded-2xl bg-cover bg-center overflow-hidden h-full p-8 md:p-12 pt-20" style={{ backgroundImage: 'url(/rep.png)' }}>
-                  {/* Superposition de dégradé pour la lisibilité */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent z-0"></div>
-                  
-                  <div className="relative z-10 w-full space-y-8">
-                    {/* Ligne de connexion verticale */}
-                    <div className="absolute left-6 top-6 h-[calc(100%-3rem)] w-0.5 bg-white/20" aria-hidden="true" />
-
-                    {[
-                      {
-                        icon: <UserPlus className="w-6 h-6 text-blue-400" />,
-                        title: "Créez votre profil",
-                        desc: "Renseignez vos spécialités, disponibilités et tarifs en quelques minutes.",
-                      },
-                      {
-                        icon: <UploadCloud className="w-6 h-6 text-blue-400" />,
-                        title: "Uploadez vos documents",
-                        desc: "RPPS, diplômes et certifications pour validation rapide et sécurisée.",
-                      },
-                      {
-                        icon: <MailCheck className="w-6 h-6 text-blue-400" />,
-                        title: "Recevez des propositions",
-                        desc: "Acceptez ou refusez les missions qui correspondent à vos critères.",
-                      },
-                    ].map((item, index) => (
-                      <div key={index} className="relative flex gap-5 items-start top-10">
-                        <div className="relative z-10 w-12 h-12 bg-gray-800/50 border border-white/20 rounded-full flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
-                          {item.icon}
-                        </div>
-                        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 flex-grow">
-                          <h4 className="font-bold text-white mb-1 text-lg">{item.title}</h4>
-                          <p className="text-gray-300 leading-relaxed text-sm">{item.desc}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* === Carte pour les Établissements === */}
-              <div className="relative">
-                {/* Le Titre qui chevauche */}
-                <h3 className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 text-xl font-serif font-bold bg-white text-gray-900 px-6 py-3 rounded-full shadow-lg border border-gray-200">
-                  Pour les Établissements
-                </h3>
-
-                {/* Conteneur de la carte avec l'image de fond */}
-                <div className="relative flex flex-col rounded-2xl bg-cover bg-center overflow-hidden h-full p-8 md:p-12 pt-20" style={{ backgroundImage: 'url(/emp.png)' }}>
-                  {/* Superposition de dégradé pour la lisibilité */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent z-0"></div>
-
-                  <div className="relative z-10 w-full space-y-8">
-                    {/* Ligne de connexion verticale */}
-                    <div className="absolute left-6 top-6 h-[calc(100%-3rem)] w-0.5 bg-white/20" aria-hidden="true" />
-
-                    {[
-                      {
-                        icon: <FilePenLine className="w-6 h-6 text-green-400" />,
-                        title: "Publiez votre mission",
-                        desc: "Spécialité, dates, tarif et localisation en quelques clics.",
-                      },
-                      {
-                        icon: <FileSearch className="w-6 h-6 text-green-400" />,
-                        title: "Consultez les profils",
-                        desc: "Parcourez les médecins correspondant parfaitement à vos critères.",
-                      },
-                      {
-                        icon: <Handshake className="w-6 h-6 text-green-400" />,
-                        title: "Trouvez votre remplaçant",
-                        desc: "Envoyez des propositions et gérez vos contrats facilement.",
-                      },
-                    ].map((item, index) => (
-                      <div key={index} className="relative flex gap-5 items-start top-10">
-                        <div className="relative z-10 w-12 h-12 bg-gray-800/50 border border-white/20 rounded-full flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
-                          {item.icon}
-                        </div>
-                        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 flex-grow">
-                          <h4 className="font-bold text-white mb-1 text-lg">{item.title}</h4>
-                          <p className="text-gray-300 leading-relaxed text-sm">{item.desc}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </section>
 
         {/* CTA Section */}
         <section className="py-24 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white relative overflow-hidden">

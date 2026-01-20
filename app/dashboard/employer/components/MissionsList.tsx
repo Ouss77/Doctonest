@@ -12,7 +12,7 @@ import { Eye, Edit, Trash2, Users, Calendar, MapPin, Euro, Plus, CheckCircle } f
 import { useState, useEffect } from "react";
 import EditMissionModal from "./EditMissionModal";
 
-export default function MissionsList({ 
+export default function MissionsList({  
   missions, setMissions, employerId, loading, setLoading, error, setError, setShowCreateMission
 }: {
   missions: any[];

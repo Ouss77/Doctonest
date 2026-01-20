@@ -207,18 +207,18 @@ export default function AnnouncementDetailPage() {
                   </div>
                 </div>
 
-                {/* Description */}
-                <div className="mb-8">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-                    <Building className="w-5 h-5 text-blue-600" />
-                    Description de la mission
-                  </h2>
-                  <div className="prose max-w-none">
-                    <p className="text-gray-700 leading-relaxed">
-                      {announcement?.description}
-                    </p>
-                  </div>
-                </div>
+            {/* Description */}
+            <div className="mb-8">
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                <Building className="w-5 h-5 text-blue-600" />
+                Description de la mission
+              </h2>
+
+              <div className="prose max-w-none text-gray-700 leading-relaxed whitespace-pre-line">
+                {announcement?.description}
+              </div>
+            </div>
+
               </CardContent>
             </Card>
           </div>
@@ -262,9 +262,6 @@ export default function AnnouncementDetailPage() {
                     <Mail className="w-4 h-4 mr-2" />
                     Postuler maintenant
                   </Button>
-                  <Button variant="outline" className="w-full rounded-lg py-3 font-semibold hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-colors">
-                    Sauvegarder l'annonce
-                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -285,7 +282,7 @@ export default function AnnouncementDetailPage() {
             </Card>
 
             {/* Trust Indicators */}
-            <Card className="rounded-xl border-0 shadow-lg bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+            {/* <Card className="rounded-xl border-0 shadow-lg bg-gradient-to-br from-green-500 to-emerald-600 text-white">
               <CardContent className="p-6">
                 <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                   <Shield className="w-5 h-5 text-white" />
@@ -310,7 +307,7 @@ export default function AnnouncementDetailPage() {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
         </div>
       </div>

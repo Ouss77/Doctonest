@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       companyName, 
       companyType, 
       description, 
-      profession,
+      profession, 
       specialty // Added specialty field
     } = await request.json();
 

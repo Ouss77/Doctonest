@@ -6,7 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"
 
 type DecodedToken = {
   userId: string
-  userType?: string
+  userType?: string 
 }
 
 function getUserFromJWT(req: NextRequest): DecodedToken | null {
@@ -20,17 +20,14 @@ function getUserFromJWT(req: NextRequest): DecodedToken | null {
   }
 }
 
-/**
- * GET /api/missions 
- * Supports filtering + employer restriction
- */
+/*** GET /api/missions 
+ * Supports filtering + employer restriction */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
 
     const filters: Record<string, any> = {}
 
-    // Auth check
     const decoded = getUserFromJWT(request)
     
     // Status filter: only apply if explicitly requested or for non-admin users

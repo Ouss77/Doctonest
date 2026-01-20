@@ -238,7 +238,7 @@ export const db = {
   }) {
     try {
       let query = sql`
-        SELECT m.*, ep.organization_name, u.first_name, u.last_name,
+        SELECT m.*, ep.organization_name, u.first_name, u.last_name, u.email,
           (SELECT COUNT(*) FROM applications a WHERE a.mission_id = m.id) AS applications_count
         FROM missions m
         JOIN users u ON m.employer_id = u.id
@@ -468,7 +468,6 @@ export const db = {
       throw new Error("Failed to delete diploma")
     }
   },
-
 
   async updateProfilePhoto(user_id: string, user_type: "replacement" | "employer", photo_url: string) {
     try {

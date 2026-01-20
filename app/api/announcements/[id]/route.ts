@@ -12,7 +12,6 @@ export async function GET(
     const { id } = params;
     if (!id) return NextResponse.json({ error: 'ID manquant' }, { status: 400 });
 
-    // Adjust query to match your missions table/schema
     const rows = await sql`
       SELECT
         id,
@@ -20,8 +19,6 @@ export async function GET(
         specialty_required AS specialty,
         location,
         description,
-        start_date,
-        end_date,
         mission_type,
         status,
         created_at AS posted_date

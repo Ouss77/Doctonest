@@ -1,14 +1,14 @@
-"use client"
-import TabUsers from "./_components/TabUsers"
-import TabMissions from "./_components/TabMissions"
-import TabDocuments from "./_components/TabDocuments"
-import TabAnalytics from "./_components/TabAnalytics"
-import { useState, useEffect } from "react"
-import { Users, FileText, CheckCircle, BarChart3 } from "lucide-react"
-import Sidebar from "./_components/Sidebar"
-import Header from "./_components/Header"
-import StatsCards from "./_components/StatsCards"
-
+"use client";
+import TabUsers from "./_components/TabUsers";
+import TabMissions from "./_components/TabMissions";
+import TabDocuments from "./_components/TabDocuments";
+import TabAnalytics from "./_components/TabAnalytics";
+import MissionDetailsModal from "./_components/MissionDetailsModal";
+import { useState, useEffect } from "react";
+import { Users, FileText, CheckCircle, BarChart3 } from "lucide-react";
+import Sidebar from "./_components/Sidebar";
+import Header from "./_components/Header";
+import StatsCards from "./_components/StatsCards";
 
 export default function AdminDashboard() {
   type User = {
@@ -33,12 +33,12 @@ export default function AdminDashboard() {
     applicants: number;
     publishedDate: string;
   };
-  const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const [selectedMission, setSelectedMission] = useState<Mission | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterStatus, setFilterStatus] = useState("all")
-  const [activeTab, setActiveTab] = useState("users")
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [activeTab, setActiveTab] = useState("users");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Mock data
   const stats = {
@@ -47,12 +47,14 @@ export default function AdminDashboard() {
     activeMissions: 156,
     completedMissions: 892,
     totalRevenue: 125000,
-  }
+  };
 
   const [pendingUsers, setPendingUsers] = useState<User[]>([]);
   const [allDoctors, setAllDoctors] = useState<any[]>([]);
   const [allEmployers, setAllEmployers] = useState<any[]>([]);
-  const [userTypeFilter, setUserTypeFilter] = useState<'doctor' | 'employer'>('doctor');
+  const [userTypeFilter, setUserTypeFilter] = useState<"doctor" | "employer">(
+    "doctor"
+  );
   const [usersLoading, setUsersLoading] = useState(true);
   const [usersError, setUsersError] = useState<string | null>(null);
 
@@ -67,18 +69,22 @@ export default function AdminDashboard() {
       setUsersError(null);
       try {
         const res = await fetch("/api/admin/users");
-        if (!res.ok) throw new Error("Erreur lors du chargement des utilisateurs");
+        if (!res.ok)
+          throw new Error("Erreur lors du chargement des utilisateurs");
         const data = await res.json();
         console.log("Fetched users data:", data);
         // Doctors
         const doctors = (data.doctors || []).map((u: any) => ({
           id: u.id,
-          name: (u.first_name ? u.first_name : "") + (u.last_name ? " " + u.last_name : ""),
+          name:       (u.first_name ? u.first_name : "") +
+            (u.last_name ? " " + u.last_name : ""),
           email: u.email,
           type: "Médecin remplaçant",
           specialty: u.specialty || undefined,
           location: u.location || "",
-          created_at: u.created_at ? new Date(u.created_at).toLocaleDateString() : "",
+          created_at: u.created_at
+            ? new Date(u.created_at).toLocaleDateString()
+            : "",
           status: u.profile_status || u.rp_status || "pending",
           documents: [],
         }));
@@ -86,12 +92,17 @@ export default function AdminDashboard() {
         // Employers
         const employers = (data.employers || []).map((u: any) => ({
           id: u.id,
-          name: u.organization_name || (u.first_name ? u.first_name : "") + (u.last_name ? " " + u.last_name : ""),
+          name:
+            u.organization_name ||
+            (u.first_name ? u.first_name : "") +
+              (u.last_name ? " " + u.last_name : ""),
           email: u.email,
           type: "Établissement",
           specialty: undefined,
           location: u.address || u.city || "",
-          created_at: u.created_at ? new Date(u.created_at).toLocaleDateString() : "",
+          created_at: u.created_at
+            ? new Date(u.created_at).toLocaleDateString()
+            : "",
           status: u.profile_status || u.ep_status || "pending",
           documents: [],
         }));
@@ -105,70 +116,74 @@ export default function AdminDashboard() {
     fetchUsers();
   }, []);
 
-  useEffect(() => {
-    const fetchMissions = async () => {
-      setMissionsLoading(true);
-      setMissionsError(null);
-      try {
-        const res = await fetch("/api/missions");
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        const data = await res.json();
-        // Expecting data.missions array; map defensively to Mission type
-const mapped: Mission[] = (data.missions || []).map((m: any) => ({
-  id: m.id, // directly use id from DB (UUID)
-  title: m.title || "Sans titre",
-  employer: m.employer || m.organization_name || "",
-  location: m.location || m.city || "",
-  dates:
-    m.dates ||
-    (m.start_date && m.end_date ? `${m.start_date} → ${m.end_date}` : ""),
-  salary: m.salary || m.rate || (m.daily_rate ? `${m.daily_rate}€/j` : ""),
-  status: m.status || "open", // Keep database status (open, in_progress, completed, cancelled)
-  applicants: m.applicants_count ?? m.applicants ?? 0,
-  publishedDate: m.published_at || m.created_at || "",
-}));
+useEffect(() => {
+  const fetchMissions = async () => {
+    setMissionsLoading(true);
+    setMissionsError(null);
 
-        setMissions(mapped);
-      } catch (err: any) {
-        console.error("Error fetching missions:", err);
-        setMissionsError(err.message || "Erreur lors du chargement des missions");
-        setMissions([]);
-      } finally {
-        setMissionsLoading(false);
+    try {
+      const res = await fetch("/api/missions");
+      if (!res.ok) {
+        throw new Error(`HTTP error ${res.status}`);
       }
-    };
-    fetchMissions();
-  }, []);
+
+      const { missions = [] } = await res.json();
+
+      const mapped: Mission[] = missions.map((m: any) => ({
+        id: m.id,
+        title: m.title ?? "Sans titre",
+        employer: m.organization_name ?? "",
+        location: m.location ?? "",
+        dates:    m.dates    ??  (m.start_date && m.end_date ? `${m.start_date} → ${m.end_date}`   : ""),
+        status:   m.status   ?? "open",
+        applicants:    m.applications_count ?? 0,
+        publishedDate: m.created_at ?? "",
+        email : m.email ?? "Not found",
+        description: m.description ?? "No description provided",
+        author:        m.first_name || m.last_name ? `${m.first_name ?? ""} ${m.last_name ?? ""}`.trim()  : undefined, })); 
+      
+      setMissions(mapped);
+    } catch (err: any) {
+      console.error("Error fetching missions:", err);
+      setMissionsError(err.message ?? "Erreur lors du chargement des missions");
+      setMissions([]);
+    } finally {
+      setMissionsLoading(false);
+    }
+  };
+
+  fetchMissions();
+}, []);
 
   const handleValidateUser = (userId: number, action: string) => {
-    console.log(`${action} user ${userId}`)
-  }
-
-const handleValidateMission = async (missionId: string, action: string) => {
-  // Send the action to API, which will map it to the correct database status
-  const res = await fetch(`/api/missions/${missionId}/status`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status: action }), // Send action, API will map it
-  });
-
-  const data = await res.json();
-  if (!res.ok) throw new Error(data?.error || "Erreur serveur");
-
-  // Map action to database status for local state update
-  const statusMap: Record<string, string> = {
-    approve: "in_progress",
-    active: "in_progress",
-    reject: "cancelled",
-    rejected: "cancelled",
-    hidden: "cancelled",
+    console.log(`${action} user ${userId}`);
   };
-  const dbStatus = statusMap[action.toLowerCase()] || action;
 
-  setMissions(prev =>
-    prev.map(m => (m.id === missionId ? { ...m, status: dbStatus } : m))
-  );
-};
+  const handleValidateMission = async (missionId: string, action: string) => {
+    // Send the action to API, which will map it to the correct database status
+    const res = await fetch(`/api/missions/${missionId}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: action }), // Send action, API will map it
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error || "Erreur serveur");
+
+    // Map action to database status for local state update
+    const statusMap: Record<string, string> = {
+      approve: "in_progress",
+      active: "in_progress",
+      reject: "cancelled",
+      rejected: "cancelled",
+      hidden: "cancelled",
+    };
+    const dbStatus = statusMap[action.toLowerCase()] || action;
+
+    setMissions((prev) =>
+      prev.map((m) => (m.id === missionId ? { ...m, status: dbStatus } : m))
+    );
+  };
 
   const sidebarItems = [
     { id: "users", label: "Utilisateurs", icon: Users, badge: null },
@@ -179,22 +194,37 @@ const handleValidateMission = async (missionId: string, action: string) => {
 
   const renderContent = () => {
     if (activeTab === "users") {
-      if (usersLoading) return <div className="p-8 text-center text-blue-600">Chargement des utilisateurs...</div>;
-      if (usersError) return <div className="p-8 text-center text-red-600">{usersError}</div>;
+      if (usersLoading)
+        return (
+          <div className="p-8 text-center text-blue-600">
+            Chargement des utilisateurs...
+          </div>
+        );
+      if (usersError)
+        return <div className="p-8 text-center text-red-600">{usersError}</div>;
       // Filtered users
-      const filteredUsers = userTypeFilter === 'doctor' ? allDoctors : allEmployers;
+      const filteredUsers =
+        userTypeFilter === "doctor" ? allDoctors : allEmployers;
       return (
         <>
           <div className="mb-4 flex gap-2">
             <button
-              className={`px-4 py-2 rounded-xl border ${userTypeFilter === 'doctor' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border-blue-600'}`}
-              onClick={() => setUserTypeFilter('doctor')}
+              className={`px-4 py-2 rounded-xl border ${
+                userTypeFilter === "doctor"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-blue-600 border-blue-600"
+              }`}
+              onClick={() => setUserTypeFilter("doctor")}
             >
               Médecins remplaçants
             </button>
             <button
-              className={`px-4 py-2 rounded-xl border ${userTypeFilter === 'employer' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border-blue-600'}`}
-              onClick={() => setUserTypeFilter('employer')}
+              className={`px-4 py-2 rounded-xl border ${
+                userTypeFilter === "employer"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-blue-600 border-blue-600"
+              }`}
+              onClick={() => setUserTypeFilter("employer")}
             >
               Établissements
             </button>
@@ -212,24 +242,32 @@ const handleValidateMission = async (missionId: string, action: string) => {
       );
     }
     if (activeTab === "missions") {
-      if (missionsLoading) return <div className="p-8 text-center text-blue-600">Chargement des missions...</div>;
-      if (missionsError) return <div className="p-8 text-center text-red-600">{missionsError}</div>;
+      if (missionsLoading)
+        return (
+          <div className="p-8 text-center text-blue-600">
+            Chargement des missions...
+          </div>
+        );
+      if (missionsError)
+        return (
+          <div className="p-8 text-center text-red-600">{missionsError}</div>
+        );
       return (
         <TabMissions
           missions={missions}
           setSelectedMission={setSelectedMission}
           handleValidateMission={handleValidateMission}
         />
-      )
+      );
     }
     if (activeTab === "documents") {
-      return <TabDocuments />
+      return <TabDocuments />;
     }
     if (activeTab === "analytics") {
-      return <TabAnalytics />
+      return <TabAnalytics />;
     }
-    return null
-  }
+    return null;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 to-blue-50 font-['Nunito', 'Segoe UI', 'Arial', 'sans-serif'] text-[16px] md:text-[17px]">
@@ -243,14 +281,21 @@ const handleValidateMission = async (missionId: string, action: string) => {
           sidebarItems={sidebarItems}
         />
         {/* Main Content */}
-        <div className={`flex-1 min-h-screen ${sidebarCollapsed ? 'ml-20' : 'ml-64'} transition-all duration-300`}>
+        <div
+          className={`flex-1 min-h-screen ${
+            sidebarCollapsed ? "ml-20" : "ml-64"
+          } transition-all duration-300`}
+        >
           <Header activeTab={activeTab} sidebarItems={sidebarItems} />
-          <StatsCards stats={stats} show={activeTab === 'users' || activeTab === 'missions'} />
-          <div className="px-6 py-8">
-            {renderContent()}
-          </div>
+          {/* <StatsCards stats={stats} show={activeTab === 'users' || activeTab === 'missions'} /> */}
+          <div className="px-6 py-8">{renderContent()}</div>
         </div>
       </div>
+
+      {/* Modal d'affichage des détails de la mission */}
+      {selectedMission && (
+        <MissionDetailsModal mission={selectedMission} onClose={() => setSelectedMission(null)} />
+      )}
     </div>
-  )
+  );
 }

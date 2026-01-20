@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import MissionFilterBar from "./MissionFilterBar";
 import MissionCard from "./MissionCard";
 import MissionContactDialog from "./MissionContactDialog";
+import { Briefcase } from "lucide-react";
 
 export default function AvailableMissionsSection() {
   const { user } = useAuth();
@@ -82,7 +83,6 @@ export default function AvailableMissionsSection() {
         const res = await fetch(`/api/applications?userId=${user.id}`);
         if (!res.ok) return;
         const data = await res.json(); 
-        console.log(" the applied persons are", data);
         const applied = new Set<string>((data.applications || []).map((a: any) => String(a.mission_id)));
         setAppliedMissions(applied);
       } catch (err) {
@@ -92,52 +92,74 @@ export default function AvailableMissionsSection() {
     fetchApplications();
   }, [user]);
 
-
   return (
-    <Card className="mb-8 bg-gradient-to-br from-white to-gray-100 shadow-xl rounded-3xl overflow-hidden border border-gray-200">
-      <CardContent className="p-8">
-        {/* Filter Bar */}
-        <MissionFilterBar
-          specialtyFilter={specialtyFilter}
-          setSpecialtyFilter={setSpecialtyFilter}
-          locationFilter={locationFilter}
-          setLocationFilter={setLocationFilter}
-          keywordFilter={keywordFilter}
-          setKeywordFilter={setKeywordFilter}
-        />
+    <>
+      {/* LinkedIn-style Card: Available Missions Section */}
+      <Card className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+        <CardHeader className="pb-3 border-b border-gray-200 bg-gray-50">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+              <Briefcase className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <CardTitle className="text-lg font-semibold text-gray-900">Missions disponibles</CardTitle>
+              <p className="text-sm text-gray-500 mt-0.5">Parcourez les offres de remplacement</p>
+            </div>
+          </div>
+        </CardHeader>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 text-red-800 rounded-xl border border-red-300 flex items-center gap-2 transition-all duration-300">
-            <span className="font-semibold text-sm">Erreur :</span> 
-            <span className="text-sm">{error}</span>
+        <CardContent className="p-4">
+          {/* Filter Bar */}
+          <div className="mb-4">
+            <MissionFilterBar
+              specialtyFilter={specialtyFilter}
+              setSpecialtyFilter={setSpecialtyFilter}
+              locationFilter={locationFilter}
+              setLocationFilter={setLocationFilter}
+              keywordFilter={keywordFilter}
+              setKeywordFilter={setKeywordFilter}
+            />
           </div>
-        )}
-        {loading ? (
-          <div className="text-center text-gray-600 py-12 animate-pulse text-lg font-medium">
-            Chargement des missions...
-          </div>
-        ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filteredMissions.length === 0 ? (
-              <div className="col-span-full text-gray-500 text-center py-12 text-lg font-medium">
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm border border-red-200">
+              {error}
+            </div>
+          )}
+
+          {loading ? (
+            <div className="text-center text-gray-500 py-12 text-sm">
+              Chargement des missions...
+            </div>
+          ) : filteredMissions.length === 0 ? (
+            <div className="text-center py-12">
+              <Briefcase className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500 text-sm">
                 Aucune mission disponible pour le moment.
-              </div>
-            ) : (
-              filteredMissions.map((mission) => (
-                <MissionCard
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2">
+              {filteredMissions.map((mission) => (
+                <div
                   key={mission.id}
-                  mission={mission}
-                  onContact={(m) => { setSelectedMission(m); setContactOpen(true); }}
-                  onApply={handleApply}
-                  applied={appliedMissions.has(mission.id)}
-                  applyStatus={applyStatus[mission.id]}
-                />
-              ))
-            )}
-          </div>
-        )}
-      </CardContent>
+                  className="border border-gray-200 rounded-lg overflow-hidden hover:border-gray-300 hover:shadow-sm transition-all"
+                >
+                  <MissionCard
+                    mission={mission}
+                    onContact={(m) => { setSelectedMission(m); setContactOpen(true); }}
+                    onApply={handleApply}
+                    applied={appliedMissions.has(mission.id)}
+                    applyStatus={applyStatus[mission.id]}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <MissionContactDialog open={contactOpen} onOpenChange={setContactOpen} mission={selectedMission} />
-    </Card>
+    </>
   );
-} 
+}

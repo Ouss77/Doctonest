@@ -1,5 +1,4 @@
 -- Medical Replacement Platform Database Schema
--- Create comprehensive tables for the platform
 
 -- Users table (extends the existing neon_auth.users_sync)
 CREATE TABLE IF NOT EXISTS users (
@@ -63,14 +62,21 @@ CREATE TABLE IF NOT EXISTS missions (
   description TEXT NOT NULL,
   specialty_required VARCHAR(100) NOT NULL,
   location VARCHAR(255) NOT NULL,
-  start_date DATE NOT NULL,
-  end_date DATE NOT NULL,
-  hourly_rate DECIMAL(10,2),
-  daily_rate DECIMAL(10,2),
   requirements TEXT,
   mission_type VARCHAR(20) DEFAULT 'replacement' CHECK (mission_type IN ('replacement', 'vacation', 'emergency')),
   status VARCHAR(20) DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'completed', 'cancelled')),
   is_urgent BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Social feed posts
+CREATE TABLE IF NOT EXISTS posts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  author_id UUID NOT NULL
+    REFERENCES users(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
