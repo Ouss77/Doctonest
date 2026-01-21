@@ -8,8 +8,11 @@ function formatDateDMY(dateString: string | undefined) {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Eye, Edit, Trash2, Users, Calendar, MapPin, Euro, Plus, CheckCircle } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import EditMissionModal from "./EditMissionModal";
 import AddMissionModal from "./AddMissionModal";
 
@@ -55,39 +58,45 @@ export default function MissionsList({
 
   // Search/filter logic
   const [search, setSearch] = useState("");
-  const [specialtyFilter, setSpecialtyFilter] = useState("");
-  const specialties = Array.from(new Set(missions.map(m => m.specialty_required || m.specialty).filter(Boolean)));
-  const filteredMissions = missions.filter(m => {
-    const matchesSearch = search.trim() === "" || m.title.toLowerCase().includes(search.toLowerCase());
-    const matchesSpecialty = specialtyFilter === "" || (m.specialty_required || m.specialty) === specialtyFilter;
-    return matchesSearch && matchesSpecialty;
-  });
+  const [specialtyFilter, setSpecialtyFilter] = useState("all");
+  const specialties = useMemo(
+    () => Array.from(new Set(missions.map(m => m.specialty_required || m.specialty).filter(Boolean))),
+    [missions]
+  );
+  const filteredMissions = useMemo(() => {
+    return missions.filter(m => {
+      const matchesSearch = search.trim() === "" || m.title.toLowerCase().includes(search.toLowerCase());
+      const spec = m.specialty_required || m.specialty;
+      const matchesSpecialty = specialtyFilter === "all" || spec === specialtyFilter;
+      return matchesSearch && matchesSpecialty;
+    });
+  }, [missions, search, specialtyFilter]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-8">
-      <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
-        <input
-          type="text"
+    <div className="bg-white rounded-xl shadow-sm p-6">
+      <div className="flex flex-col md:flex-row md:items-center gap-3 mb-5">
+        <Input
           placeholder="Rechercher une mission..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="border border-gray-300 rounded-xl px-4 py-2 w-full md:w-1/3"
+          className="h-10 rounded-lg border-slate-200 md:w-1/3"
         />
-        <select
-          value={specialtyFilter}
-          onChange={e => setSpecialtyFilter(e.target.value)}
-          className="border border-gray-300 rounded-xl px-4 py-2 w-full md:w-1/4"
-        >
-          <option value="">Toutes les spécialités</option>
-          {specialties.map(spec => (
-            <option key={spec} value={spec}>{spec}</option>
-          ))}
-        </select>
+        <Select value={specialtyFilter} onValueChange={setSpecialtyFilter}>
+          <SelectTrigger className="h-10 rounded-lg border-slate-200 md:w-1/4">
+            <SelectValue placeholder="Spécialité" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Toutes les spécialités</SelectItem>
+            {specialties.map(spec => (
+              <SelectItem key={spec} value={spec}>{spec}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Button
           onClick={() => setShowCreateMissionLocal(true)}
-          className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-full px-6 py-2 shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2"
+          className="bg-blue-600 text-white rounded-lg px-4 h-10 flex items-center gap-2"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4" />
           Nouvelle mission
         </Button>
       </div>
@@ -100,61 +109,66 @@ export default function MissionsList({
           Aucune mission trouvée.
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {filteredMissions.map(mission => (
-            <div key={mission.id} className="flex flex-col md:flex-row items-stretch gap-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl shadow-md p-6 border border-gray-100">
-              <div className="flex-1 flex flex-col justify-between">
-                <div className="flex items-center gap-4 mb-2">
-                  <h3 className="font-bold text-xl text-gray-900">{mission.title}</h3>
-                  <Badge className="bg-indigo-50 text-indigo-700 rounded-lg px-3 py-1 text-xs">
-                    {mission.specialty_required || mission.specialty}
-                  </Badge>
+            <Card key={mission.id} className="rounded-xl border border-slate-200 bg-white">
+              <CardContent className="p-6">
+              <div className="sm:flex sm:items-start sm:justify-between gap-4">
+                <div className="flex-1 flex flex-col justify-between">
+                  <div className="flex items-center gap-4 mb-2">
+                    <h3 className="font-semibold text-lg text-slate-900">{mission.title}</h3>
+                    <Badge className="bg-blue-50 text-blue-700 rounded px-2 py-0.5 text-xs">
+                      {mission.specialty_required || mission.specialty}
+                    </Badge>
+                  </div>
+                  <div className="flex flex-wrap gap-4 text-sm text-slate-700 mb-2">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-blue-500" />
+                      {mission.location}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-indigo-500" />
+                      {formatDateDMY(mission.start_date || mission.startDate)} - {formatDateDMY(mission.end_date || mission.endDate)}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-sky-600" />
+                      {mission.applications_count} candidature(s)
+                    </div>
+                  </div>
+                  <p className="text-slate-700 text-sm mb-2 line-clamp-3">{mission.description}</p>
+                  {mission.selectedDoctor && (
+                    <div className="flex items-center gap-1 text-xs text-green-600 font-medium">
+                      <CheckCircle className="w-4 h-4" /> Assigné à {mission.selectedDoctor}
+                    </div>
+                  )}
+                  <div className="text-xs text-slate-400 mt-1">
+                    Publié le {formatDateDMY(mission.created_at)} 
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-6 text-sm text-gray-700 mb-2">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-blue-500" />
-                    {mission.location}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-purple-500" />
-                    {formatDateDMY(mission.start_date || mission.startDate)} - {formatDateDMY(mission.end_date || mission.endDate)}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="w-5 h-5 text-pink-500" />
-                    {mission.applications_count} candidature(s)
-                  </div>
-                </div>
-                <p className="text-gray-700 text-sm mb-2 line-clamp-3">{mission.description}</p>
-                {mission.selectedDoctor && (
-                  <div className="flex items-center gap-1 text-xs text-green-600 font-medium">
-                    <CheckCircle className="w-4 h-4" /> Assigné à {mission.selectedDoctor}
-                  </div>
-                )}
-                <div className="text-xs text-gray-400 mt-1">
-                  Publié le {formatDateDMY(mission.created_at)} 
+
+                <div className="flex gap-2 sm:flex-col sm:min-w-[140px] sm:items-end mt-4 sm:mt-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEditMission(mission)}
+                    className="border-blue-200 text-blue-700 hover:bg-blue-50 rounded-lg px-3 py-1 text-xs flex items-center gap-1"
+                  >
+                    <Edit className="w-4 h-4" />
+                    Modifier
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDeleteMission(mission.id)}
+                    className="border-red-200 text-red-600 hover:bg-red-50 rounded-lg px-3 py-1 text-xs flex items-center gap-1"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Supprimer
+                  </Button>
                 </div>
               </div>
-              <div className="flex flex-col justify-center gap-2 min-w-[120px]">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleEditMission(mission)}
-                  className="border-blue-200 text-blue-600 hover:bg-blue-50 rounded-full px-3 py-1 shadow-sm transition-all duration-200 text-xs flex items-center gap-1"
-                >
-                  <Edit className="w-4 h-4" />
-                  Modifier
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleDeleteMission(mission.id)}
-                  className="border-red-200 text-red-600 hover:bg-red-50 rounded-full px-3 py-1 shadow-sm transition-all duration-200 text-xs flex items-center gap-1"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Supprimer
-                </Button>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
@@ -179,3 +193,4 @@ export default function MissionsList({
     </div>
   );
 }
+  

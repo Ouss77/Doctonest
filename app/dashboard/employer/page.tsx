@@ -1,7 +1,8 @@
 "use client"
 
-import { Bell, Home, Briefcase, Users, UserCheck, Building2, FileText, Mail, LogOut, Search, Menu } from "lucide-react"
+import { Bell, Home, Briefcase, Users, UserCheck, Building2, Mail, LogOut, Search, Menu } from "lucide-react"
 import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth"
 import MissionsList from "./components/MissionsList"
@@ -9,7 +10,6 @@ import DoctorsList from "./components/DoctorsList"
 import ProfileTabs from "./components/ProfileTabs"
 import EmployerDocumentsSection from "./components/EmployerDocumentsSection"
 import Candidature from "./components/Candidature"
-import EmployerProfileHeader from "./components/EmployerProfileHeader"
 import FeedSection from "../replacement/components/FeedSection"
 
 export default function EmployerDashboard() {
@@ -21,6 +21,8 @@ export default function EmployerDashboard() {
   const [error, setError] = useState<string | null>(null)
   const [employerId, setEmployerId] = useState<string | null>(null)
   const [profileData, setProfileData] = useState<any>(null)
+  const searchParams = useSearchParams()
+  const router = useRouter()
 
   useEffect(() => {
     async function fetchProfile() {
@@ -61,8 +63,26 @@ export default function EmployerDashboard() {
     { id: "doctors", label: "Médecins", icon: Users },
     { id: "applications", label: "Candidatures", icon: UserCheck, badge: pendingApplications },
     { id: "profile", label: "Établissement", icon: Building2 },
-    { id: "documents", label: "Documents", icon: FileText },
   ]
+
+  const handleTabChange = (tab: typeof activeTab) => {
+    setActiveTab(tab)
+    const params = new URLSearchParams(searchParams.toString())
+    if (tab === "feed") {
+      params.delete("tab")
+    } else {
+      params.set("tab", tab)
+    }
+    const query = params.toString()
+    router.push(query ? `/dashboard/employer?${query}` : `/dashboard/employer`, { scroll: false })
+  }
+
+  useEffect(() => {
+    const tab = searchParams.get("tab") as typeof activeTab | null
+    if (tab && ["feed", "missions", "doctors", "applications", "profile", "documents"].includes(tab)) {
+      setActiveTab(tab)
+    }
+  }, [searchParams])
 
   const renderContent = () => {
     switch (activeTab) {
@@ -86,7 +106,7 @@ export default function EmployerDashboard() {
       case "applications":
         return <Candidature missions={missions} />
       case "profile":
-        return <ProfileTabs />
+        return <ProfileTabs onOpenDocuments={() => handleTabChange("documents")} />
       case "documents":
         return employerId ? <EmployerDocumentsSection employerId={employerId} /> : null
       default:
@@ -193,10 +213,6 @@ export default function EmployerDashboard() {
 
       {/* Main Content Area */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Employer Profile Header only on profile tab */}
-        {activeTab === "profile" && profileData && (
-          <EmployerProfileHeader profileData={profileData} />
-        )}
 
         {/* Page Content */}
         <div className="space-y-4">

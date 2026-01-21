@@ -1,76 +1,98 @@
-
-
-import { Building2, User2, Upload } from "lucide-react";
-import React, { useEffect, useState, useRef } from "react";
+import {
+  Building2,
+  Mail,
+  Phone,
+  MapPin,
+  Pencil,
+  User,
+  Info,
+  Hash,
+  Briefcase,
+  FileText,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import EditProfile from "./EditProfile";
 
-export default function ProfileTabs() {
+export default function ProfileTabs({
+  onOpenDocuments,
+}: {
+  onOpenDocuments: () => void;
+}) {
   const [profileData, setProfileData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
   const [editOpen, setEditOpen] = useState(false);
   const [form, setForm] = useState<any>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  /* =========================
+     FETCH PROFILE
+  ========================= */
+  useEffect(() => {
     async function fetchProfile() {
-      setLoading(true);
-      setError(null);
       try {
-        const res = await fetch("/api/users/profile", { credentials: "include" });
-        if (!res.ok) throw new Error("Erreur lors du chargement du profil");
+        const res = await fetch("/api/users/profile", {
+          credentials: "include",
+        });
         const data = await res.json();
+
         setProfileData({
           userId: data.user?.id || "",
-          userType: data.user?.user_type || "employer", // fallback for employer dashboard
           photo_url: data.profile?.photo_url || "",
           establishmentName: data.profile?.organization_name || "",
-          establishmentType: data.profile?.organization_type || "",
+          establishmentType: data.profile?.organization_type || "hospital",
           address: data.profile?.address || "",
           siret: data.profile?.siret_number || "",
           description: data.profile?.description || "",
           firstName: data.user?.firstName || "",
           lastName: data.user?.lastName || "",
-          email: data.user?.email || "", 
+          email: data.user?.email || "",
           phone: data.user?.phone || "",
           fonction: data.profile?.fonction || "",
         });
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Erreur inconnue");
+        console.error(err);
       } finally {
         setLoading(false);
       }
     }
+
     fetchProfile();
   }, []);
 
-  // Save handler for unified form
-  const handleSave = async () => {
+  /* =========================
+     SAVE PROFILE
+  ========================= */
+  async function handleSave() {
     try {
-      let photo_url = form.photo_url;
-      // 1. Upload image if selected 
+      let photo_url = form?.photo_url || profileData?.photo_url || "";
+
       if (selectedFile) {
-        const formData = new FormData();
-        formData.append("file", selectedFile);
-        formData.append("userId", profileData.userId);
-        formData.append("userType", profileData.userType);
-        const res = await fetch("/api/profile/upload-photo", {
+        const fd = new FormData();
+        fd.append("file", selectedFile);
+        fd.append("userId", profileData.userId);
+        fd.append("userType", "employer");
+
+        const uploadRes = await fetch("/api/profile/upload-photo", {
           method: "POST",
-          body: formData,
+          body: fd,
         });
-        if (!res.ok) throw new Error("Erreur lors de l'upload de la photo");
-        const data = await res.json();
-        photo_url = data.photo_url;
+
+        if (!uploadRes.ok)
+          throw new Error("Erreur lors du téléchargement de la photo");
+
+        const uploadJson = await uploadRes.json();
+        photo_url = uploadJson.photo_url || photo_url;
       }
-      // 2. Save all profile data
+
       const payload = {
         establishment_name: form.establishmentName,
         establishment_type: form.establishmentType,
-        address: form.address, 
+        address: form.address,
         siret: form.siret,
         description: form.description,
         firstName: form.firstName,
@@ -80,182 +102,188 @@ export default function ProfileTabs() {
         phone: form.phone,
         profileData: { photoUrl: photo_url },
       };
+
       const res = await fetch("/api/users/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error("Erreur lors de la sauvegarde");
+
+      if (!res.ok)
+        throw new Error("Erreur lors de la sauvegarde du profil");
+
       setProfileData({ ...form, photo_url });
       setEditOpen(false);
       setSelectedFile(null);
-      setPreviewUrl(undefined);
-      alert("Modifications sauvegardées avec succès !");
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Erreur inconnue");
+      setPreviewUrl(null);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erreur inconnue");
     }
-  };
+  }
 
-  if (loading) return <div className="py-12 text-center text-gray-500">Chargement du profil...</div>;
-  if (error) return <div className="py-12 text-center text-red-500">{error}</div>;
+  if (loading)
+    return (
+      <div className="py-12 text-center text-slate-500 font-medium">
+        Chargement du profil...
+      </div>
+    );
+
   if (!profileData) return null;
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-      {/* Header Gradient */}
-      <div className="bg-gradient-to-r from-blue-500 to-blue-400 h-32 relative">
-        {/* Avatar */}
-        <div className="absolute left-30 top-30 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full border-4 border-white overflow-hidden shadow-lg bg-gray-100 flex items-center justify-center">
-          {profileData.photo_url ? (
-            <img src={profileData.photo_url} alt="Photo de profil" className="object-fill h-full w-[99%]" />
-          ) : (
-            <User2 className="w-20 h-20 text-blue-300" />
-          )}  
-        </div>
-      </div>
-      {/* Main Info */}
-      <div className="pt-10 pb-4 flex flex-col items-center">
-        <h2 className="text-2xl font-bold text-blue-900 mb-1">{profileData.firstName} {profileData.lastName}</h2>
-        <div className="text-blue-600 text-md font-medium mb-1">{profileData.fonction || "-"}</div>
-        <div className="text-blue-500 text-sm mb-2">{profileData.establishmentType === "hospital"
-          ? "Hôpital public"
-          : profileData.establishmentType === "clinic"
-          ? "Clinique privée"
-          : profileData.establishmentType === "cabinet"
-          ? "Cabinet médical"
-          : <span className="text-gray-400">-</span>}</div>
-        <Button
-          size="sm"
-          className="mt-2 inline-block bg-white border border-blue-500 text-blue-700 px-4 py-1 rounded-full shadow hover:bg-blue-50"
-          onClick={() => {
-            setForm({ ...profileData });
-            setEditOpen(true);
-          }}
-        >
-          Modifier le profil
-        </Button>
-      </div>
-      {/* About Section */}
-      <div className="px-8 mt-0 pb-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">À PROPOS</h3>
-        <p className="text-gray-600 text-sm mb-4">{profileData.description || "Aucune description renseignée."}</p>
-        <hr className="my-4" />
-        {/* Contact Info */}
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">INFORMATIONS DE CONTACT</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M16 12a4 4 0 01-8 0" /><circle cx="12" cy="7" r="4" /><path d="M12 14v7" /></svg>
-            <a href={`mailto:${profileData.email}`} className="text-blue-700 underline">{profileData.email || "-"}</a>
-          </div>
-          <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M22 16.92V19a2 2 0 01-2.18 2A19.86 19.86 0 013 5.18 2 2 0 015 3h2.09a2 2 0 012 1.72c.13 1.13.37 2.25.72 3.34a2 2 0 01-.45 2.11l-1.27 1.27a16 16 0 006.58 6.58l1.27-1.27a2 2 0 012.11-.45c1.09.35 2.21.59 3.34.72A2 2 0 0121 16.91z" /></svg>
-            <span className="font-semibold text-green-700">Téléphone:</span> <span>{profileData.phone || "-"}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 10.5a8.38 8.38 0 01-1.9 5.4c-1.5 2-4.1 4.1-7.1 4.1s-5.6-2.1-7.1-4.1A8.38 8.38 0 013 10.5C3 6.36 7.03 3 12 3s9 3.36 9 7.5z" /></svg>
-            <span>{profileData.phone || "-"}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 12.414a2 2 0 00-2.828 0l-4.243 4.243" /><path d="M7 10V7a5 5 0 0110 0v3" /><path d="M12 19v2" /></svg>
-            <a href={`https://maps.google.com/?q=${encodeURIComponent(profileData.address)}`} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">{profileData.address || "-"}</a>
-          </div>
-        </div>
-        <div className="mt-4 text-sm text-gray-700"><span className="font-semibold">SIRET:</span> {profileData.siret || "-"}</div>
-      </div>
-      {/* Edit Dialog (unchanged) */}
-      {editOpen && (
-        // ...existing code...
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg relative">
-            <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-700" onClick={() => setEditOpen(false)}>&times;</button>
-            <h3 className="text-xl font-bold mb-4 text-blue-900">Modifier le profil établissement</h3>
-            <div className="flex flex-col items-center mb-4">
-              <div className="w-24 h-24 rounded-full border-2 border-blue-200 overflow-hidden bg-gray-100 flex items-center justify-center">
-                {previewUrl || form?.photo_url ? (
-                  <img src={previewUrl || form.photo_url} alt="Profil établissement" className="object-cover w-full h-full" />
+    <div className="max-w-6xl mx-auto font-sans">
+      {/* PROFILE CARD */}
+      <Card className="overflow-hidden border-slate-200 shadow-xl rounded-2xl">
+        {/* Banner */}
+        <div className="h-20 bg-gradient-to-r from-blue-700 via-blue-800 to-slate-900 relative" />
+
+        <CardContent className="relative px-8 pb-8">
+          <div className="flex flex-col md:flex-row gap-8 -mt-20">
+            {/* Avatar */}
+            <div className="shrink-0">
+              <div className="w-48 h-48 rounded-full border-[6px] border-white overflow-hidden bg-slate-100 shadow-lg">
+                {profileData.photo_url ? (
+                  <img
+                    src={profileData.photo_url}
+                    alt="Profil"
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <Building2 className="w-12 h-12 text-blue-300" />
+                  <div className="w-full h-full flex items-center justify-center text-slate-400">
+                    <User size={80} />
+                  </div>
                 )}
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                className="mt-2 flex items-center gap-2"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Upload className="w-4 h-4" /> Changer la photo
-              </Button>
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                className="hidden"
-                onChange={e => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setSelectedFile(file);
-                    setPreviewUrl(URL.createObjectURL(file));
-                  }
-                }}
-              />
             </div>
-            <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>Nom de l'établissement</Label>
-                <Input className="mt-1" value={form.establishmentName || ""} onChange={e => setForm((f: any) => ({ ...f, establishmentName: e.target.value }))} />
-              </div>
-              <div>
-                <Label>Type d'établissement</Label>
-                <select className="mt-1 w-full border rounded h-10" value={form.establishmentType || ""} onChange={e => setForm((f: any) => ({ ...f, establishmentType: e.target.value }))}>
-                  <option value="">--</option>
-                  <option value="hospital">Hôpital public</option>
-                  <option value="clinic">Clinique privée</option>
-                  <option value="cabinet">Cabinet médical</option>
-                </select>
-              </div>
-              <div className="md:col-span-2">
-                <Label>Adresse</Label>
-                <Input className="mt-1" value={form.address || ""} onChange={e => setForm((f: any) => ({ ...f, address: e.target.value }))} />
-              </div>
-              <div>
-                <Label>SIRET</Label>
-                <Input className="mt-1" value={form.siret || ""} onChange={e => setForm((f: any) => ({ ...f, siret: e.target.value }))} />
+
+            {/* Info */}
+            <div className="flex-1 pt-24 space-y-6">
+              <div className="flex flex-col md:flex-row md:justify-between gap-4">
+                <div>
+                  <h1 className="text-4xl font-bold text-slate-900">
+                    {profileData.firstName} {profileData.lastName}
+                  </h1>
+                  <p className="text-xl font-semibold text-blue-600 flex items-center gap-2 mt-1">
+                    <Briefcase size={18} />
+                    {profileData.fonction || "Poste non renseigné"}
+                  </p>
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-2">
+                  <Button
+                    onClick={() => {
+                      setForm({ ...profileData });
+                      setEditOpen(true);
+                    }}
+                    className="bg-blue-100 hover:bg-blue-200 text-slate-900 rounded-lg px-6"
+                  >
+                    <Pencil className="w-4 h-4 mr-2" />
+                    Modifier le profil
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    onClick={onOpenDocuments}
+                    className="border-blue-200 text-blue-700"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    Voir les documents
+                  </Button>
+                </div>
               </div>
 
-              <div>
-                <Label>Prénom</Label>
-                <Input className="mt-1" value={form.firstName || ""} onChange={e => setForm((f: any) => ({ ...f, firstName: e.target.value }))} />
+              {/* Info grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-8 pt-6 border-t border-slate-100">
+                <InfoItem
+                  icon={<Building2 size={18} />}
+                  label="Établissement"
+                  value={profileData.establishmentName}
+                />
+                <InfoItem
+                  icon={<Mail size={18} />}
+                  label="Email"
+                  value={profileData.email}
+                />
+                <InfoItem
+                  icon={<Phone size={18} />}
+                  label="Téléphone"
+                  value={profileData.phone}
+                />
+                <InfoItem
+                  icon={<MapPin size={18} />}
+                  label="Localisation"
+                  value={profileData.address}
+                />
+                <InfoItem
+                  icon={<Hash size={18} />}
+                  label="SIRET"
+                  value={profileData.siret}
+                />
+                <InfoItem
+                  icon={<Info size={18} />}
+                  label="Type de structure"
+                  value={profileData.establishmentType}
+                />
               </div>
-              <div>
-                <Label>Nom</Label>
-                <Input className="mt-1" value={form.lastName || ""} onChange={e => setForm((f: any) => ({ ...f, lastName: e.target.value }))} />
-              </div>
-              <div>
-                <Label>Fonction</Label>
-                <Input className="mt-1" value={form.fonction || ""} onChange={e => setForm((f: any) => ({ ...f, fonction: e.target.value }))} />
-              </div>
-              <div>
-                <Label>Email</Label>
-                <Input className="mt-1" value={form.email || ""} onChange={e => setForm((f: any) => ({ ...f, email: e.target.value }))} />
-              </div>
-              <div>
-                <Label>Téléphone</Label>
-                <Input className="mt-1" value={form.phone || ""} onChange={e => setForm((f: any) => ({ ...f, phone: e.target.value }))} />
-              </div>
-                              <div className="md:col-span-2">
-                <Label>Description</Label>
-                <Input className="mt-1" value={form.description || ""} onChange={e => setForm((f: any) => ({ ...f, description: e.target.value }))} />
-              </div>
-            </form>
-            <div className="flex justify-end mt-6">
-              <Button className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow" onClick={handleSave}>
-                Enregistrer
-              </Button>
             </div>
           </div>
-        </div>
-      )}
+        </CardContent>
+      </Card>
+
+      {/* ABOUT */}
+      <Card className="mt-6 border-slate-200 shadow-sm rounded-2xl">
+        <CardContent className="p-8">
+          <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <Info size={20} className="text-blue-600" /> À propos
+          </h2>
+          <p className="text-slate-600 italic text-lg">
+            {profileData.description || "Aucune description renseignée."}
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* EDIT DIALOG (NEW COMPONENT) */}
+      <EditProfile
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        form={form}
+        setForm={setForm}
+        onSave={handleSave}
+        selectedFile={selectedFile}
+        setSelectedFile={setSelectedFile}
+        previewUrl={previewUrl}
+        setPreviewUrl={setPreviewUrl}
+      />
+    </div>
+  );
+}
+
+/* =========================
+   SMALL UI HELPER
+========================= */
+function InfoItem({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value?: string;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="p-2 bg-slate-50 rounded-lg text-slate-600">
+        {icon}
+      </div>
+      <div>
+        <p className="text-[10px] uppercase font-bold text-slate-400">
+          {label}
+        </p>
+        <p className="text-sm font-semibold text-slate-700">
+          {value || "-"}
+        </p>
+      </div>
     </div>
   );
 }

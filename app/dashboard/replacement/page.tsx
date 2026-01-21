@@ -254,7 +254,9 @@ export default function ReplacementDashboard() {
         {activeTab === "profile" ? (
           <ProfileHeader
             profileData={profileData}
-            onEditClick={() => setIsEditProfileOpen(true)}
+            setProfileData={setProfileData}
+            isEditProfileOpen={isEditProfileOpen}
+            setIsEditProfileOpen={setIsEditProfileOpen}
           />
         ) : null}
 

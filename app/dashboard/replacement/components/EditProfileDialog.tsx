@@ -1,10 +1,15 @@
-import React, { useRef, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import React, { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { CardDescription } from "@/components/ui/card";
-import { User } from "lucide-react";
+import { User, Upload } from "lucide-react";
 
 interface EditProfileDialogProps {
   open: boolean;
@@ -20,53 +25,48 @@ interface EditProfileDialogProps {
 }
 
 export default function EditProfileDialog({
-  open, onOpenChange,profileData, setProfileData,
-  fileInputRef, previewUrl, setPreviewUrl, selectedFile,
-  setSelectedFile, setIsEditProfileOpen,
+  open,
+  onOpenChange,
+  profileData,
+  setProfileData,
+  fileInputRef,
+  previewUrl,
+  setPreviewUrl,
+  selectedFile,
+  setSelectedFile,
+  setIsEditProfileOpen,
 }: EditProfileDialogProps) {
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setSelectedFile(file);
-    const tempUrl = URL.createObjectURL(file);
-    setPreviewUrl(tempUrl);
+    setPreviewUrl(URL.createObjectURL(file));
   };
 
   const handleSaveProfile = async () => {
-    setUploading(true);
-    setUploadError("");
+    setLoading(true);
+    setError("");
+
     let photoUrl = profileData.photoUrl;
-    // 1. Upload image if selected
-    if (selectedFile && profileData.userId) {
-      try {
-        const formData = new FormData();
-        formData.append("file", selectedFile);
-        formData.append("userId", profileData.userId);
+
+    try {
+      if (selectedFile && profileData.userId) {
+        const fd = new FormData();
+        fd.append("file", selectedFile);
+        fd.append("userId", profileData.userId);
 
         const res = await fetch("/api/profile/upload-photo", {
-          method: "POST", body: formData,
+          method: "POST",
+          body: fd,
         });
-
-        if (!res.ok) throw new Error("Erreur lors de l'upload");
+        if (!res.ok) throw new Error("Erreur upload photo");
         const data = await res.json();
-
         photoUrl = data.photo_url;
-
-        setProfileData((prev: any) => ({ ...prev, photoUrl: data.photo_url }));
-        setPreviewUrl(undefined); // reset temporary preview
-        setSelectedFile(null);
-      } catch (err) {
-        setUploadError("Erreur lors de l'upload de la photo");
-        setUploading(false);
-        return;
       }
-    }
 
-    // 2. Save profile data
-    try {
       const res = await fetch("/api/users/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -77,221 +77,212 @@ export default function EditProfileDialog({
           phone: profileData.phone,
           profileData: {
             specialty: profileData.specialty,
-            location: profileData.location, 
+            location: profileData.location,
             photoUrl,
             experience_years: profileData.experience_years,
             languages: profileData.languages,
             bio: profileData.bio,
             is_available: profileData.is_available,
-            availability_start: profileData.availability_start,
-            availability_end: profileData.availability_end,
           },
         }),
       });
-      if (!res.ok) throw new Error("Erreur lors de la sauvegarde du profil");
+
+      if (!res.ok) throw new Error("Erreur sauvegarde");
+
       setIsEditProfileOpen(false);
-    } catch (err) {
-      setUploadError("Erreur lors de la sauvegarde du profil");
+      setSelectedFile(null);
+      setPreviewUrl(undefined);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erreur inconnue");
     } finally {
-      setUploading(false);
+      setLoading(false);
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-  <DialogContent className="bg-gradient-to-br from-blue-50 to-white rounded-2xl p-3 max-w-xl min-h-[400px] fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50">
-        {/* Close icon button */}
-        <button
-          type="button"
-          className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 z-10"
-          onClick={() => setIsEditProfileOpen(false)}
-          aria-label="Fermer"
-        >
-        </button>
+      <DialogContent className="max-w-3xl max-h-[85vh] p-0 overflow-hidden rounded-2xl bg-white shadow-xl">
+        {/* HEADER */}
+        <DialogHeader className="px-6 py-4 border-b bg-slate-50">
+          <DialogTitle className="text-lg font-semibold text-slate-900">
+            Modifier le profil
+          </DialogTitle>
+        </DialogHeader>
 
-  <form className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full scale-90">
-          <div className="md:col-span-2 flex flex-col items-center mb-0">
-            <div className="relative h-24 w-24 rounded-full bg-blue-100 mb-2 overflow-hidden flex items-center justify-center">
+        <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] h-full">
+          {/* LEFT PANEL */}
+          <div className="bg-blue-50 border-r p-6 flex flex-col items-center">
+            <div className="w-24 h-24 rounded-full overflow-hidden bg-white border shadow flex items-center justify-center">
               {previewUrl || profileData.photoUrl ? (
                 <img
                   src={previewUrl || profileData.photoUrl}
-                  alt="Profil"
-                  className="object-cover w-full h-full"
+                  className="w-full h-full object-cover"
                 />
               ) : (
-                <User className="w-12 h-12 text-blue-500" />
+                <User className="w-8 h-8 text-blue-400" />
               )}
-              <button
-                type="button"
-                className="absolute bottom-0 right-0 bg-white border border-blue-200 rounded-full p-1 shadow hover:bg-blue-50"
-                onClick={() => fileInputRef.current?.click()}
-                title="Changer la photo"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-5 h-5 text-blue-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2a2.828 2.828 0 11-4-4 2.828 2.828 0 014 4z"
-                  />
-                </svg>
-              </button>
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                className="hidden"
-                onChange={handleImageChange}
-                disabled={uploading}
-              />
             </div>
-            {uploading && <div className="text-xs text-blue-600 mt-1">Upload en cours...</div>}
-            {uploadError && <div className="text-xs text-red-600 mt-1">{uploadError}</div>}
-          </div>
-          {/* Existing form inputs + new fields */}
-          <div className="mt-0">
-            <Label className="text-base text-blue-800">Prénom</Label>
-            <Input
-                className="mt-1 h-11 text-xl px-4 w-[90%]"
-              value={profileData.firstName}
-              onChange={(e) => setProfileData((prev: any) => ({ ...prev, firstName: e.target.value }))}
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-4"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Changer la photo
+            </Button>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
+              disabled={loading}
             />
           </div>
-          <div className="mt-0">
-            <Label className="text-base text-blue-800">Nom</Label>
-            <Input
-                className="mt-1 h-11 text-xl px-4 w-[90%]"
-              value={profileData.lastName}
-              onChange={(e) => setProfileData((prev: any) => ({ ...prev, lastName: e.target.value }))}
-            />
-          </div>
-          <div className="mt-0">
-            <Label className="text-base text-blue-800">Email</Label>
-            <Input
-                className="mt-1 h-11 text-xl px-4 w-[90%]"
-              value={profileData.email}
-              onChange={(e) => setProfileData((prev: any) => ({ ...prev, email: e.target.value }))}
-            />
-          </div>
-          <div className="mt-0">
-            <Label className="text-base text-blue-800">Téléphone</Label>
-            <Input
-                className="mt-1 h-11 text-xl px-4 w-[90%]"
-              value={profileData.phone}
-              onChange={(e) => setProfileData((prev: any) => ({ ...prev, phone: e.target.value }))}
-            />
-          </div>
-          <div className="mt-0">
-            {profileData.profession === "Medecin" && (
-              <>
-                <Label className="text-base text-blue-800">Spécialité</Label>
+
+          {/* RIGHT FORM */}
+          <div className="p-6 overflow-y-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>Prénom</Label>
+                <Input
+                  className="mt-1 h-9"
+                  value={profileData.firstName}
+                  onChange={(e) =>
+                    setProfileData((p: any) => ({
+                      ...p,
+                      firstName: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              <div>
+                <Label>Nom</Label>
+                <Input
+                  className="mt-1 h-9"
+                  value={profileData.lastName}
+                  onChange={(e) =>
+                    setProfileData((p: any) => ({
+                      ...p,
+                      lastName: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              <div>
+                <Label>Email</Label>
+                <Input
+                  className="mt-1 h-9"
+                  value={profileData.email}
+                  onChange={(e) =>
+                    setProfileData((p: any) => ({
+                      ...p,
+                      email: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              <div>
+                <Label>Téléphone</Label>
+                <Input
+                  className="mt-1 h-9"
+                  value={profileData.phone}
+                  onChange={(e) =>
+                    setProfileData((p: any) => ({
+                      ...p,
+                      phone: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              {profileData.profession === "Medecin" && (
+                <div>
+                  <Label>Spécialité</Label>
+                  <Input
+                    className="mt-1 h-9"
+                    value={profileData.specialty || ""}
+                    onChange={(e) =>
+                      setProfileData((p: any) => ({
+                        ...p,
+                        specialty: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              )}
+
+              <div>
+                <Label>Localisation</Label>
+                <Input
+                  className="mt-1 h-9"
+                  value={profileData.location || ""}
+                  onChange={(e) =>
+                    setProfileData((p: any) => ({
+                      ...p,
+                      location: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <Label>Bio</Label>
+                <Input
+                  className="mt-1 h-9"
+                  value={profileData.bio || ""}
+                  onChange={(e) =>
+                    setProfileData((p: any) => ({
+                      ...p,
+                      bio: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              <div>
+                <Label>Disponibilité</Label>
                 <select
-                  className="mt-1 h-11 text-lg px-4 w-[90%] border rounded bg-gradient-to-br from-blue-50 to-white text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-                  value={profileData.specialty}
-                  onChange={(e) => setProfileData((prev: any) => ({ ...prev, specialty: e.target.value }))}
+                  className="mt-1 w-full h-9 border rounded-md px-2 bg-white"
+                  value={
+                    profileData.is_available === true
+                      ? "true"
+                      : profileData.is_available === false
+                      ? "false"
+                      : ""
+                  }
+                  onChange={(e) =>
+                    setProfileData((p: any) => ({
+                      ...p,
+                      is_available: e.target.value === "true",
+                    }))
+                  }
                 >
-                  <option value="">Sélectionner...</option>
-                  <option value="Médecin généraliste">Médecin généraliste</option>
-                  <option value="Cardiologue">Cardiologue</option>
-                  <option value="Dermatologue">Dermatologue</option>
-                  <option value="Pédiatre">Pédiatre</option>
-                  <option value="Gynécologue">Gynécologue</option>
-                  <option value="Radiologue">Radiologue</option>
-                  <option value="Anesthésiste">Anesthésiste</option>
-                  <option value="Autre">Autre</option>
+                  <option value="">--</option>
+                  <option value="true">Disponible</option>
+                  <option value="false">Non disponible</option>
                 </select>
-              </>
+              </div>
+            </div>
+
+            {error && (
+              <p className="text-sm text-red-600 mt-3">{error}</p>
             )}
           </div>
-          <div className="mt-0">
-            <Label className="text-base text-blue-800">Localisation</Label>
-            <Input
-                className="mt-1 h-11 text-xl px-4 w-[90%]"
-              value={profileData.location}
-              onChange={(e) => setProfileData((prev: any) => ({ ...prev, location: e.target.value }))}
-            />
-          </div>
-          <div className="mt-0">
-            <Label className="text-base text-blue-800">Années d'expérience</Label>
-            <Input
-                className="mt-1 h-12 text-xl px-4 w-[90%]"
-              type="number"
-              min="0"
-              value={profileData.experience_years ?? ''}
-              onChange={(e) => setProfileData((prev: any) => ({ ...prev, experience_years: e.target.value }))}
-            />
-          </div>
-          <div className="mt-0">
-            <Label className="text-base text-blue-800">Langues parlées</Label>
-            <Input
-                className="mt-1 h-12 text-xl px-4 w-[90%]"
-              value={Array.isArray(profileData.languages) ? profileData.languages.join(', ') : (profileData.languages || '')}
-              onChange={(e) => setProfileData((prev: any) => ({ ...prev, languages: e.target.value.split(',').map((l: string) => l.trim()) }))}
-            />
-          </div>
-                    <div className="md:col-span-2 flex flex-row gap-1 items-end">
-                      <div className="flex-1">
-                        <Label className="text-base text-blue-800">Disponible</Label>
-                        <div className="mt-1 flex gap-2">
-                          <button
-                            type="button"
-                             className={`flex-1 h-11 rounded-lg border px-4 text-xl mx-auto flex items-center justify-center transition-all duration-150 ${profileData.is_available === true ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-blue-700 border-gray-300'}`}
-                            onClick={() => setProfileData((prev: any) => ({ ...prev, is_available: true }))}
-                          >
-                            <span className="mr-2">✔️</span> Oui
-                          </button>
-                          <button
-                            type="button"
-                             className={`flex-1 h-11 rounded-lg border px-4 text-xl mx-auto flex items-center justify-center transition-all duration-150 ${profileData.is_available === false ? 'bg-red-500 text-white border-red-500' : 'bg-white text-blue-700 border-gray-300'}`}
-                            onClick={() => setProfileData((prev: any) => ({ ...prev, is_available: false }))}
-                          >
-                            <span className="mr-2">❌</span> Non
-                          </button>
-                        </div>
-                      </div>
-                      {/* date availability */}
-                      {/* <div className="flex-1">
-                        <Label className="text-base text-blue-800">Début disponibilité</Label>
-                        <Input
-                          className="mt-1 h-11 text-lg px-4"
-                          type="date"
-                          value={profileData.availability_start || ''}
-                          onChange={(e) => setProfileData((prev: an
-                      y) => ({ ...prev, availability_start: e.target.value }))}
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <Label className="text-base text-blue-800">Fin disponibilité</Label>
-                        <Input
-                          className="mt-1 h-11 text-lg px-4"
-                          type="date"
-                          value={profileData.availability_end || ''}
-                          onChange={(e) => setProfileData((prev: any) => ({ ...prev, availability_end: e.target.value }))}
-                        />
-                      </div> */}
-                    </div> 
-          <div className="md:col-span-2 mt-0">
-            <Label className="text-base text-blue-800">Bio</Label>
-            <Input
-              className="mt-1 h-11 text-lg px-4"
-              value={profileData.bio || ''}
-              onChange={(e) => setProfileData((prev: any) => ({ ...prev, bio: e.target.value }))}
-            />
-          </div>
+        </div>
 
-
-        </form> 
-  <DialogFooter className="mt-0 flex flex-col md:flex-row gap-2 md:gap-0 justify-between items-center">
+        <DialogFooter className="px-6 py-4 border-t bg-slate-50">
           <Button
-            className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6"
             onClick={handleSaveProfile}
-            disabled={uploading}
+            disabled={loading}
           >
             Enregistrer
           </Button>
