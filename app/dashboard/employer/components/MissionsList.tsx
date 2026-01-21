@@ -4,13 +4,14 @@ function formatDateDMY(dateString: string | undefined) {
   const d = new Date(dateString);
   if (isNaN(d.getTime())) return dateString;
   return d.toLocaleDateString('fr-FR');
-}
+} 
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Eye, Edit, Trash2, Users, Calendar, MapPin, Euro, Plus, CheckCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import EditMissionModal from "./EditMissionModal";
+import AddMissionModal from "./AddMissionModal";
 
 export default function MissionsList({  
   missions, setMissions, employerId, loading, setLoading, error, setError, setShowCreateMission
@@ -25,6 +26,7 @@ export default function MissionsList({
   setShowCreateMission: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const [editMission, setEditMission] = useState<any | null>(null);
+  const [showCreateMission, setShowCreateMissionLocal] = useState(false);
 
   // Edit mission handler (opens modal)
   function handleEditMission(mission: any) {
@@ -82,7 +84,7 @@ export default function MissionsList({
           ))}
         </select>
         <Button
-          onClick={() => setShowCreateMission(true)}
+          onClick={() => setShowCreateMissionLocal(true)}
           className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-full px-6 py-2 shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2"
         >
           <Plus className="w-5 h-5" />
@@ -156,6 +158,15 @@ export default function MissionsList({
           ))}
         </div>
       )}
+      {/* Add Mission Modal */}
+      <AddMissionModal
+        showForm={showCreateMission}
+        setShowForm={setShowCreateMissionLocal}
+        setMissions={setMissions}
+        employerId={employerId || ''}
+        setLoading={setLoading}
+        setError={setError}
+      />
       {/* Edit Modal */}
       <EditMissionModal
         editMission={editMission}

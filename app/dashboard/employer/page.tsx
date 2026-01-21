@@ -8,7 +8,6 @@ import MissionsList from "./components/MissionsList"
 import DoctorsList from "./components/DoctorsList"
 import ProfileTabs from "./components/ProfileTabs"
 import EmployerDocumentsSection from "./components/EmployerDocumentsSection"
-import AddMissionModal from "./components/AddMissionModal"
 import Candidature from "./components/Candidature"
 import EmployerProfileHeader from "./components/EmployerProfileHeader"
 import FeedSection from "../replacement/components/FeedSection"
@@ -168,13 +167,13 @@ export default function EmployerDashboard() {
 
             {/* Right: Actions */}
             <div className="flex items-center gap-2">
-              <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">
+              {/* <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">
                 <Bell className="w-5 h-5" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
               </button>
               <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">
                 <Mail className="w-5 h-5" />
-              </button>
+              </button> */}
               <Button
                 onClick={logout}
                 variant="outline"
@@ -199,36 +198,12 @@ export default function EmployerDashboard() {
           <EmployerProfileHeader profileData={profileData} />
         )}
 
-        {/* Quick action to create mission on missions tab */}
-        {activeTab === "missions" && (
-          <div className="mb-4 flex justify-end">
-            <Button
-              onClick={() => setShowCreateMission(true)}
-              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg"
-            >
-              <Briefcase className="w-4 h-4 mr-2" />
-              Créer une mission
-            </Button>
-          </div>
-        )}
-
         {/* Page Content */}
         <div className="space-y-4">
           {renderContent()}
         </div>
       </main>
-
-      {/* Modal création mission */}
-      <AddMissionModal
-        showForm={showCreateMission}
-        setShowForm={setShowCreateMission}
-        setMissions={setMissions}
-        employerId={employerId ?? ""}
-        setLoading={setLoading}
-        setError={setError}
-      />
     </div>
   )
 }
-
 

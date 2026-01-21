@@ -1,7 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Calendar, Briefcase, MapPin, Building2 } from "lucide-react";
-import { formatDate } from "./utils";
 
 interface MissionCardProps {
   mission: any;
