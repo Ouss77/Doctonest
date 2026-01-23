@@ -36,3 +36,59 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     return NextResponse.json({ error: "Erreur lors de la suppression du diplôme" }, { status: 500 });
   }
 }
+ 
+// ✅ Update diplomas
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const user = getUserFromJWT(req);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const diplomaId = params.id;
+  console.log("UPDATE DIPLOMA", {
+  diplomaId,
+  userId: user.userId,
+});
+
+  try {
+    const body = await req.json();
+
+    const {
+      title,
+      institution,
+      year,
+      description,
+    } = body;
+
+    const updated = await db.updateDiploma({
+      id: diplomaId,
+      user_id: user.userId,
+      title: title.trim(),
+      institution: institution.trim(),
+      year: year || null,
+      description: description || null,
+    });
+
+    if (!updated) {
+      return NextResponse.json(
+        { error: "Diplôme introuvable ou accès refusé" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      diploma: updated,
+    });
+  } catch (error) {
+    console.error("[Diplomas][PUT] error:", error);
+    return NextResponse.json(
+      { error: "Erreur lors de la mise à jour du diplôme" },
+      { status: 500 }
+    );
+  }
+}

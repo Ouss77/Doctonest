@@ -132,8 +132,7 @@ export const db = {
     try {
       const result = await sql`
   SELECT rp.photo_url, rp.profession, rp.specialty, rp.location, rp.bio,
-  rp.availability_start, rp.availability_end, rp.is_available, rp.languages, rp.profile_status,
-  rp.experience_years, u.first_name, u.last_name, u.email, u.phone
+  rp.is_available, rp.languages, rp.profile_status, rp.experience_years, u.first_name, u.last_name, u.email, u.phone
         FROM replacement_profiles rp
         JOIN users u ON rp.user_id = u.id
         WHERE rp.user_id = ${user_id}
@@ -468,6 +467,34 @@ export const db = {
       throw new Error("Failed to delete diploma")
     }
   },
+
+async updateDiploma(diplomaData: {
+  id: string
+  user_id: string
+  title: string
+  institution: string
+  year?: string
+  description?: string
+}) {
+  try {
+    const result = await sql`
+      UPDATE diplomas
+      SET
+        title = ${diplomaData.title},
+        institution = ${diplomaData.institution},
+        year = ${diplomaData.year || null},
+        description = ${diplomaData.description || null}
+      WHERE id = ${diplomaData.id}
+        AND user_id = ${diplomaData.user_id}
+      RETURNING *
+    `
+    return result[0] || null
+  } catch (error) {
+    console.error("Error updating diploma:", error)
+    throw new Error("Failed to update diploma")
+  }
+},
+
 
   async updateProfilePhoto(user_id: string, user_type: "replacement" | "employer", photo_url: string) {
     try {

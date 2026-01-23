@@ -255,11 +255,10 @@ export default function ReplacementDashboard() {
           <ProfileHeader
             profileData={profileData}
             setProfileData={setProfileData}
-            isEditProfileOpen={isEditProfileOpen}
             setIsEditProfileOpen={setIsEditProfileOpen}
           />
         ) : null}
-
+ 
         {/* Feed Content */}
         <div className="space-y-4">
           {renderContent()}

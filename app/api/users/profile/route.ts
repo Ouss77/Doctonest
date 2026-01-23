@@ -30,6 +30,22 @@ export async function GET(request: NextRequest) {
        profile = await db.getEmployerProfile(user.id)
     }
 
+    // Format profile data to match frontend expectations
+    let formattedProfile = null;
+    if (profile) {
+      formattedProfile = {
+        specialty: profile.specialty,
+        profession: profile.profession,
+        location: profile.location,
+        experience_years: profile.experience_years,
+        languages: Array.isArray(profile.languages) ? profile.languages : (profile.languages ? [profile.languages] : []),
+        bio: profile.bio,
+        is_available: profile.is_available,
+        photo_url: profile.photo_url,
+        profile_status: profile.profile_status,
+      };
+    }
+
     return NextResponse.json({
       user: {
         id: user.id,
@@ -39,7 +55,7 @@ export async function GET(request: NextRequest) {
         lastName: user.last_name,
         phone: user.phone,
       },
-      profile,
+      profile: formattedProfile,
     })
   } catch (error) {
     console.error("Profile fetch error:", error)
@@ -102,14 +118,14 @@ export async function PUT(request: NextRequest) {
         await sql`
           UPDATE replacement_profiles 
           SET specialty = ${profileData.specialty || null},
+              profession = ${profileData.profession || null},
               location = ${profileData.location || null},
               experience_years = ${profileData.experience_years || null},
               diploma = ${profileData.diploma || null},
               languages = ${profileData.languages || []},
               bio = ${profileData.bio || null},
               is_available = ${typeof profileData.is_available === 'boolean' ? profileData.is_available : null},
-              availability_start = ${profileData.availability_start || null},
-              availability_end = ${profileData.availability_end || null},
+              photo_url = ${profileData.photo_url || profileData.photoUrl || null},
               updated_at = NOW()
           WHERE user_id = ${decoded.userId}
         `

@@ -134,7 +134,7 @@ export default function ProfileTabs({
   return (
     <div className="max-w-6xl mx-auto font-sans">
       {/* PROFILE CARD */}
-      <Card className="overflow-hidden border-slate-200 shadow-xl rounded-2xl">
+      <Card className="overflow-hidden border-slate-200 shadow-xl rounded-2xl pt-0">
         {/* Banner */}
         <div className="h-20 bg-gradient-to-r from-blue-700 via-blue-800 to-slate-900 relative" />
 
@@ -142,7 +142,7 @@ export default function ProfileTabs({
           <div className="flex flex-col md:flex-row gap-8 -mt-20">
             {/* Avatar */}
             <div className="shrink-0">
-              <div className="w-48 h-48 rounded-full border-[6px] border-white overflow-hidden bg-slate-100 shadow-lg">
+              <div className="w-48 h-56 mt-16 rounded-3xl border-[6px] border-white overflow-hidden bg-slate-100 shadow-lg">
                 {profileData.photo_url ? (
                   <img
                     src={profileData.photo_url}
