@@ -129,7 +129,6 @@ export default function AnnouncementDetailPage() {
           </Link>
           <nav className="hidden md:flex gap-8">
             <Link href="/#features" className="text-blue-100 text-base font-medium hover:text-white transition">Fonctionnalités</Link>
-            <Link href="/#how-it-works" className="text-blue-100 text-base font-medium hover:text-white transition">Comment ça marche</Link>
             <Link href="/annonces" className="text-white text-base font-medium border-b-2 border-white">Annonces</Link>
           </nav>
           <div className="hidden md:flex items-center gap-2">

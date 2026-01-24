@@ -33,17 +33,29 @@ export async function GET(request: NextRequest) {
     // Format profile data to match frontend expectations
     let formattedProfile = null;
     if (profile) {
-      formattedProfile = {
-        specialty: profile.specialty,
-        profession: profile.profession,
-        location: profile.location,
-        experience_years: profile.experience_years,
-        languages: Array.isArray(profile.languages) ? profile.languages : (profile.languages ? [profile.languages] : []),
-        bio: profile.bio,
-        is_available: profile.is_available,
-        photo_url: profile.photo_url,
-        profile_status: profile.profile_status,
-      };
+      if (user.user_type === "replacement") {
+        formattedProfile = {
+          specialty: profile.specialty,
+          profession: profile.profession,
+          location: profile.location,
+          experience_years: profile.experience_years,
+          languages: Array.isArray(profile.languages) ? profile.languages : (profile.languages ? [profile.languages] : []),
+          bio: profile.bio,
+          is_available: profile.is_available,
+          photo_url: profile.photo_url,
+          profile_status: profile.profile_status,
+        };
+      } else if (user.user_type === "employer") {
+        formattedProfile = {
+          organization_name: profile.organization_name,
+          organization_type: profile.organization_type,
+          siret_number: profile.siret_number,
+          address: profile.address,
+          description: profile.description,
+          fonction: profile.fonction,
+          photo_url: profile.photo_url,
+        };
+      }
     }
 
     return NextResponse.json({
@@ -145,6 +157,7 @@ export async function PUT(request: NextRequest) {
               address = ${employer.address || address || null},
               description = ${employer.description || description || null},
               fonction = ${employer.fonction || fonction || null},
+              photo_url = ${employer.photoUrl || profileData?.photoUrl || null},
               updated_at = NOW()
           WHERE user_id = ${decoded.userId}
         `

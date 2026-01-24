@@ -2,17 +2,9 @@
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react"; // remove useRef import
 import Link from "next/link";
-import {
-  Menu,
-  X,
-  Stethoscope,
-  ArrowRight,
-  UserPlus,
-  UploadCloud,
-  MailCheck,
-  FilePenLine, 
-  FileSearch,
-  Handshake,
+import { UserPlus, Search, MessageSquare } from 'lucide-react';
+
+import { Menu,  X,  Stethoscope,  ArrowRight,  UploadCloud,  MailCheck,  FilePenLine,   FileSearch,  Handshake,
 
 } from "lucide-react";
 import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram } from "lucide-react";
@@ -23,6 +15,28 @@ import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram } from "luc
     { name: 'LinkedIn', icon: Linkedin, href: 'https://linkedin.com/company/lefoyermedical' },
     { name: 'Instagram', icon: Instagram, href: 'https://instagram.com/lefoyermedical' },
   ];
+
+
+const steps = [
+  {
+    title: "Créez votre profil",
+    description: "Inscrivez-vous en quelques clics et renseignez votre spécialité et vos disponibilités.",
+    icon: <UserPlus className="w-8 h-8 text-blue-400" />,
+    stepNumber: "01"
+  },
+  {
+    title: "Publiez ou Recherchez",
+    description: "Déposez une annonce de remplacement ou parcourez les offres disponibles dans votre région.",
+    icon: <Search className="w-8 h-8 text-purple-400" />,
+    stepNumber: "02"
+  },
+  {
+    title: "Connectez-vous",
+    description: "Échangez directement via notre messagerie sécurisée et validez votre remplacement en toute confiance.",
+    icon: <MessageSquare className="w-8 h-8 text-blue-400" />,
+    stepNumber: "03"
+  }
+];
 
 export default function HomePage() {
   // Use useEffect to clear auth data only once on component mount
@@ -56,8 +70,8 @@ export default function HomePage() {
           className={`fixed top-0 left-0 w-full z-50 pointer-events-auto flex items-center justify-between px-10 transition-all duration-300 ${scrolled ? 'py-4 bg-gray-900/95 backdrop-blur-md shadow-lg' : 'py-8 bg-transparent'}`}
         >
           <div className="flex items-center gap-3">
-            <img src="logo.png" alt="Logo Le Foyer Médical" className="w-10 h-10 rounded-full" />
-            <span className="font-bold text-xl text-white">Le Foyer Médical</span>
+            <img src="logo.png" alt="Logo DoctoNest" className="w-10 h-10 rounded-full" />
+            <span className="font-bold text-xl text-white">DoctoNest</span>
           </div>
           <nav className="hidden md:flex gap-10">
             <Link href="#features" className="text-white text-base font-medium hover:text-blue-200 transition">Fonctionnalités</Link>
@@ -83,7 +97,6 @@ export default function HomePage() {
             <div className="md:hidden bg-gray-900/95 shadow-md border-t absolute top-full left-0 w-full">
               <nav className="flex flex-col items-start gap-4 p-4">
                 <Link href="#features" className="text-white text-base font-medium hover:text-blue-200 transition" onClick={() => setMobileOpen(false)}>Fonctionnalités</Link>
-                <Link href="#how-it-works" className="text-white text-base font-medium hover:text-blue-200 transition" onClick={() => setMobileOpen(false)}>Comment ça marche</Link>
                 <Link href="/annonces" className="text-white text-base font-medium hover:text-blue-200 transition" onClick={() => setMobileOpen(false)}>Annonces</Link>
                 <hr className="w-full border-gray-700 my-2" />
                 <Link href="/annonces/new" onClick={() => setMobileOpen(false)} className="w-full">
@@ -182,8 +195,8 @@ export default function HomePage() {
                 <div className="w-20 h-20 rounded-xl flex items-center justify-center mb-6 bg-blue-600">
                   <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="7" y="2" width="10" height="20" rx="2" /><path d="M7 7h10" /><path d="M7 13h10" /></svg>
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2 text-center">Cliniques</h3>
-                <p className="text-gray-300 text-center">Solutions de remplacement pour cliniques et centres médicaux</p>
+                <h3 className="text-xl font-semibold text-white mb-2 text-center">Infirmiers</h3>
+                <p className="text-gray-300 text-center">Solutions de remplacement pour infirmiers et centres médicaux</p>
               </div>
             </div>
           </div>
@@ -196,7 +209,7 @@ export default function HomePage() {
           <div className="container mx-auto px-4 text-center relative z-10">
             <h2 className="text-4xl lg:text-6xl font-serif font-bold mb-6">Prêt à simplifier vos remplacements ?</h2>
             <p className="text-xl mb-12 opacity-90 max-w-3xl mx-auto leading-relaxed">
-              Rejoignez des milliers de professionnels qui font confiance à Le Foyer Médical pour leurs remplacements.
+              Rejoignez des milliers de professionnels qui font confiance à DoctoNest pour leurs remplacements.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <Link href="/register">
@@ -211,6 +224,40 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+        <section className="py-20 bg-[#020617] text-white">
+      <div className="container mx-auto px-6 text-center">
+        <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          Comment ça <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">marche ?</span>
+        </h2>
+        <p className="text-gray-400 mb-16 max-w-2xl mx-auto">
+          Une plateforme simplifiée pour permettre aux professionnels de santé de se concentrer sur l'essentiel : le soin.
+        </p>
+
+        <div className="grid md:grid-grid-cols-3 gap-12 relative">
+          {/* Ligne de connexion (Desktop uniquement) */}
+          <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 -translate-y-12"></div>
+
+          {steps.map((step, index) => (
+            <div key={index} className="relative flex flex-col items-center group">
+              {/* Cercle d'icône */}
+              <div className="w-20 h-20 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 z-10 group-hover:border-blue-500/50 transition-colors duration-300 shadow-xl">
+                {step.icon}
+              </div>
+              
+              {/* Numéro d'étape */}
+              <span className="absolute -top-4 right-1/4 md:right-1/3 text-6xl font-black text-white/5 select-none">
+                {step.stepNumber}
+              </span>
+
+              <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
+              <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
+                {step.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
 
         {/* --- REMOVE inline "Déposer une annonce" form section --- */}
         {/* ...existing content continues... */}
@@ -226,9 +273,9 @@ export default function HomePage() {
           {/* Col 1: Marque et Slogan */}
           <div className="max-w-sm">
             <div className="flex items-center gap-3 mb-4">
-              <img src="/logo.png" alt="Logo Le Foyer Médical" className="w-12 h-12 rounded-full" />
+              <img src="/logo.png" alt="Logo DoctoNest" className="w-12 h-12 rounded-full" />
               <span className="text-xl font-bold text-white tracking-wide">
-                Le Foyer Médical
+                DoctoNest
               </span>
             </div>
             <p className="text-gray-400 leading-relaxed">
@@ -280,7 +327,7 @@ export default function HomePage() {
         {/* === Barre de copyright inférieure === */}
         <div className="mt-12 pt-8 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center text-center sm:text-left">
           <p className="text-gray-500 text-sm mb-4 sm:mb-0">
-            &copy; {new Date().getFullYear()} Le Foyer Médical. Tous droits réservés.
+            &copy; {new Date().getFullYear()} DoctoNest. Tous droits réservés.
           </p>
           <div className="flex items-center gap-6 text-gray-500 text-sm">
             <a href="/terms" className="hover:text-white transition-colors">Conditions d'utilisation</a>

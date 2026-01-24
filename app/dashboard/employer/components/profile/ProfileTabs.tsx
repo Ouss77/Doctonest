@@ -1,19 +1,9 @@
-import {
-  Building2,
-  Mail,
-  Phone,
-  MapPin,
-  Pencil,
-  User,
-  Info,
-  Hash,
-  Briefcase,
-  FileText,
-} from "lucide-react";
+import { Building2, Mail, Phone, MapPin, Pencil, User, Info, Hash, Briefcase, FileText, MessageSquare, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import EditProfile from "./EditProfile";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export default function ProfileTabs({
   onOpenDocuments,
@@ -22,10 +12,9 @@ export default function ProfileTabs({
 }) {
   const [profileData, setProfileData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
   const [editOpen, setEditOpen] = useState(false);
+  const [contactDialogOpen, setContactDialogOpen] = useState(false);
   const [form, setForm] = useState<any>(null);
-
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -39,7 +28,6 @@ export default function ProfileTabs({
           credentials: "include",
         });
         const data = await res.json();
-
         setProfileData({
           userId: data.user?.id || "",
           photo_url: data.profile?.photo_url || "",
@@ -90,18 +78,20 @@ export default function ProfileTabs({
       }
 
       const payload = {
+        firstName: form.firstName,
+        lastName: form.lastName,
+        email: form.email,
+        phone: form.phone,
         establishment_name: form.establishmentName,
         establishment_type: form.establishmentType,
         address: form.address,
         siret: form.siret,
         description: form.description,
-        firstName: form.firstName,
-        lastName: form.lastName,
         fonction: form.fonction,
-        email: form.email,
-        phone: form.phone,
         profileData: { photoUrl: photo_url },
       };
+
+      console.log("Sending profile update:", payload);
 
       const res = await fetch("/api/users/profile", {
         method: "PUT",
@@ -110,11 +100,13 @@ export default function ProfileTabs({
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok)
-        throw new Error("Erreur lors de la sauvegarde du profil");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Erreur lors de la sauvegarde du profil");
+      }
 
       setProfileData({ ...form, photo_url });
-      setEditOpen(false);
+      return true,
       setSelectedFile(null);
       setPreviewUrl(null);
     } catch (e) {
@@ -168,9 +160,23 @@ export default function ProfileTabs({
                     <Briefcase size={18} />
                     {profileData.fonction || "Poste non renseigné"}
                   </p>
+                  {profileData.address && (
+                    <p className="text-base text-slate-600 flex items-center gap-2 mt-2">
+                      <MapPin size={16} />
+                      {profileData.address}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-2">
+                  <Button
+                    onClick={() => setContactDialogOpen(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6"
+                  >
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Contacter
+                  </Button>
+
                   <Button
                     onClick={() => {
                       setForm({ ...profileData });
@@ -179,7 +185,7 @@ export default function ProfileTabs({
                     className="bg-blue-100 hover:bg-blue-200 text-slate-900 rounded-lg px-6"
                   >
                     <Pencil className="w-4 h-4 mr-2" />
-                    Modifier le profil
+                    Modifier
                   </Button>
 
                   <Button
@@ -188,42 +194,27 @@ export default function ProfileTabs({
                     className="border-blue-200 text-blue-700"
                   >
                     <FileText className="w-4 h-4 mr-2" />
-                    Voir les documents
+                    Documents
                   </Button>
                 </div>
               </div>
 
-              {/* Info grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-8 pt-6 border-t border-slate-100">
+              {/* Info grid - Améliorée */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 border-t border-slate-100">
                 <InfoItem
-                  icon={<Building2 size={18} />}
-                  label="Établissement"
-                  value={profileData.establishmentName}
+                  icon={<Building2 size={20} />}
+                  label="Nom d'établissement"
+                  value={profileData.establishmentName || "Non renseigné"}
                 />
                 <InfoItem
-                  icon={<Mail size={18} />}
-                  label="Email"
-                  value={profileData.email}
-                />
-                <InfoItem
-                  icon={<Phone size={18} />}
-                  label="Téléphone"
-                  value={profileData.phone}
-                />
-                <InfoItem
-                  icon={<MapPin size={18} />}
-                  label="Localisation"
-                  value={profileData.address}
-                />
-                <InfoItem
-                  icon={<Hash size={18} />}
+                  icon={<Hash size={20} />}
                   label="SIRET"
-                  value={profileData.siret}
+                  value={profileData.siret || "Non renseigné"}
                 />
                 <InfoItem
-                  icon={<Info size={18} />}
-                  label="Type de structure"
-                  value={profileData.establishmentType}
+                  icon={<Info size={20} />}
+                  label="Type"
+                  value={profileData.establishmentType || "Non renseigné"}
                 />
               </div>
             </div>
@@ -243,7 +234,77 @@ export default function ProfileTabs({
         </CardContent>
       </Card>
 
-      {/* EDIT DIALOG (NEW COMPONENT) */}
+      {/* CONTACT DIALOG */}
+      <Dialog open={contactDialogOpen} onOpenChange={setContactDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <MessageSquare className="w-5 h-5" />
+              Coordonnées de contact
+            </DialogTitle>
+            <DialogDescription className="text-slate-600">
+              Contactez {profileData.firstName} {profileData.lastName}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {profileData.email && (
+              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                  <Mail className="w-5 h-5 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-slate-700">Email</p>
+                  <a 
+                    href={`mailto:${profileData.email}`}
+                    className="text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    {profileData.email}
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {profileData.phone && (
+              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                  <Phone className="w-5 h-5 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-slate-700">Téléphone</p>
+                  <a 
+                    href={`tel:${profileData.phone}`}
+                    className="text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    {profileData.phone}
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setContactDialogOpen(false)}
+              className="flex-1"
+            >
+              Fermer
+            </Button>
+            {profileData.email && (
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
+                onClick={() => window.location.href = `mailto:${profileData.email}`}
+              >
+                <Mail className="w-4 h-4 mr-2" />
+                Envoyer un email
+              </Button>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* EDIT DIALOG */}
       <EditProfile
         open={editOpen}
         onOpenChange={setEditOpen}
@@ -260,7 +321,7 @@ export default function ProfileTabs({
 }
 
 /* =========================
-   SMALL UI HELPER
+   IMPROVED UI HELPER
 ========================= */
 function InfoItem({
   icon,
@@ -272,16 +333,16 @@ function InfoItem({
   value?: string;
 }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="p-2 bg-slate-50 rounded-lg text-slate-600">
+    <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+      <div className="p-2 bg-white rounded-lg text-blue-600 shadow-sm">
         {icon}
       </div>
-      <div>
-        <p className="text-[10px] uppercase font-bold text-slate-400">
+      <div className="flex-1">
+        <p className="text-xs uppercase font-semibold text-slate-500 mb-1">
           {label}
         </p>
-        <p className="text-sm font-semibold text-slate-700">
-          {value || "-"}
+        <p className="text-sm font-medium text-slate-900">
+          {value}
         </p>
       </div>
     </div>

@@ -8,12 +8,11 @@ function Header() {
       <header className="bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg">
         <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-12 py-6">
           <Link href="/" className="flex items-center gap-3">
-            <img src="/logo.png" alt="Logo Le Foyer Médical" className="w-10 h-10 rounded-full" />
-            <span className="font-bold text-2xl text-white">Le Foyer Médical</span>
+            <img src="/logo.png" alt="Logo DoctoNest" className="w-10 h-10 rounded-full" />
+            <span className="font-bold text-2xl text-white">DoctoNest</span>
           </Link>
           <nav className="hidden md:flex gap-8">
             <Link href="/#features" className="text-blue-100 text-base font-medium hover:text-white transition">Fonctionnalités</Link>
-            <Link href="/#how-it-works" className="text-blue-100 text-base font-medium hover:text-white transition">Comment ça marche</Link>
             <Link href="/annonces" className="text-white text-base font-medium border-b-2 border-white">Annonces</Link>
           </nav>
           <div className="hidden md:flex items-center gap-2">

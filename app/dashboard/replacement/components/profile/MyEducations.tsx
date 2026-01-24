@@ -3,28 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import {Dialog, DialogContent, DialogHeader,DialogTitle, DialogFooter, DialogDescription} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import {
-  GraduationCap,
-  Plus,
-  Trash2,
-  Calendar,
-  Building,
-  BookOpen,
-  Loader2,
-  AlertCircle,
-  Edit2,
-  CheckCircle2,
-  XCircle,
-} from "lucide-react";
+import {GraduationCap, Plus, Trash2, Calendar, Building, BookOpen, Loader2, AlertCircle, Edit2, CheckCircle2, XCircle, X} from "lucide-react";
+
 interface Diploma {
   id: string;
   title: string;
@@ -34,7 +16,7 @@ interface Diploma {
   createdAt?: string;
 }
 
-export default function DiplomasSection() {
+export default function MyEducations() {
   const [diplomas, setDiplomas] = useState<Diploma[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -42,7 +24,6 @@ export default function DiplomasSection() {
   const [success, setSuccess] = useState<string | null>(null);
   const [dialogSuccess, setDialogSuccess] = useState<string | null>(null);
   const [dialogError, setDialogError] = useState<string | null>(null);
-
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedDiploma, setSelectedDiploma] = useState<Diploma | null>(null);
   const [form, setForm] = useState({
@@ -209,18 +190,18 @@ export default function DiplomasSection() {
   return (
     <>
       {/* Card Section */}
-      <Card className="bg-white rounded-xl border border-slate-200 shadow-sm">
-        <CardHeader className="pb-4 border-b border-slate-200 bg-slate-50">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+      <Card className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <CardHeader className="pb-4 border-b border-slate-200 bg-slate-50 px-4 sm:px-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
                 <GraduationCap className="w-5 h-5 text-blue-600" />
               </div>
-              <div>
-                <CardTitle className="text-lg font-semibold text-slate-900">
+              <div className="min-w-0">
+                <CardTitle className="text-lg font-semibold text-slate-900 truncate">
                   Diplômes & Formations
                 </CardTitle>
-                <p className="text-sm text-slate-500 mt-0.5">
+                <p className="text-sm text-slate-500 mt-0.5 truncate">
                   Vos diplômes, certificats et formations
                 </p>
               </div>
@@ -229,22 +210,22 @@ export default function DiplomasSection() {
               size="sm"
               variant="outline"
               onClick={() => setOpenDialog(true)}
-              className="border-blue-600 text-blue-600 hover:bg-blue-50 font-medium"
+              className="border-blue-600 text-blue-600 hover:bg-blue-50 font-medium h-10 px-4 w-full sm:w-auto mt-2 sm:mt-0"
             >
               <Plus className="w-4 h-4 mr-1" />
-              Ajouter
+              Ajouter une formation
             </Button>
           </div>
         </CardHeader>
 
-        <CardContent className="p-4">
+        <CardContent className="p-4 sm:p-6">
           {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm border border-red-200">
+            <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200">
               {error}
             </div>
           )}
           {success && (
-            <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-md text-sm border border-green-200">
+            <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-lg text-sm border border-green-200">
               {success}
             </div>
           )}
@@ -252,7 +233,7 @@ export default function DiplomasSection() {
             <div className="text-center text-slate-500 py-8">
               <div className="flex items-center justify-center gap-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Chargement...</span>
+                <span>Chargement des formations...</span>
               </div>
             </div>
           ) : diplomas.length === 0 ? (
@@ -265,7 +246,7 @@ export default function DiplomasSection() {
                 size="sm"
                 variant="outline"
                 onClick={() => setOpenDialog(true)}
-                className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                className="border-blue-600 text-blue-600 hover:bg-blue-50 h-10 px-4"
               >
                 <Plus className="w-4 h-4 mr-1" />
                 Ajouter un diplôme
@@ -280,43 +261,43 @@ export default function DiplomasSection() {
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex flex-col sm:flex-row items-start gap-4 mb-2">
                         <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
                           <GraduationCap className="w-6 h-6 text-blue-600" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h3 className="font-semibold text-sm text-slate-900 truncate">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div className="min-w-0">
+                              <h3 className="font-semibold text-sm sm:text-base text-slate-900 truncate">
                                 {diploma.title}
                               </h3>
-                              <p className="text-xs text-slate-600 mt-0.5">
+                              <p className="text-xs sm:text-sm text-slate-600 mt-0.5 truncate">
                                 {diploma.institution}
                               </p>
                             </div>
-                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                               <Button
                                 size="icon"
                                 variant="ghost"
-                                className="h-7 w-7 text-slate-400 hover:text-blue-600 hover:bg-blue-50"
+                                className="h-7 w-7 sm:h-7 sm:w-7 text-slate-400 hover:text-blue-600 hover:bg-blue-50"
                                 onClick={() => openEditDialog(diploma)}
                                 title="Modifier"
                               >
-                                <Edit2 className="w-3 h-3" />
+                                <Edit2 className="w-3 h-3 sm:w-3 sm:h-3" />
                               </Button>
                               <Button
                                 size="icon"
                                 variant="ghost"
-                                className="h-7 w-7 text-slate-400 hover:text-red-600 hover:bg-red-50"
+                                className="h-7 w-7 sm:h-7 sm:w-7 text-slate-400 hover:text-red-600 hover:bg-red-50"
                                 onClick={() => handleDeleteDiploma(diploma.id)}
                                 title="Supprimer"
                               >
-                                <Trash2 className="w-3 h-3" />
+                                <Trash2 className="w-3 h-3 sm:w-3 sm:h-3" />
                               </Button>
                             </div>
                           </div>
 
-                          <div className="ml-14 space-y-1 mt-1">
+                          <div className="ml-0 sm:ml-14 space-y-1 mt-2 sm:mt-1">
                             <div className="flex items-center gap-2">
                               {diploma.year && (
                                 <div className="flex items-center gap-1 text-xs text-slate-600">
@@ -327,7 +308,7 @@ export default function DiplomasSection() {
                             </div>
 
                             {diploma.description && (
-                              <p className="text-xs text-slate-600 line-clamp-2 mt-2">
+                              <p className="text-xs sm:text-sm text-slate-600 line-clamp-2 mt-2">
                                 {diploma.description}
                               </p>
                             )}
@@ -345,13 +326,13 @@ export default function DiplomasSection() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={openDialog} onOpenChange={handleCloseDialog}>
-        <DialogContent className="w-[95vw] !max-w-5xl h-[85vh] p-0 rounded-xl bg-white shadow-2xl flex flex-col border-0">
-          <DialogHeader className="px-6 py-4 border-b bg-slate-50 flex flex-row items-center justify-between">
-            <div>
-              <DialogTitle className="text-xl font-semibold text-slate-900">
+        <DialogContent className="w-[95vw] !max-w-5xl h-[90vh] sm:h-[85vh] p-0 rounded-xl bg-white shadow-2xl flex flex-col border-0 overflow-hidden">
+          <DialogHeader className="px-4 sm:px-6 py-4 border-b bg-slate-50 flex flex-row items-center justify-between">
+            <div className="min-w-0 pr-4">
+              <DialogTitle className="text-lg sm:text-xl font-semibold text-slate-900 truncate">
                 {selectedDiploma ? "Modifier le diplôme" : "Ajouter un diplôme"}
               </DialogTitle>
-              <DialogDescription className="text-slate-600 text-sm mt-1">
+              <DialogDescription className="text-slate-600 text-sm mt-1 truncate">
                 {selectedDiploma
                   ? "Modifiez les informations de votre diplôme"
                   : "Ajoutez un diplôme, certificat, ou formation professionnelle"}
@@ -361,15 +342,17 @@ export default function DiplomasSection() {
               variant="ghost"
               size="icon"
               onClick={handleCloseDialog}
-              className="h-8 w-8 rounded-full hover:bg-slate-200"
-            ></Button>
+              className="h-8 w-8 rounded-full hover:bg-slate-200 flex-shrink-0"
+            >
+              <X className="w-4 h-4" />
+            </Button>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto p-6">
-            <div className="max-w-3xl mx-auto space-y-8">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+            <div className="max-w-3xl mx-auto space-y-6 sm:space-y-8">
               {/* Form Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-4 sm:space-y-5">
                   <div className="space-y-2">
                     <Label
                       htmlFor="title"
@@ -384,7 +367,7 @@ export default function DiplomasSection() {
                       name="title"
                       value={form.title}
                       onChange={handleChange}
-                      className={`h-11 text-sm border-slate-300 focus:border-blue-500 ${formErrors.title ? "border-red-500" : ""}`}
+                      className={`h-11 text-sm border-2 border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg ${formErrors.title ? "border-red-500" : ""}`}
                       placeholder="Ex: Doctorat en Médecine"
                       required
                     />
@@ -406,7 +389,7 @@ export default function DiplomasSection() {
                       name="year"
                       value={form.year}
                       onChange={handleChange}
-                      className={`h-11 text-sm border-slate-300 focus:border-blue-500 ${formErrors.year ? "border-red-500" : ""}`}
+                      className={`h-11 text-sm border-2 border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg ${formErrors.year ? "border-red-500" : ""}`}
                       placeholder="Ex: 2020"
                     />
                     {formErrors.year && (
@@ -415,7 +398,7 @@ export default function DiplomasSection() {
                   </div>
                 </div>
 
-                <div className="space-y-5">
+                <div className="space-y-4 sm:space-y-5">
                   <div className="space-y-2">
                     <Label
                       htmlFor="institution"
@@ -430,7 +413,7 @@ export default function DiplomasSection() {
                       name="institution"
                       value={form.institution}
                       onChange={handleChange}
-                      className={`h-11 text-sm border-slate-300 focus:border-blue-500 ${formErrors.institution ? "border-red-500" : ""}`}
+                      className={`h-11 text-sm border-2 border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg ${formErrors.institution ? "border-red-500" : ""}`}
                       placeholder="Ex: Université de Paris"
                       required
                     />
@@ -459,7 +442,7 @@ export default function DiplomasSection() {
                     name="description"
                     value={form.description}
                     onChange={handleChange}
-                    className={`min-h-[100px] text-sm border-slate-300 focus:border-blue-500 resize-none ${formErrors.description ? "border-red-500" : ""}`}
+                    className={`min-h-[100px] text-sm border-2 border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg resize-none ${formErrors.description ? "border-red-500" : ""}`}
                     placeholder="Détails supplémentaires, mentions, spécialisation..."
                     maxLength={500}
                   />
@@ -478,7 +461,7 @@ export default function DiplomasSection() {
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div className="flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-sm font-medium text-blue-900">
                       Vérification des diplômes
                     </p>
@@ -492,41 +475,67 @@ export default function DiplomasSection() {
               </div>
             </div>
           </div>
+
+          {/* Success/Error Messages */}
           {(dialogSuccess || dialogError) && (
-            <div className="mb-3 w-full">
+            <div className="sticky bottom-[72px] z-50 px-4 sm:px-6">
               <div
-                className={`p-3 rounded-lg text-sm flex items-start gap-2 ${
+                className={`p-4 rounded-xl border-2 shadow-lg flex items-start gap-3 ${
                   dialogSuccess
-                    ? "bg-green-50 border border-green-200 text-green-700"
-                    : "bg-red-50 border border-red-200 text-red-700"
+                    ? "bg-green-50 border-green-200"
+                    : "bg-red-50 border-red-200"
                 }`}
               >
                 {dialogSuccess ? (
-                  <CheckCircle2 className="w-4 h-4 mt-0.5" />
+                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                 ) : (
-                  <XCircle className="w-4 h-4 mt-0.5" />
+                  <XCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
                 )}
-                <span>{dialogSuccess || dialogError}</span>
+                <div className="flex-1 min-w-0">
+                  <p
+                    className={`text-sm font-semibold ${
+                      dialogSuccess ? "text-green-800" : "text-red-800"
+                    }`}
+                  >
+                    {dialogSuccess ? "Succès" : "Erreur"}
+                  </p>
+                  <p
+                    className={`text-sm mt-1 ${
+                      dialogSuccess ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {dialogSuccess || dialogError}
+                  </p>
+                </div>
+                <button
+                  className="text-slate-400 hover:text-slate-600 flex-shrink-0"
+                  onClick={() => {
+                    setDialogSuccess(null);
+                    setDialogError(null);
+                  }}
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
             </div>
           )}
 
-          <DialogFooter className="px-6 py-4 border-t bg-white">
-            <div className="flex items-center justify-between w-full">
-              <div className="text-sm text-slate-500">
+          <DialogFooter className="px-4 sm:px-6 py-4 border-t bg-white">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-3">
+              <div className="text-sm text-slate-500 order-2 sm:order-1">
                 <span className="text-red-500">*</span> Champs obligatoires
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 w-full sm:w-auto order-1 sm:order-2">
                 <Button
                   variant="outline"
                   onClick={handleCloseDialog}
                   disabled={submitting}
-                  className="h-10 px-4 min-w-[100px]"
+                  className="h-10 px-4 flex-1 sm:flex-none sm:min-w-[100px]"
                 >
                   Annuler
                 </Button>
                 <Button
-                  className={`px-6 h-10 font-medium min-w-[120px] ${
+                  className={`px-6 h-10 font-medium flex-1 sm:flex-none sm:min-w-[120px] ${
                     dialogSuccess
                       ? "bg-green-600 hover:bg-green-700"
                       : "bg-blue-600 hover:bg-blue-700"
@@ -541,7 +550,7 @@ export default function DiplomasSection() {
                   disabled={submitting}
                 >
                   {submitting ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" />
                       <span>Enregistrement...</span>
                     </div>

@@ -20,7 +20,6 @@ function Headerannonces() {
         </Link>
         {/* <nav className="hidden md:flex items-center gap-8">
           <Link href="/features" className="text-white font-medium hover:text-blue-200 transition">Fonctionnalités</Link>
-          <Link href="/how-it-works" className="text-white font-medium hover:text-blue-200 transition">Comment ça marche</Link>
           <Link href="/blog" className="text-white font-medium hover:text-blue-200 transition">Blog</Link>
         </nav> */}
         <div className="flex items-center gap-4">

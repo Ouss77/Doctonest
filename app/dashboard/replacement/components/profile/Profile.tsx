@@ -26,7 +26,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-interface ProfileHeaderProps {
+interface ProfileProps {
   profileData: any;
   setProfileData: (data: any) => void;
   setIsEditProfileOpen: (open: boolean) => void;
@@ -62,11 +62,11 @@ async function fetchProfileData() {
   }
 }
 
-export default function ProfileHeader({
+export default function Profile({
   profileData,
   setProfileData,
   setIsEditProfileOpen,
-}: ProfileHeaderProps) {
+}: ProfileProps) {
   const { user } = useAuth();
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
 
@@ -178,14 +178,14 @@ export default function ProfileHeader({
       
       <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden mb-6">
         {/* Bandeau bleu */}
-        <div className="h-32 bg-gradient-to-r from-blue-600 to-blue-700" />
+        <div className="h-20 bg-gradient-to-r from-blue-600 to-blue-700" />
 
         {/* Contenu avec layout responsive */}
         <div className="px-4 md:px-8 py-6 md:py-8">
           {/* Section photo + infos en flex-col sur mobile */}
           <div className="flex flex-col md:flex-row gap-6 md:gap-8">
             {/* Photo */}
-            <div className="w-40 h-40 md:w-48 md:h-48 rounded-2xl overflow-hidden border-4 border-white bg-slate-100 flex-shrink-0 shadow-lg mx-auto md:mx-0 -mt-20 md:-mt-24">
+            <div className="w-40 h-40 md:w-48 md:h-48 rounded-2xl overflow-hidden border-4 border-white bg-slate-100 flex-shrink-0 shadow-lg mx-auto md:mx-0 -mt-20 md:-mt-6">
               {profileData.imageProfile ? (
                 <img
                   src={profileData.imageProfile}
@@ -213,17 +213,17 @@ export default function ProfileHeader({
                     </h1>
 
                     {/* Profession et spécialité */}
-                    <div className="space-y-1 text-center md:text-left">
+                    <div className="flex text-center md:text-left">
                       {profileData.profession && (
-                        <p className="text-lg md:text-xl text-blue-700 font-semibold flex items-center justify-center md:justify-start gap-2">
+                        <span className="text-lg md:text-xl text-blue-700 font-semibold flex items-center justify-center md:justify-start gap-2">
                           <Briefcase className="w-4 h-4 md:w-5 md:h-5" />
-                          {profileData.profession}
-                        </p>
+                          {profileData.profession} 
+                        </span>
                       )}
                       {profileData.specialty && profileData.specialty !== profileData.profession && (
-                        <p className="text-base md:text-lg text-slate-600">
-                          {profileData.specialty}
-                        </p>
+                        <span className="text-base md:text-lg text-slate-600">
+                           ({profileData.specialty})
+                        </span>
                       )}
                     </div>
 
@@ -244,26 +244,6 @@ export default function ProfileHeader({
                         </div>
                       )}
                     </div>
-
-                    {/* Langues - responsive */}
-                    {profileData.languages && profileData.languages.length > 0 && (
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-4">
-                        <div className="flex items-center gap-2 justify-center sm:justify-start">
-                          <Languages className="w-4 h-4 text-slate-500" />
-                          <span className="text-sm text-slate-500 hidden sm:block">Langues:</span>
-                        </div>
-                        <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-                          {profileData.languages.map((lang: string, idx: number) => (
-                            <span
-                              key={idx}
-                              className="inline-flex px-2 py-1 rounded-full text-xs sm:text-sm bg-blue-50 text-blue-700 font-medium border border-blue-100"
-                            >
-                              {lang}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
 
                     {/* Disponibilité */}
                     <div className="mt-4 flex justify-center sm:justify-start">
