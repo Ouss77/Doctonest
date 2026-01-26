@@ -45,13 +45,8 @@ function Headerannonces() {
         </p>
         <div className="flex gap-4 mt-6">
           <Link href="/annonces/new">
-            <Button className="bg-white text-lg text-gray-900 h-15 font-semibold px-6 py-3 rounded-xl hover:bg-gray-200 transition">
-              Publier une demande
-            </Button>
-          </Link>
-          <Link href="/annonces/new">
             <Button className="bg-blue-700 hover:bg-blue-800 text-lg h-15 text-white font-semibold px-6 py-3 rounded-xl transition">
-              Publier une Offre
+              Publier une Annonce
             </Button>
           </Link>
         </div>

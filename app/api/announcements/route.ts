@@ -12,7 +12,7 @@ export async function GET() {
         m.description,
         m.created_at as posted_date,
         m.mission_type,
-        'offer' as type,
+        'offer' as type, 
         'medium' as urgency
       FROM missions m
       WHERE m.status = 'in_progress' 

@@ -20,7 +20,7 @@ function Header() {
               Déposer une annonce
             </Link>
             <Link href="/login">
-              <Button variant="ghost" className="text-gray-600 px-6 py-2 rounded-lg font-semibold hover:bg-gray-100">Connexion</Button>
+              <Button variant="ghost" className="text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-100">Connexion</Button>
             </Link>
             <Link href="/register">
               <Button className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-blue-700">S'inscrire</Button>

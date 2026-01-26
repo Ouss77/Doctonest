@@ -2,441 +2,522 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, FileText, User, Phone, Mail as MailIcon } from 'lucide-react';
+import {
+  ArrowRight,
+  FileText,
+  User,
+  Phone,
+  Mail,
+  MapPin,
+  Building2,
+  Stethoscope,
+  CheckCircle2,
+  AlertCircle,
+  X,
+  Shield,
+  Eye,
+  EyeOff,
+  Loader2,
+  Info
+} from 'lucide-react';
+
 import Header from '@/components/annonces/header';
 
-const specialties = [
-	'Cardiologie',
-	'Médecine générale',
-	'Pédiatrie',
-	'Dermatologie',
-	'Gynécologie',
-	'Ophtalmologie',
-	'Orthopédie',
-	'Psychiatrie',
-	'Radiologie',
-	'Chirurgie',
-	'Anesthésie',
-	'ORL',
-	'Urologie',
-	'Neurologie',
-	'Endocrinologie',
-	'Rhumatologie',
-];
-
 export default function NewAnnouncementPage() {
-	const router = useRouter();
-	const [title, setTitle] = useState('');
-	const [specialty, setSpecialty] = useState('');
-	const [location, setLocation] = useState('');
-	const [description, setDescription] = useState('');
-	const [missionType, setMissionType] = useState('replacement');
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement | null>(null);
 
-	const [contactName, setContactName] = useState('');
-	const [contactEmail, setContactEmail] = useState('');
-	const [contactPhone, setContactPhone] = useState('');
-	const [contactOrg, setContactOrg] = useState('');
+  /* =========================
+     STATE
+  ========================= */
+  const [currentStep, setCurrentStep] = useState(1);
+  const [title, setTitle] = useState('');
+  const [location, setLocation] = useState('');
+  const [description, setDescription] = useState('');
+  const [contactName, setContactName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [userRole, setUserRole] = useState<'medecin' | 'institution'>('medecin');
+  const [hidePhone, setHidePhone] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [userCreationError, setUserCreationError] = useState<string | null>(null);
+  const [publishSuccess, setPublishSuccess] = useState(false);
+  const [publishMessage, setPublishMessage] = useState<string | null>(null);
 
-	const [userRole, setUserRole] = useState<'medecin' | 'institution'>('medecin');
-	const [hidePhone, setHidePhone] = useState(false);
-	const [password, setPassword] = useState('');
+  /* =========================
+     VALIDATION
+  ========================= */
+  const validateStep = (step: number) => {
+    if (step === 1) {
+      if (!title.trim()) return "Le titre est obligatoire";
+      if (!location.trim()) return "La localisation est obligatoire";
+      if (description.trim().length < 50) return "La description doit contenir au moins 50 caractères";
+      return null;
+    }
+    if (step === 2) {
+      if (!contactName.trim()) return "Le nom est obligatoire";
+      if (!contactEmail.trim()) return "L'email est obligatoire";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) return "Format d'email invalide";
+      return null;
+    }
+    return null;
+  };
 
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-	const [userCreationError, setUserCreationError] = useState<string | null>(null);
-	const formRef = useRef<HTMLFormElement | null>(null);
+  /* =========================
+     NAVIGATION
+  ========================= */
+  const nextStep = () => {
+    const validationError = validateStep(currentStep);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    setError(null);
+    setCurrentStep(currentStep + 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-	// New: publish success state + message
-	const [publishSuccess, setPublishSuccess] = useState(false);
-	const [publishMessage, setPublishMessage] = useState<string | null>(null);
+  const prevStep = () => {
+    setError(null);
+    setCurrentStep(currentStep - 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-	const submit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		setError(null);
-		setUserCreationError(null);
+  /* =========================
+     SUBMIT
+  ========================= */
+  const submit = async () => {
+    setError(null);
+    setUserCreationError(null);
 
-		if (!title.trim() || !specialty || !location.trim() || !description.trim()) {
-			setError('Veuillez remplir tous les champs obligatoires.');
-			return;
-		}
+    const step1Error = validateStep(1);
+    const step2Error = validateStep(2);
+    
+    if (step1Error || step2Error) {
+      setError(step1Error || step2Error);
+      return;
+    }
 
-		let employerId: string | null = null;
+    setLoading(true);
+    let employerId: string | null = null;
 
-		// Try to get/create user by email
-		if (contactEmail) {
-			setLoading(true);
-			try {
-				const userType = userRole === 'medecin' ? 'replacement' : 'employer';
-				const resUser = await fetch('/api/auth/register', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						email: contactEmail,
-						password: password,
-						userType,
-						firstName: contactName || '',
-						lastName: '',
-						phone: contactPhone || '',
-						location: location || '',
-					}),
-				});
-				const userData = await resUser.json();
-				if (resUser.ok) {
-					employerId = userData?.user?.id || null;
-				} else if (userData?.error && userData.error.includes('existe déjà')) {
-					// Email exists, fetch user id by email
-					const resFind = await fetch(`/api/auth/find-by-email?email=${encodeURIComponent(contactEmail)}`);
-					const findData = await resFind.json();
-					if (resFind.ok && findData?.user?.id) {
-						employerId = findData.user.id;
-					} else {
-						setUserCreationError("Impossible de récupérer le compte existant.");
-						setLoading(false);
-						return;
-					}
-				} else {
-					setUserCreationError(userData?.error || 'Impossible de créer le compte utilisateur.');
-					setLoading(false);
-					return;
-				}
-			} catch (err) {
-				console.error('User creation error:', err);
-				setUserCreationError('Erreur lors de la création du compte. Réessayez.');
-				setLoading(false);
-				return;
-			}
-		}
+    try {
+      /* 1️⃣ Create or find user */
+      const userType = userRole === 'medecin' ? 'replacement' : 'employer';
 
-		// If no employerId yet, try to get currently authenticated user
-		if (!employerId) {
-			try {
-				const meRes = await fetch('/api/auth/me');
-				if (meRes.ok) {
-					const meData = await meRes.json();
-					employerId = meData?.user?.id || null;
-				}
-			} catch (err) {
-				console.warn('Could not fetch current user:', err);
-			}
-		}
+      const resUser = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: contactEmail,
+          userType,
+          firstName: contactName,
+          lastName: '',
+          phone: contactPhone || '',
+          location,
+        }),
+      });
 
-		if (!employerId) {
-			setUserCreationError(
-				"Impossible d'identifier l'annonceur : connectez-vous ou fournissez un email pour associer la mission à un utilisateur."
-			);
-			return;
-		}
+      const userData = await resUser.json();
 
-		const today = new Date().toISOString().slice(0, 10);
+      if (resUser.ok) {
+        employerId = userData?.user?.id || null;
+      } else if (userData?.error?.includes('existe déjà')) {
+        const resFind = await fetch(
+          `/api/auth/find-by-email?email=${encodeURIComponent(contactEmail)}`
+        );
+        const findData = await resFind.json();
+        employerId = findData?.user?.id || null;
+      } else {
+        throw new Error(userData?.error || 'Impossible de créer le compte utilisateur.');
+      }
 
-		const fullDescription = `${description.trim()}
+      /* 2️⃣ Fallback: current user */
+      if (!employerId) {
+        const meRes = await fetch('/api/auth/me');
+        if (meRes.ok) {
+          const meData = await meRes.json();
+          employerId = meData?.user?.id || null;
+        }
+      }
 
---- Contact de l'annonceur ---
+      if (!employerId) {
+        throw new Error(
+          "Impossible d'identifier l'annonceur : connectez-vous ou fournissez un email valide."
+        );
+      }
+
+      /* 3️⃣ Format final description */
+      const formattedDescription = `${description.trim()}
+
+--- Contact ---
 ${contactName ? `Nom : ${contactName}` : ''}
-${contactOrg ? `Organisation : ${contactOrg}` : ''}
 ${contactEmail ? `Email : ${contactEmail}` : ''}
-${contactPhone && !hidePhone ? `Téléphone : ${contactPhone}` : contactPhone && hidePhone ? `Téléphone : (masqué par l'annonceur)` : ''}
-Rôle annonceur : ${userRole === 'medecin' ? 'Médecin' : 'Institution'}
-`.trim();
+${contactPhone ? `Téléphone : ${hidePhone ? '(masqué)' : contactPhone}` : ''}
+Type d'annonceur : ${userRole === 'medecin' ? 'Médecin' : 'Institution'}`;
 
-		setLoading(true);
-		try {
-			const res = await fetch('/api/missions', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					title: title.trim(),
-					description: fullDescription,
-					specialty_required: specialty,
-					location: location.trim(),
-					start_date: today,
-					end_date: today,
-					mission_type: missionType,
-					status: 'pending',
-					employer_id: employerId,
-				}),
-			});
-			const data = await res.json();
-			if (!res.ok) {
-				setError(data?.error || 'Erreur serveur.');
-				setLoading(false);
-				return;
-			}
+      /* 4️⃣ Create mission */
+      const resMission = await fetch('/api/missions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: title.trim(),
+          description: formattedDescription,
+          location: location.trim(),
+          status: 'pending',
+          employer_id: employerId,
+          hide_phone: hidePhone,
+        }),
+      });
 
-			// inform the user that the announcement was submitted for admin validation
-			const contactInfo = contactEmail ? `Nous avons envoyé vos identifiants à ${contactEmail}.` : 'Si vous avez fourni un email, vous recevrez vos identifiants par email.';
-			setPublishMessage(
-				`Annonce soumise avec succès ! Votre annonce est en attente de validation par un administrateur. ${contactInfo} Vous serez notifié(e) après validation.`
-			);
-			setPublishSuccess(true);
-			// redirect after short delay (annonces publiques n'afficheront que les annonces approuvées)
-			setTimeout(() => {
-				router.push('/annonces');
-			}, 4000);
-		} catch (err) {
-			console.error(err);
-			setError('Erreur réseau, réessayez.');
-		} finally {
-			setLoading(false);
-		}
-	};
+      const missionData = await resMission.json();
 
-	return (
-		<div className="min-h-screen bg-gray-50">
-			<Header />
+      if (!resMission.ok) {
+        throw new Error(missionData?.error || 'Erreur lors de la création de l\'annonce.');
+      }
 
-			{/* NEW: Publish success banner — attention-grabbing (fixed, centered, vivid gradient) */}
-			{publishSuccess && publishMessage && (
-				<div className="fixed top-20 left-1/2 -translate-x-1/2 z-[110] w-[min(980px,calc(100%-2rem))]">
-					<div className="flex items-start gap-4 bg-gradient-to-r from-indigo-600 via-emerald-500 to-green-500 text-white rounded-2xl shadow-2xl border border-white/20 p-4 md:p-5 animate-fade-in-down">
-						<div className="flex-shrink-0 mt-1">
-							<MailIcon className="w-7 h-7 text-white/90" />
-						</div>
-						<div className="flex-1">
-							<h3 className="font-bold text-lg md:text-xl">Annonce publiée</h3>
-							<p className="text-sm md:text-base mt-1">{publishMessage}</p>
-						</div>
-						<button
-							className="ml-4 inline-flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 px-3 py-1 text-sm font-semibold text-white"
-							onClick={() => {
-								setPublishSuccess(false);
-								setPublishMessage(null);
-							}}
-							aria-label="Fermer"
-						>
-							Fermer
-						</button>
-					</div>
-				</div>
-			)}
+      /* 5️⃣ Success */
+      setPublishMessage(
+        "Annonce soumise avec succès ! Votre annonce est en attente de validation par un administrateur. Vous serez notifié(e) par email après validation."
+      );
+      setPublishSuccess(true);
 
-			{/* Main full-width pale-blue container (like the image) */}
-			<div className="w-full bg-gradient-to-b from-blue-50 to-white py-2">
-				<div className="max-w-screen-2xl mx-auto px-6">
-					<div className="bg-sky-50 rounded-3xl p-8 md:p-12 shadow-xl">
-						{/* NOTE: wrap inputs and buttons in a real <form> so formRef.requestSubmit() works */}
-						<form ref={formRef} onSubmit={submit} className="space-y-6">
-							{/* Header of the card with avatar + title */}
-							<div className="flex items-center gap-6 mb-8">
-								<div className="w-16 h-16 rounded-full bg-white/80 flex items-center justify-center shadow-sm">
-									{/* small avatar icon */}
-									<User className="w-8 h-8 text-blue-600" />
-								</div>
-								<div>
-									<h1 className="text-2xl md:text-3xl font-bold text-slate-900 flex items-center gap-3">
-										<FileText className="w-6 h-6 text-blue-600" />
-										Déposer une annonce
-									</h1>
-									<p className="text-sm md:text-base text-slate-700 mt-1">
-										Remplissez les informations ci‑dessous. Les dates sont définies automatiquement.
-									</p>
-								</div>
-							</div>
+      setTimeout(() => {
+        router.push('/annonces');
+      }, 5000);
+    } catch (err: any) {
+      setError(err.message || 'Une erreur est survenue. Veuillez réessayer.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-							{/* Two-column cards */}
-							<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-								{/* Left card - Votre annonce */}
-								<div className="bg-white rounded-xl p-6 shadow-sm border">
-									<div className="flex items-center gap-3 mb-4">
-										<div className="w-9 h-9 rounded-md bg-blue-100 flex items-center justify-center text-blue-700">
-											<FileText className="w-5 h-5" />
-										</div>
-										<h2 className="text-lg font-semibold text-slate-900">Votre annonce</h2>
-									</div>
+  /* =========================
+     UI
+  ========================= */
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      <Header />
 
-									<div className="space-y-4">
-										<label className="block text-sm font-medium text-slate-700">Titre de l'annonce *</label>
-										<input
-											value={title}
-											onChange={e => setTitle(e.target.value)}
-											placeholder="Ex : Médecin généraliste - Cabinet Rabat"
-											className="w-full border rounded-lg px-4 py-2 text-base"
-										/>
+      {/* SUCCESS BANNER */}
+      {publishSuccess && publishMessage && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-2xl animate-fade-in">
+          <div className="bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl shadow-2xl p-5">
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="w-6 h-6 flex-shrink-0" />
+              <div className="flex-1">
+                <h3 className="font-bold text-lg">Annonce soumise !</h3>
+                <p className="text-sm mt-1 text-white/95">{publishMessage}</p>
+                <div className="mt-3 flex items-center text-sm text-white/80">
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Redirection dans 5 secondes...
+                </div>
+              </div>
+              <button 
+                onClick={() => setPublishSuccess(false)}
+                className="text-white/80 hover:text-white p-1"
+                aria-label="Fermer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-										<label className="block text-sm font-medium text-slate-700">Spécialité *</label>
-										<select
-											value={specialty}
-											onChange={e => setSpecialty(e.target.value)}
-											className="w-full border rounded-lg px-4 py-2 text-base bg-white"
-										>
-											<option value="">Sélectionnez une spécialité</option>
-											{specialties.map(s => (
-												<option key={s} value={s}>
-													{s}
-												</option>
-											))}
-										</select>
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        {/* HEADER */}
+        <div className="mb-10 text-center">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white mb-4 shadow-lg">
+            <FileText className="w-10 h-10" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Publier une annonce
+          </h1>
+          <p className="text-gray-600">
+            Remplissez les informations pour publier votre annonce de remplacement
+          </p>
+        </div>
 
-										<label className="block text-sm font-medium text-slate-700">Localisation *</label>
-										<input
-											value={location}
-											onChange={e => setLocation(e.target.value)}
-											placeholder="Ville, région"
-											className="w-full border rounded-lg px-4 py-2 text-base"
-										/>
+        {/* PROGRESS INDICATOR */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'}`}>
+                {currentStep > 1 ? <CheckCircle2 className="w-4 h-4" /> : '1'}
+              </div>
+              <span className={`text-sm font-medium ${currentStep >= 1 ? 'text-blue-600' : 'text-gray-500'}`}>
+                Détails
+              </span>
+            </div>
+            
+            <div className="flex-1 h-1 mx-4 bg-gray-200">
+              <div 
+                className={`h-full bg-blue-600 transition-all duration-300 ${currentStep >= 2 ? 'w-full' : 'w-1/2'}`}
+              />
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'}`}>
+                2
+              </div>
+              <span className={`text-sm font-medium ${currentStep >= 2 ? 'text-blue-600' : 'text-gray-500'}`}>
+                Contact
+              </span>
+            </div>
+          </div>
+        </div>
 
-										<label className="block text-sm font-medium text-slate-700">Description *</label>
-										<textarea
-											value={description}
-											onChange={e => setDescription(e.target.value)}
-											placeholder="Détails sur la mission, horaires, patientèle, équipement..."
-											className="w-full border rounded-lg px-4 py-2 text-base h-36 resize-vertical"
-										/>
+        {/* ERROR MESSAGE */}
+        {(error || userCreationError) && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 animate-fade-in">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-red-700">
+                {error || userCreationError}
+              </div>
+            </div>
+          </div>
+        )}
 
-										<label className="block text-sm font-medium text-slate-700">Type de mission</label>
-										<select
-											value={missionType}
-											onChange={e => setMissionType(e.target.value)}
-											className="w-full border rounded-lg px-4 py-2 text-base bg-white"
-										>
-											<option value="replacement">Remplacement</option>
-											<option value="vacation">Vacation</option>
-											<option value="emergency">Urgence</option>
-										</select>
-									</div>
-								</div>
+        {/* FORM CARD */}
+        <div className="bg-white rounded-2xl shadow-lg border overflow-hidden">
+          <div className="p-6 md:p-8">
+            {/* STEP 1: ANNOUNCEMENT DETAILS */}
+            {currentStep === 1 && (
+              <div className="animate-fade-in">
+                <div className="mb-8">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-blue-600" />
+                    </div>
+                    Détails de l'annonce
+                  </h2>
+                  
+                  <div className="space-y-5">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Titre de l'annonce *
+                      </label>
+                      <input
+                        value={title}
+                        onChange={e => setTitle(e.target.value)}
+                        placeholder="Ex : Recherche médecin généraliste - Cabinet Rabat"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                      />
+                    </div>
 
-								{/* Right card - Vos informations */}
-								<div className="bg-white rounded-xl p-6 shadow-sm border">
-									<div className="flex items-center gap-3 mb-4">
-										<div className="w-9 h-9 rounded-md bg-emerald-100 flex items-center justify-center text-emerald-700">
-											<User className="w-5 h-5" />
-										</div>
-										<h2 className="text-lg font-semibold text-slate-900">Vos informations</h2>
-									</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Localisation *
+                      </label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          value={location}
+                          onChange={e => setLocation(e.target.value)}
+                          placeholder="Ville, adresse, région"
+                          className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                        />
+                      </div>
+                    </div>
 
-									<div className="space-y-4">
-										<div>
-											<div className="text-sm font-medium text-slate-700 mb-2">Vous êtes *</div>
-											<div className="flex gap-3">
-												<button
-													type="button"
-													onClick={() => setUserRole('medecin')}
-													className={`px-3 py-2 rounded-full border ${
-														userRole === 'medecin' ? 'bg-blue-600 text-white' : 'bg-white text-slate-700'
-													}`}
-												>
-													Médecin
-												</button>
-												<button
-													type="button"
-													onClick={() => setUserRole('institution')}
-													className={`px-3 py-2 rounded-full border ${
-														userRole === 'institution' ? 'bg-blue-600 text-white' : 'bg-white text-slate-700'
-													}`}
-												>
-													Institution
-												</button>
-											</div>
-										</div>
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          Description détaillée *
+                        </label>
+                        <span className="text-xs text-gray-500">
+                          {description.length}/50 caractères minimum
+                        </span>
+                      </div>
+                      <textarea
+                        value={description}
+                        onChange={e => setDescription(e.target.value)}
+                        rows={5}
+                        placeholder="Décrivez la mission, les responsabilités, les horaires, la patientèle, les équipements disponibles..."
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none"
+                      />
+                      <div className="mt-2 text-xs text-gray-500 flex items-center gap-1">
+                        <Info className="w-3 h-3" />
+                        Soyez précis pour attirer les candidats pertinents
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
-										<div>
-											<label className="block text-sm font-medium text-slate-700 mb-2">Nom / Contact</label>
-											<input
-												value={contactName}
-												onChange={e => setContactName(e.target.value)}
-												placeholder="Votre nom"
-												className="w-full border rounded-lg px-4 py-2 text-base"
-											/>
-										</div>
+            {/* STEP 2: CONTACT INFORMATION */}
+            {currentStep === 2 && (
+              <div className="animate-fade-in">
+                <div className="mb-8">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                      <User className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    Informations de contact
+                  </h2>
 
-										<div>
-											<label className="block text-sm font-medium text-slate-700 mb-2">Email *</label>
-											<div className="flex items-center gap-2">
-												<MailIcon className="w-4 h-4 text-gray-400" />
-												<input
-													value={contactEmail}
-													onChange={e => setContactEmail(e.target.value)}
-													placeholder="Votre email"
-													type="email"
-													className="w-full border rounded-lg px-4 py-2 text-base"
-												/>
-											</div>
-										</div>
+                  <div className="space-y-5">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Vous êtes *
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setUserRole('medecin')}
+                          className={`px-4 py-3 rounded-lg border-2 flex items-center justify-center gap-2 transition-all ${
+                            userRole === 'medecin'
+                              ? 'border-blue-500 bg-blue-50 text-blue-700'
+                              : 'border-gray-300 hover:border-gray-400'
+                          }`}
+                        >
+                          <Stethoscope className="w-4 h-4" />
+                          <span className="font-medium">Médecin</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setUserRole('institution')}
+                          className={`px-4 py-3 rounded-lg border-2 flex items-center justify-center gap-2 transition-all ${
+                            userRole === 'institution'
+                              ? 'border-blue-500 bg-blue-50 text-blue-700'
+                              : 'border-gray-300 hover:border-gray-400'
+                          }`}
+                        >
+                          <Building2 className="w-4 h-4" />
+                          <span className="font-medium">Institution</span>
+                        </button>
+                      </div>
+                    </div>
 
-										<div>
-											<label className="block text-sm font-medium text-slate-700 mb-2">Téléphone</label>
-											<div className="flex items-center gap-2">
-												<Phone className="w-4 h-4 text-gray-400" />
-												<input
-													value={contactPhone}
-													onChange={e => setContactPhone(e.target.value)}
-													placeholder="+212 6 .. .. .. .."
-													className="w-full border rounded-lg px-4 py-2 text-base"
-												/>
-											</div>
-											<div className="mt-2 flex items-center gap-2">
-												<input
-													id="hidePhone"
-													type="checkbox"
-													checked={hidePhone}
-													onChange={e => setHidePhone(e.target.checked)}
-													className="mt-1"
-												/>
-												<label
-													htmlFor="hidePhone"
-													className="text-sm text-slate-600"
-												>
-													Masquer mon numéro de téléphone sur l'annonce
-												</label>
-											</div>
-										</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Nom complet *
+                      </label>
+                      <input
+                        value={contactName}
+                        onChange={e => setContactName(e.target.value)}
+                        placeholder="Votre nom"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                      />
+                    </div>
 
-										<div>
-											<label className="block text-sm font-medium text-slate-700 mb-2">Organisation (optionnel)</label>
-											<input
-												value={contactOrg}
-												onChange={e => setContactOrg(e.target.value)}
-												placeholder="Cabinet, Clinique..."
-												className="w-full border rounded-lg px-4 py-2 text-base"
-											/>
-										</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Email *
+                      </label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          value={contactEmail}
+                          onChange={e => setContactEmail(e.target.value)}
+                          placeholder="votre@email.com"
+                          type="email"
+                          className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                        />
+                      </div>
+                    </div>
 
-										<div>
-											<label className="block text-sm font-medium text-slate-700 mb-2">Votre mot de passe (optionnel)</label>
-											<input
-												value={password}
-												onChange={e => setPassword(e.target.value)}
-												placeholder="Votre mot de passe"
-												type="password"
-												className="w-full border rounded-lg px-4 py-2 text-base"
-											/>
-											<p className="text-xs text-slate-500 mt-1">
-												Le mot de passe n'est pas envoyé au serveur par défaut.
-											</p>
-										</div>
-									</div>
-								</div>
-							</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Téléphone
+                      </label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          value={contactPhone}
+                          onChange={e => setContactPhone(e.target.value)}
+                          placeholder="+212 6 XX XX XX XX"
+                          className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                        />
+                      </div>
+                      <div className="mt-3 flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                        <input
+                          id="hidePhone"
+                          type="checkbox"
+                          checked={hidePhone}
+                          onChange={e => setHidePhone(e.target.checked)}
+                          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                        />
+                        <label htmlFor="hidePhone" className="text-sm text-gray-700 flex items-center gap-2">
+                          {hidePhone ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          Masquer mon numéro sur l'annonce publique
+                        </label>
+                      </div>
+                    </div>
 
-							{/* Publish button centered below the two cards - now inside the <form> */}
-							<div className="mt-8 flex justify-center">
-								<button
-									type="submit"
-									disabled={loading}
-									className="bg-blue-600 text-white rounded-full px-8 py-3 text-lg shadow-lg hover:bg-blue-700"
-								>
-									{loading ? 'Publication...' : "Publier l'annonce"}
-								</button>
-							</div>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+                      <div className="flex items-start gap-3">
+                        <Shield className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <div className="text-sm text-blue-700">
+                          <strong>Confidentialité :</strong> Votre email ne sera pas affiché publiquement. 
+                          Seuls les médecins inscrits pourront vous contacter.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
-							{/* Small helper text */}
-							<p className="mt-6 text-sm text-slate-600 text-center">
-								Note : les dates de la mission sont automatiquement réglées à aujourd'hui. Vous pouvez les mettre à jour après publication.
-							</p>
-						</form>
-					</div>
-				</div>
-			</div>
+            {/* NAVIGATION BUTTONS */}
+            <div className="flex justify-between pt-6 border-t border-gray-200">
+              <button
+                type="button"
+                onClick={prevStep}
+                disabled={currentStep === 1}
+                className={`px-5 py-2.5 rounded-lg border font-medium transition ${
+                  currentStep === 1
+                    ? 'border-gray-300 text-gray-400 cursor-not-allowed'
+                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                ← Retour
+              </button>
 
-			{/* show user creation error if any */}
-			{userCreationError && (
-				<div className="max-w-screen-2xl mx-auto px-6 mt-4">
-					<div className="bg-red-50 text-red-700 border border-red-200 rounded p-3">
-						{userCreationError}
-					</div>
-				</div>
-			)}
-		</div>
-	);
+              {currentStep < 2 ? (
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  className="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition flex items-center gap-2"
+                >
+                  Suivant
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={submit}
+                  disabled={loading}
+                  className="bg-gradient-to-r from-emerald-600 to-green-600 text-white px-6 py-2.5 rounded-lg font-medium hover:from-emerald-700 hover:to-green-700 transition flex items-center gap-2 disabled:opacity-70"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Publication...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      Publier l'annonce
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* FOOTER NOTE */}
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-500">
+            L'annonce sera validée par notre équipe sous 24h maximum
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 }

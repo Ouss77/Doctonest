@@ -11,9 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
   phone VARCHAR(20),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  is_active BOOLEAN DEFAULT true,
-  email_verified BOOLEAN DEFAULT false 
-);
+  registration_status VARCHAR(20) DEFAULT 'public' CHECK (registration_status IN ('public', 'registered', 'verified')),;
 
 -- Replacement doctors profiles
 CREATE TABLE IF NOT EXISTS replacement_profiles (

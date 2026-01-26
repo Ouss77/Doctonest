@@ -28,19 +28,11 @@ export async function GET(request: NextRequest) {
 
     const filters: Record<string, any> = {}
 
+    // Always fetch only completed missions
+    filters.status = "completed"
+
     const decoded = getUserFromJWT(request)
-    
-    // Status filter: only apply if explicitly requested or for non-admin users
-    const statusParam = searchParams.get("status")
-    if (statusParam) {
-      filters.status = statusParam
-    } else if (decoded?.userType === "employer") {
-      // Employers see only open missions by default
-      filters.status = "open"
-    } else {
-      // Admin sees all missions by default (no status filter)
-      // Only filter if explicitly requested
-    }
+
 
     // Optional filters
     if (searchParams.get("specialty")) {
@@ -82,7 +74,7 @@ export async function POST(request: NextRequest) {
       employer_id: employerIdFromBody
     } = body;
 
-    if (!title || !description || !specialty_required || !location) {
+    if (!title || !description ||  !location) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
@@ -92,7 +84,7 @@ export async function POST(request: NextRequest) {
       decoded?.userId ||
       null;
 
-    if (!finalEmployerId) {
+    if (!finalEmployerId) { 
       return NextResponse.json({
         error: "No employer ID available. User must be logged in or email must match an existing user."
       }, { status: 400 });
@@ -100,6 +92,7 @@ export async function POST(request: NextRequest) {
 
     const mission = await db.createMission({
       employer_id: finalEmployerId,
+      status: "completed",
       ...body
     });
 

@@ -43,7 +43,6 @@ export async function GET(request: NextRequest) {
         firstName: user.first_name,
         lastName: user.last_name,
         phone: user.phone,
-        isActive: user.is_active,
         
       },
       profile,

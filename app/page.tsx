@@ -224,6 +224,7 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+        {/* How It Works Section */}
         <section className="py-20 bg-[#020617] text-white">
       <div className="container mx-auto px-6 text-center">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -233,7 +234,7 @@ export default function HomePage() {
           Une plateforme simplifiée pour permettre aux professionnels de santé de se concentrer sur l'essentiel : le soin.
         </p>
 
-        <div className="grid md:grid-grid-cols-3 gap-12 relative">
+        <div className="flex flex-col md:flex-row md:justify-center gap-12 md:gap-20">
           {/* Ligne de connexion (Desktop uniquement) */}
           <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 -translate-y-12"></div>
 

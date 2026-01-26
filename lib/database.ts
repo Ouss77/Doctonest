@@ -84,7 +84,7 @@ export const db = {
   async getUserByEmail(email: string) {
     try {
       const result = await sql`
-        SELECT * FROM users WHERE email = ${email} AND is_active = true
+        SELECT * FROM users WHERE email = ${email} 
       `
       return result[0]
     } catch (error) {
@@ -96,7 +96,7 @@ export const db = {
   async getUserById(id: string) {
     try {
       const result = await sql`
-        SELECT * FROM users WHERE id = ${id} AND is_active = true
+        SELECT * FROM users WHERE id = ${id} 
       `
       return result[0]
     } catch (error) {
@@ -209,16 +209,18 @@ export const db = {
     description: string
     specialty_required: string
     location: string
+    status?: string
   }) {
     try {
       const result = await sql`
-        INSERT INTO missions (employer_id, title, description, specialty_required, location)
+        INSERT INTO missions (employer_id, title, description, specialty_required, location, status)
         VALUES (
           ${missionData.employer_id},
           ${missionData.title},
           ${missionData.description},
           ${missionData.specialty_required},
-          ${missionData.location}
+          ${missionData.location},
+          ${missionData.status || 'completed'}
         )
         RETURNING *
       `

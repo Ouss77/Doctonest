@@ -78,8 +78,8 @@ export default function AnnouncementDetailPage() {
         <header className="bg-gradient-to-r from-blue-900 via-purple-900 to-blue-800 shadow-xl">
           <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
             <Link href="/" className="flex items-center gap-3">
-              <img src="/logo.png" alt="Logo Le Foyer Médical" className="w-10 h-10 rounded-full" />
-              <span className="font-bold text-xl text-white">Le Foyer Médical</span>
+              <img src="/logo.png" alt="Logo DoctoNest" className="w-10 h-10 rounded-full" />
+              <span className="font-bold text-xl text-white">DoctoNest</span>
             </Link>
           </div>
         </header>
@@ -101,7 +101,7 @@ export default function AnnouncementDetailPage() {
           <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
             <Link href="/" className="flex items-center gap-3">
               <img src="/logo.png" alt="Logo Le Foyer Médical" className="w-10 h-10 rounded-full" />
-              <span className="font-bold text-xl text-white">Le Foyer Médical</span>
+              <span className="font-bold text-xl text-white">DoctoNest</span>
             </Link>
           </div>
         </header>
@@ -125,7 +125,7 @@ export default function AnnouncementDetailPage() {
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-3">
             <img src="/logo.png" alt="Logo Le Foyer Médical" className="w-10 h-10 rounded-full" />
-            <span className="font-bold text-xl text-white">Le Foyer Médical</span>
+            <span className="font-bold text-xl text-white">DoctoNest</span>
           </Link>
           <nav className="hidden md:flex gap-8">
             <Link href="/#features" className="text-blue-100 text-base font-medium hover:text-white transition">Fonctionnalités</Link>

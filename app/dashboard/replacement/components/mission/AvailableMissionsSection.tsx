@@ -47,7 +47,7 @@ export default function AvailableMissionsSection() {
         const res = await fetch("/api/missions");
         if (!res.ok) throw new Error("Erreur lors du chargement des missions");
         const data = await res.json();
-        setMissions(data.missions || []);
+        setMissions(data.missions || []); 
       } catch (err) {
         setError("Erreur lors du chargement des missions");
       } finally {
