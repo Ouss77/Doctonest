@@ -1,65 +1,105 @@
 // app/api/missions/[id]/status/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import { neon } from "@neondatabase/serverless";
+import { NextRequest, NextResponse } from "next/server"
+import { neon } from "@neondatabase/serverless"
+import jwt from "jsonwebtoken"
 
-export const dynamic = "force-dynamic";
-const sql = neon(process.env.DATABASE_URL!);
+export const dynamic = "force-dynamic"
+
+const sql = neon(process.env.DATABASE_URL!)
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"
+
+type DecodedToken = {
+  userId: string
+  userType?: string
+}
+
+function getUserFromJWT(req: NextRequest): DecodedToken | null {
+  const token = req.cookies.get("auth-token")?.value
+  if (!token) return null
+
+  try {
+    return jwt.verify(token, JWT_SECRET) as DecodedToken
+  } catch {
+    return null
+  }
+}
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = params;
-    if (!id) return NextResponse.json({ error: "ID manquant" }, { status: 400 }); 
-
-    const body = await request.json();
-    const { status: action } = body;
-    if (!action) {
-      return NextResponse.json({ error: "Action manquante" }, { status: 400 });
+    const { id } = params
+    if (!id) {
+      return NextResponse.json({ error: "ID manquant" }, { status: 400 })
     }
 
-    // Map frontend action to DB status
-    // Database schema allows: 'open', 'in_progress', 'completed', 'cancelled'
-    const statusMap: Record<string, string> = {
-      approve: "in_progress",      // Approve = make active (in_progress)
-      active: "in_progress",        // Active = in_progress
-      reject: "cancelled",          // Reject = cancelled
-      rejected: "cancelled",        // Rejected = cancelled
-      hidden: "cancelled",          // Hidden = cancelled (or could be kept as open but filtered)
-      delete: "cancelled",          // Delete = cancelled (soft delete)
-      deleted: "cancelled",         // Deleted = cancelled
-      pending: "open",              // Pending = open (waiting approval)
-      open: "open",                 // Open = open
-      completed: "completed",      // Completed = completed
-      cancelled: "cancelled",       // Cancelled = cancelled
-      in_progress: "in_progress",   // In progress = in_progress
-    };
+    /* ===========================
+       AUTH — ADMIN ONLY
+    ============================ */
 
-    const status = statusMap[action.toLowerCase()];
+    const decoded = getUserFromJWT(request)
+
+    if (!decoded || decoded.userType !== "admin") {
+      return NextResponse.json(
+        { error: "Accès non autorisé" },
+        { status: 403 }
+      )
+    }
+
+    /* ===========================
+       BODY VALIDATION
+    ============================ */
+
+    const body = await request.json()
+    const { status } = body
+
     if (!status) {
       return NextResponse.json(
-        { error: `Action invalide pour les missions: ${action}. Actions valides: approve, reject, hidden, open, completed, cancelled` },
+        { error: "Statut manquant" },
         { status: 400 }
-      );
+      )
     }
+
+    if (!["public", "refused"].includes(status)) {
+      return NextResponse.json(
+        {
+          error:
+            "Statut invalide. Valeurs autorisées: public, refused",
+        },
+        { status: 400 }
+      )
+    }
+
+    /* ===========================
+       UPDATE
+    ============================ */
 
     const updated = await sql`
       UPDATE missions
       SET status = ${status}, updated_at = NOW()
       WHERE id = ${id}
+        AND status = 'pending'
       RETURNING id, status
-    `;
+    `
 
     if (!updated || updated.length === 0) {
-      return NextResponse.json({ error: "Mission introuvable" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Mission introuvable ou déjà traitée" },
+        { status: 404 }
+      )
     }
 
-    return NextResponse.json({ success: true, mission: updated[0] });
+    return NextResponse.json({
+      success: true,
+      mission: updated[0],
+    })
   } catch (err) {
-    console.error("PATCH /api/missions/[id]/status error:", err);
-    const message =
-      process.env.NODE_ENV === "production" ? "Erreur serveur" : String(err);
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("PATCH /api/missions/[id]/status error:", err)
+
+    return NextResponse.json(
+      { error: "Erreur serveur" },
+      { status: 500 }
+    )
   }
 }

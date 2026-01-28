@@ -45,15 +45,15 @@ export default function AnnoncesPage() {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch("/api/announcements");
+        const res = await fetch("/api/missions");
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
         const data = await res.json();
         
-        if (data.success && data.announcements) {
-          setAnnouncements(data.announcements);
-          setFilteredAnnouncements(data.announcements);
+        if (data.missions && Array.isArray(data.missions)) {
+          setAnnouncements(data.missions);
+          setFilteredAnnouncements(data.missions);
         } else {
           throw new Error(data.error || "Erreur lors du chargement des annonces");
         }
@@ -73,7 +73,7 @@ export default function AnnoncesPage() {
   const applyFilters = () => {
     // Only consider approved/visible announcements for public listing.
     // Keep backward compatibility: if announcement.status is undefined, treat as visible.
-    let filtered = announcements.filter(a => !a.status || a.status === 'active');
+    let filtered = announcements.filter(a => !a.status || a.status === 'public');
 
     if (searchKeyword.trim()) {
       filtered = filtered.filter(announcement =>

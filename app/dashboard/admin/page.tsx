@@ -120,7 +120,7 @@ useEffect(() => {
   const fetchMissions = async () => {
     setMissionsLoading(true);
     setMissionsError(null);
-
+ 
     try {
       const res = await fetch("/api/missions");
       if (!res.ok) {

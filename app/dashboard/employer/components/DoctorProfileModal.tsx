@@ -64,7 +64,7 @@ export default function DoctorProfileModal({ open, onOpenChange, doctorId }: Doc
               </div>
             </div>
             {/* Basic info, right side */}
-            <div className="flex-1 flex flex-col justify-start">
+            <div className="flex-1 flex flex-col justify-start ">
               <div className="mb-2">
                 <h2 className="text-2xl font-bold text-gray-900">
                   Dr. {(doctor.profile?.first_name || doctor.first_name) ?? ""} {(doctor.profile?.last_name || doctor.last_name) ?? ""}

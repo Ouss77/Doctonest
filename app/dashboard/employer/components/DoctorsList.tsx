@@ -79,7 +79,7 @@ import DoctorProfileModal from "./DoctorProfileModal";
     }, [doctors, search, specialty, location, availability]);
 
     return (
-      <div className="min-h-screen flex flex-col bg-slate-50">
+      <div className="min-h-screen flex flex-col  bg-slate-50">
         {/* Doctor Profile Modal */}
         <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
           <DoctorProfileModal open={profileOpen} onOpenChange={setProfileOpen} doctorId={selectedDoctorId} />
@@ -123,8 +123,8 @@ import DoctorProfileModal from "./DoctorProfileModal";
 
                   {/* Télécharger le CV */}
                   {contactDoctor.cv_url && (
-                    <div>
-                      <Button asChild variant="outline" className="rounded-lg border-slate-200">
+                    <div className="">
+                      <Button asChild variant="outline" className="rounded-lg  border-slate-200">
                         <a href={contactDoctor.cv_url} target="_blank" rel="noopener noreferrer" download>
                           Télécharger le CV
                         </a>
@@ -213,11 +213,11 @@ import DoctorProfileModal from "./DoctorProfileModal";
           ) : filteredDoctors.length === 0 ? (
             <div className="text-gray-600 text-center text-lg font-medium py-12">Aucun médecin disponible.</div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
               {filteredDoctors.map((doctor) => (
                 <Card
                   key={doctor.id}
-                  className="h-full rounded-xl border border-slate-200 bg-white hover:shadow-md transition-shadow"
+                  className="h-full w-full max-w-sm  bg-white rounded-xl border border-slate-200 hover:shadow-md transition-shadow"
                 >
                   <CardContent className="p-6 flex h-full flex-col">
                     {/* Header */}

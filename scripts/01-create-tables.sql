@@ -1,3 +1,6 @@
+-- if (status = in_progress)  => display missions in public
+-- if (status = completed) => display mission in private(for replacemet doctor and employer only)
+
 -- Medical Replacement Platform Database Schema
 
 -- Users table (extends the existing neon_auth.users_sync)

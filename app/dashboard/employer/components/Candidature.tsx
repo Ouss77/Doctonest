@@ -31,7 +31,9 @@ export default function Candidature({ missions }: CandidatureProps) {
         for (const mission of missions) {
           const res = await fetch(`/api/applications?missionId=${mission.id}`);
           if (res.ok) {
+            console.log('Fetched applications for mission:', mission.id);
             const data = await res.json(); 
+            console.log('Applications data:', data);
             const apps = (data.applications || []).map((app: any) => ({ ...app, mission }));
             allApps = allApps.concat(apps);
           }
@@ -191,7 +193,7 @@ export default function Candidature({ missions }: CandidatureProps) {
                 </div>
 
                 {/* Contact Info - Hidden by default */}
-                <div className="space-y-3 mb-6">
+                <div className="space-y-3 mb-10">
                   {app.email && (
                     <div className="flex items-center gap-2 text-sm">
                       <Mail className="w-4 h-4 text-slate-400" />
@@ -207,7 +209,7 @@ export default function Candidature({ missions }: CandidatureProps) {
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-2">
+                <div className="flex gap-2  items-center w-full pt-0 ">
                   <Button
                     variant="outline"
                     size="sm"
@@ -217,18 +219,20 @@ export default function Candidature({ missions }: CandidatureProps) {
                     <MessageSquare className="w-4 h-4 mr-2" />
                     Contacter
                   </Button>
-                  <DownloadCVButton userId={app.user_id || app.id} />
+                  <DownloadCVButton className="mt-0 pt-0" userId={app.user_id || app.id} />
                   {app.phone && (
-                    <a
-                      href={`https://wa.me/${app.phone.replace(/\D/g, "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer" 
-                      className="inline-flex"
-                    >
-                      <Button variant="outline" size="sm" className="border-green-200 text-green-700 hover:bg-green-50">
-                        <img src="/whatsapp.png" alt="WhatsApp" className="w-4 h-4" />
-                      </Button>
-                    </a>
+                    <div className="flex-1">
+                      <a
+                        href={`https://wa.me/${app.phone.replace(/\D/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer" 
+                        className="block h-full"
+                      >
+                        <Button variant="outline" size="sm" className="border-green-200 text-green-700 hover:bg-green-50 w-full">
+                          <img src="/whatsapp.png" alt="WhatsApp" className="w-4 h-4" />
+                        </Button>
+                      </a>
+                    </div>
                   )}
                 </div>
               </CardContent>

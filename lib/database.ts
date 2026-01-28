@@ -202,73 +202,6 @@ export const db = {
     }
   },
 
-  // Mission operations
-  async createMission(missionData: {
-    employer_id: string
-    title: string
-    description: string
-    specialty_required: string
-    location: string
-    status?: string
-  }) {
-    try {
-      const result = await sql`
-        INSERT INTO missions (employer_id, title, description, specialty_required, location, status)
-        VALUES (
-          ${missionData.employer_id},
-          ${missionData.title},
-          ${missionData.description},
-          ${missionData.specialty_required},
-          ${missionData.location},
-          ${missionData.status || 'completed'}
-        )
-        RETURNING *
-      `
-      return result[0]
-    } catch (error) {
-      console.error("Error creating mission:", error)
-      throw new Error("Failed to create mission")
-    }
-  },
-
-  async getMissions(filters?: {
-    specialty?: string
-    location?: string
-    status?: string
-    employer_id?: string
-  }) {
-    try {
-      let query = sql`
-        SELECT m.*, ep.organization_name, u.first_name, u.last_name, u.email,
-          (SELECT COUNT(*) FROM applications a WHERE a.mission_id = m.id) AS applications_count
-        FROM missions m
-        JOIN users u ON m.employer_id = u.id
-        LEFT JOIN employer_profiles ep ON u.id = ep.user_id
-        WHERE 1=1
-      `
-
-      if (filters?.specialty) {
-        query = sql`${query} AND m.specialty_required = ${filters.specialty}`
-      }
-      if (filters?.location) {
-        query = sql`${query} AND m.location ILIKE ${"%" + filters.location + "%"}`
-      }
-      if (filters?.status) {
-        query = sql`${query} AND m.status = ${filters.status}`
-      }
-      if (filters?.employer_id) {
-        query = sql`${query} AND m.employer_id = ${filters.employer_id}`
-      }
-
-      query = sql`${query} ORDER BY m.created_at DESC`
-
-      return await query
-    } catch (error) {
-      console.error("Error getting missions:", error)
-      return []
-    }
-  },
-
   // Application operations
   async createApplication(applicationData: {
     mission_id: string;
@@ -326,6 +259,7 @@ export const db = {
       return [];
     }
   },
+
 
   // Experience operations
   async createExperience(experienceData: {

@@ -30,7 +30,7 @@ export default function AnnouncementDetailPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchAnnouncement = async () => {
+    const fetchAnnouncement = async () => { 
       setLoading(true);
       setError("");
       try {

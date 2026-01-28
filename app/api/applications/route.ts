@@ -4,7 +4,7 @@ import { db } from "@/lib/database";
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url); 
-    const userId = searchParams.get("userId");
+    const userId = searchParams.get("userId"); 
     const missionId = searchParams.get("missionId");
     if (missionId) {
       const applications = await db.getApplications({ mission_id: missionId });
