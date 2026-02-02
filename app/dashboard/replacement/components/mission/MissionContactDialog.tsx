@@ -51,11 +51,13 @@ export default function MissionContactDialog({ open, onOpenChange, mission }: Mi
         {mission ? (
           loading ? (
             <div className="text-gray-500 text-center py-6">Chargement...</div>
-          ) : profile?.profile_status !== "approved" ? (
-            <div className="text-center py-8 text-red-600 font-semibold text-base">
-              Votre profil n'est pas encore vérifié. Vous devez être validé par l'administration pour accéder aux coordonnées de contact.
-            </div>
-          ) : (
+          ) 
+          // : profile?.profile_status !== "approved" ? (
+          //   <div className="text-center py-8 text-red-600 font-semibold text-base">
+          //     Votre profil n'est pas encore vérifié. Vous devez être validé par l'administration pour accéder aux coordonnées de contact.
+          //   </div>
+          // ) 
+          : (
             <div className="space-y-5 mt-6 text-gray-800">
               {/* Nom */}
               <div className="flex items-center gap-3">

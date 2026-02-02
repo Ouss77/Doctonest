@@ -157,14 +157,7 @@ export default function ReplacementDashboard() {
 
             {/* Right: User Menu and Actions */}
             <div className="flex items-center gap-2">
-              <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md relative">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-              <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">
-                <Mail className="w-5 h-5" />
-              </button>
-              
+
               {/* Bouton Déconnexion - Plus visible */}
               <Button
                 onClick={logout}

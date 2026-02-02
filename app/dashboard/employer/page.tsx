@@ -141,7 +141,7 @@ export default function EmployerDashboard() {
               <div className="flex items-center gap-2">
                 <img
                   src="/logo.png"
-                  alt="Logo Le Foyer Médical"
+                  alt="Logo DoctoNest"
                   className="h-10 w-10 rounded-full"
                 />
                 <span className="hidden md:block text-xl font-bold text-gray-900">DoctoNest</span>

@@ -16,12 +16,9 @@ function Headerannonces() {
       <header className="relative top-5 z-20 max-w-7xl mx-auto px-10 py-3 mt-0 flex items-center justify-between bg-[#071d45]/40 backdrop-blur-md rounded-xl shadow">
         <Link href="/" className="flex items-center gap-3 group">
           <img src="/logo.png" className="w-10 h-10 rounded-xl" />
-          <span className="text-xl font-semibold text-white group-hover:text-blue-200 transition">Le Foyer Médical</span>
+          <span className="text-xl font-semibold text-white group-hover:text-blue-200 transition">DoctoNest</span>
         </Link>
-        {/* <nav className="hidden md:flex items-center gap-8">
-          <Link href="/features" className="text-white font-medium hover:text-blue-200 transition">Fonctionnalités</Link>
-          <Link href="/blog" className="text-white font-medium hover:text-blue-200 transition">Blog</Link>
-        </nav> */}
+
         <div className="flex items-center gap-4">
           <Link href="/login">
             <Button className="border border-white/40 text-white px-4 py-2 rounded-lg hover:bg-white/10 transition">

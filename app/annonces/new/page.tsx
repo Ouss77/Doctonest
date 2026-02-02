@@ -2,34 +2,14 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  ArrowRight,
-  FileText,
-  User,
-  Phone,
-  Mail,
-  MapPin,
-  Building2,
-  Stethoscope,
-  CheckCircle2,
-  AlertCircle,
-  X,
-  Shield,
-  Eye,
-  EyeOff,
-  Loader2,
-  Info
-} from 'lucide-react';
-
+import {  ArrowRight,  FileText,  User,  Phone,  Mail,  MapPin,  Building2,  Stethoscope,  CheckCircle2,  AlertCircle,   X,
+  Shield,   Eye,  EyeOff,  Loader2,  Info } from 'lucide-react';
 import Header from '@/components/annonces/header';
 
 export default function NewAnnouncementPage() {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement | null>(null);
 
-  /* =========================
-     STATE
-  ========================= */
   const [currentStep, setCurrentStep] = useState(1);
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
@@ -45,9 +25,6 @@ export default function NewAnnouncementPage() {
   const [publishSuccess, setPublishSuccess] = useState(false);
   const [publishMessage, setPublishMessage] = useState<string | null>(null);
 
-  /* =========================
-     VALIDATION
-  ========================= */
   const validateStep = (step: number) => {
     if (step === 1) {
       if (!title.trim()) return "Le titre est obligatoire";
@@ -64,9 +41,6 @@ export default function NewAnnouncementPage() {
     return null;
   };
 
-  /* =========================
-     NAVIGATION
-  ========================= */
   const nextStep = () => {
     const validationError = validateStep(currentStep);
     if (validationError) {
@@ -84,9 +58,6 @@ export default function NewAnnouncementPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  /* =========================
-     SUBMIT
-  ========================= */
   const submit = async () => {
     setError(null);
     setUserCreationError(null);
@@ -151,11 +122,11 @@ export default function NewAnnouncementPage() {
       /* 3️⃣ Format final description */
       const formattedDescription = `${description.trim()}
 
---- Contact ---
-${contactName ? `Nom : ${contactName}` : ''}
-${contactEmail ? `Email : ${contactEmail}` : ''}
-${contactPhone ? `Téléphone : ${hidePhone ? '(masqué)' : contactPhone}` : ''}
-Type d'annonceur : ${userRole === 'medecin' ? 'Médecin' : 'Institution'}`;
+	--- Contact ---
+	${contactName ? `Nom : ${contactName}` : ''}
+	${contactEmail ? `Email : ${contactEmail}` : ''}
+	${contactPhone ? `Téléphone : ${hidePhone ? '(masqué)' : contactPhone}` : ''}
+	Type d'annonceur : ${userRole === 'medecin' ? 'Médecin' : 'Institution'}`;
 
       /* 4️⃣ Create mission */
       const resMission = await fetch('/api/missions', {
@@ -193,9 +164,6 @@ Type d'annonceur : ${userRole === 'medecin' ? 'Médecin' : 'Institution'}`;
     }
   };
 
-  /* =========================
-     UI
-  ========================= */
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <Header />
@@ -228,7 +196,7 @@ Type d'annonceur : ${userRole === 'medecin' ? 'Médecin' : 'Institution'}`;
 
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* HEADER */}
-        <div className="mb-10 text-center">
+        {/* <div className="mb-10 text-center">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white mb-4 shadow-lg">
             <FileText className="w-10 h-10" />
           </div>
@@ -238,8 +206,7 @@ Type d'annonceur : ${userRole === 'medecin' ? 'Médecin' : 'Institution'}`;
           <p className="text-gray-600">
             Remplissez les informations pour publier votre annonce de remplacement
           </p>
-        </div>
-
+        </div> */}
         {/* PROGRESS INDICATOR */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">

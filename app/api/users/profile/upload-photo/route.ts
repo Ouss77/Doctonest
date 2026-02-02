@@ -3,9 +3,9 @@ import { db } from "@/lib/database";
 import { writeFile } from "fs/promises";
 import path from "path";
 
-// POST /api/profile/upload-photo
+// POST /api/users/profile/upload-photo
 export async function POST(req: Request) {
-  try {
+  try { 
     const formData = await req.formData();
     const file = formData.get("file"); 
     const userId = formData.get("userId");
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     const filePath = path.join(uploadDir, fileName);
     console.log("[UPLOAD-API] Saving file to:", filePath);
     const arrayBuffer = await file.arrayBuffer();
-    await writeFile(filePath, Buffer.from(arrayBuffer));
+    await writeFile(filePath, Buffer.from(arrayBuffer)); 
     // Update DB
     const photoUrl = `/uploads/${fileName}`;
     try {

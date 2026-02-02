@@ -58,7 +58,7 @@ export default function EditProfile({
         console.log("[CLIENT] userId:", profileData.userId);
         console.log("[CLIENT] userType: replacement");
         
-        const uploadRes = await fetch("/api/profile/upload-photo", {
+        const uploadRes = await fetch("/api/users/profile/upload-photo", {
           method: "POST",
           body: fd,
         });
@@ -84,11 +84,11 @@ export default function EditProfile({
 
       // Save profile data
       const payload = {
-        firstName: profileData.firstName,
-        lastName: profileData.lastName,
-        email: profileData.email,
-        phone: profileData.phone,
-        profileData: {
+            firstName: profileData.firstName,
+            lastName: profileData.lastName,
+            email: profileData.email,
+            phone: profileData.phone,
+            profileData: {
           specialty: profileData.specialty,
           profession: profileData.profession,
           location: profileData.location,
@@ -98,7 +98,7 @@ export default function EditProfile({
           is_available: profileData.is_available,
           photo_url: photoUrl,
         },
-      };
+      }; 
 
       console.log("[CLIENT] Saving payload:", payload);
 
@@ -141,7 +141,7 @@ export default function EditProfile({
     }
   };
 
-  return (
+  return ( 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[95vw] !max-w-6xl h-[95vh] md:h-[90vh] p-0 rounded-xl bg-white shadow-2xl flex flex-col border-0 overflow-hidden">
         

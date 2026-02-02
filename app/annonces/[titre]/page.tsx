@@ -100,7 +100,7 @@ export default function AnnouncementDetailPage() {
         <header className="bg-gradient-to-r from-blue-900 via-purple-900 to-blue-800 shadow-xl">
           <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
             <Link href="/" className="flex items-center gap-3">
-              <img src="/logo.png" alt="Logo Le Foyer Médical" className="w-10 h-10 rounded-full" />
+              <img src="/logo.png" alt="Logo DoctoNest" className="w-10 h-10 rounded-full" />
               <span className="font-bold text-xl text-white">DoctoNest</span>
             </Link>
           </div>
@@ -124,7 +124,7 @@ export default function AnnouncementDetailPage() {
       <header className="bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-3">
-            <img src="/logo.png" alt="Logo Le Foyer Médical" className="w-10 h-10 rounded-full" />
+            <img src="/logo.png" alt="Logo DoctoNest" className="w-10 h-10 rounded-full" />
             <span className="font-bold text-xl text-white">DoctoNest</span>
           </Link>
           <nav className="hidden md:flex gap-8">
@@ -280,33 +280,6 @@ export default function AnnouncementDetailPage() {
               </CardContent>
             </Card>
 
-            {/* Trust Indicators */}
-            {/* <Card className="rounded-xl border-0 shadow-lg bg-gradient-to-br from-green-500 to-emerald-600 text-white">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-white" />
-                  Pourquoi Le Foyer Médical ?
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 bg-white/20 backdrop-blur-sm rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-white flex-shrink-0" />
-                    <span className="text-white text-sm">Annonces vérifiées et sécurisées</span>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-white/20 backdrop-blur-sm rounded-lg">
-                    <Users className="w-5 h-5 text-white flex-shrink-0" />
-                    <span className="text-white text-sm">Plus de 1000 professionnels</span>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-white/20 backdrop-blur-sm rounded-lg">
-                    <TrendingUp className="w-5 h-5 text-white flex-shrink-0" />
-                    <span className="text-white text-sm">Taux de réussite de 95%</span>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-white/20 backdrop-blur-sm rounded-lg">
-                    <Star className="w-5 h-5 text-white flex-shrink-0" />
-                    <span className="text-white text-sm">Support client 24/7</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card> */}
           </div>
         </div>
       </div>

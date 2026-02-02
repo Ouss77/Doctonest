@@ -65,7 +65,7 @@ export default function ProfileTabs({
         fd.append("userId", profileData.userId);
         fd.append("userType", "employer");
 
-        const uploadRes = await fetch("/api/profile/upload-photo", {
+        const uploadRes = await fetch("/api/users/profile/upload-photo", {
           method: "POST",
           body: fd,
         });

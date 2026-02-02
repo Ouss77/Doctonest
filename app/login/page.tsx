@@ -64,7 +64,7 @@ export default function LoginPage() {
       {/* Left Side - Dark Hero Style */}
       <div className="hidden md:flex flex-col items-center bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white p-10 relative">
         <h2 className="text-3xl font-extrabold text-center w-full absolute top-0 left-0 mt-0 pt-8 drop-shadow-lg">
-          Bienvenue sur Le Foyer Médical
+          Bienvenue sur DoctoNest
         </h2>
         <div className="flex-1 flex flex-col justify-center w-full pt-20">
           <img

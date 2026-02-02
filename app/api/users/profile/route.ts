@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
 }
 
 // Update user profile
-export async function PUT(request: NextRequest) {
+export async function PUT(request: NextRequest) { 
   try {
     const token = request.cookies.get("auth-token")?.value
     if (!token) {
@@ -127,20 +127,45 @@ export async function PUT(request: NextRequest) {
     // Update profile-specific data
     if (profileData && decoded.userType === "replacement") {
       try {
-        await sql`
-          UPDATE replacement_profiles 
-          SET specialty = ${profileData.specialty || null},
-              profession = ${profileData.profession || null},
-              location = ${profileData.location || null},
-              experience_years = ${profileData.experience_years || null},
-              diploma = ${profileData.diploma || null},
-              languages = ${profileData.languages || []},
-              bio = ${profileData.bio || null},
-              is_available = ${typeof profileData.is_available === 'boolean' ? profileData.is_available : null},
-              photo_url = ${profileData.photo_url || profileData.photoUrl || null},
-              updated_at = NOW()
-          WHERE user_id = ${decoded.userId}
-        `
+await sql`
+  INSERT INTO replacement_profiles (
+    user_id,
+    specialty,
+    profession,
+    location,
+    experience_years,
+    diploma,
+    languages,
+    bio,
+    is_available,
+    photo_url,
+    updated_at
+  ) VALUES (
+    ${decoded.userId},
+    ${profileData.specialty || null},
+    ${profileData.profession || null},
+    ${profileData.location || null},
+    ${profileData.experience_years || null},
+    ${profileData.diploma || null},
+    ${profileData.languages || []},
+    ${profileData.bio || null},
+    ${typeof profileData.is_available === "boolean" ? profileData.is_available : null},
+    ${profileData.photo_url || profileData.photoUrl || null},
+    NOW()
+  )
+  ON CONFLICT (user_id)
+  DO UPDATE SET
+    specialty = EXCLUDED.specialty,
+    profession = EXCLUDED.profession,
+    location = EXCLUDED.location,
+    experience_years = EXCLUDED.experience_years,
+    diploma = EXCLUDED.diploma,
+    languages = EXCLUDED.languages,
+    bio = EXCLUDED.bio,
+    is_available = EXCLUDED.is_available,
+    photo_url = EXCLUDED.photo_url,
+    updated_at = NOW()
+`;
       } catch (err) {
         console.error("Replacement profile update error:", err)
         return NextResponse.json({ error: "Failed to update replacement profile" }, { status: 500 })

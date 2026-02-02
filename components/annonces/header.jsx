@@ -1,53 +1,54 @@
+
+import Link from "next/link"
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
-function Header() {
-    const [mobileOpen, setMobileOpen] = useState(false);
+function Headerannonces() {
   return (
-      <header className="bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg">
-        <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-12 py-6">
-          <Link href="/" className="flex items-center gap-3">
-            <img src="/logo.png" alt="Logo DoctoNest" className="w-10 h-10 rounded-full" />
-            <span className="font-bold text-2xl text-white">DoctoNest</span>
+    <div>
+    <div
+      className="relative top-0 w-full bg-cover min-h-[450px]"
+      style={{
+        className: "",
+        backgroundImage: "url('nex-an.png')"
+      }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-b from-[#071d45]/20 to-[#071d45]/30"></div>
+      <header className="relative top-5 z-20 max-w-7xl mx-auto px-10 py-3 mt-0 flex items-center justify-between bg-[#071d45]/40 backdrop-blur-md rounded-xl shadow">
+        <Link href="/" className="flex items-center gap-3 group">
+          <img src="/logo.png" className="w-10 h-10 rounded-xl" />
+          <span className="text-xl font-semibold text-white group-hover:text-blue-200 transition">DoctoNest</span>
+        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/login">
+            <Button className="border border-white/40 text-white px-4 py-2 rounded-lg hover:bg-white/10 transition">
+              Connexion
+            </Button>
           </Link>
-          <nav className="hidden md:flex gap-8">
-            <Link href="/#features" className="text-blue-100 text-base font-medium hover:text-white transition">Fonctionnalités</Link>
-            <Link href="/annonces" className="text-white text-base font-medium border-b-2 border-white">Annonces</Link>
-          </nav>
-          <div className="hidden md:flex items-center gap-2">
-            <Link href="/annonces/new" className="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold shadow-sm">
-              Déposer une annonce
-            </Link>
-            <Link href="/login">
-              <Button variant="ghost" className="text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-100">Connexion</Button>
-            </Link>
-            <Link href="/register">
-              <Button className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-blue-700">S'inscrire</Button>
-            </Link>
-          </div>
-          <button className="md:hidden p-2 rounded-lg hover:bg-white/20" onClick={() => setMobileOpen(!mobileOpen)}>
-            {mobileOpen ? <X size={30} className="text-white" /> : <Menu size={30} className="text-white" />}
-          </button>
-          {mobileOpen && (
-            // fixed menu so it appears on top on mobile pages (offset by top-16 to sit under header)
-            <div className="md:hidden bg-white shadow-lg border-t fixed top-16 left-0 w-full z-50">
-              <nav className="flex flex-col items-start gap-4 p-4">
-                <Link href="/#features" className="text-gray-600 text-base font-medium hover:text-blue-600 transition" onClick={() => setMobileOpen(false)}>Fonctionnalités</Link>
-                <Link href="/#how-it-works" className="text-gray-600 text-base font-medium hover:text-blue-600 transition" onClick={() => setMobileOpen(false)}>Comment ça marche</Link>
-                <Link href="/annonces" className="text-blue-600 text-base font-medium" onClick={() => setMobileOpen(false)}>Annonces</Link>
-                <hr className="w-full border-gray-200 my-2" />
-                <Link href="/login" onClick={() => setMobileOpen(false)}>
-                  <Button variant="ghost" className="text-gray-600">Connexion</Button>
-                </Link>
-                <Link href="/register" onClick={() => setMobileOpen(false)}>
-                  <Button className="bg-blue-600 text-white">S'inscrire</Button>
-                </Link>
-              </nav>
-            </div>
-          )}
+          <Link href="/register">
+            <Button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+              S’inscrire
+            </Button>
+          </Link>
         </div>
-      </header>  )
+      </header>
+      {/* HERO CONTENT */}
+      <div className="relative z-20 max-w-7xl mx-auto px-10 py-10">
+        <h1 className="text-3xl md:text-5xl font-bold text-white max-w-3xl leading-tight">
+          Publiez votre annonce 
+        </h1>
+        <p className="text-lg mt-4 text-blue-200 max-w-xl">
+          Trouvez rapidement des professionnels de santé qualifiés pour répondre à vos besoins.
+        </p>
+        <div className="flex gap-4 mt-6">
+          <Link href="/annonces/new">
+            <Button className="bg-blue-700 hover:bg-blue-800 text-lg h-15 text-white font-semibold px-6 py-3 rounded-xl transition">
+              Voir Nos Annonces
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </div>
+    </div>
+  )
 }
 
-export default Header
+export default Headerannonces
