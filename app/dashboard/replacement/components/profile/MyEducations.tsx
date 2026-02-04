@@ -190,7 +190,7 @@ export default function MyEducations() {
   return (
     <>
       {/* Card Section */}
-      <Card className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <Card className="bg-white rounded-xl border border-slate-100 shadow-md hover:shadow-lg transition-shadow overflow-hidden">
         <CardHeader className="pb-4 border-b border-slate-200 bg-slate-50 px-4 sm:px-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3 w-full sm:w-auto">

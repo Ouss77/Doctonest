@@ -11,7 +11,7 @@ interface MissionFilterBarProps {
 
 export default function MissionFilterBar({
   specialtyFilter,
-  setSpecialtyFilter,
+  setSpecialtyFilter, 
   locationFilter,
   setLocationFilter,
   keywordFilter,

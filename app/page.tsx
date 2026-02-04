@@ -4,9 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { UserPlus, Search, MessageSquare } from 'lucide-react';
 
-import { Menu, X, ArrowRight, Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram,
-  // New professional icons
-  Stethoscope, Heart, Pill, Syringe, Activity, Users
+import { Menu, X, ArrowRight, Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram,  Stethoscope, Heart, Pill, Syringe, Activity, Users
 } from "lucide-react";
 
 const socialLinks = [
@@ -152,6 +150,7 @@ export default function HomePage() {
             <nav className="flex flex-col items-start gap-4 p-4">
               <Link href="#features" className="text-gray-300 text-base font-medium hover:text-blue-400 transition" onClick={() => setMobileOpen(false)}>Fonctionnalités</Link>
               <Link href="/annonces" className="text-gray-300 text-base font-medium hover:text-blue-400 transition" onClick={() => setMobileOpen(false)}>Annonces</Link>
+              <Link href="/#how-it-works" className="text-gray-300 text-base font-medium hover:text-blue-400 transition" onClick={() => setMobileOpen(false)}>Comment ça marche ?</Link>
               <hr className="w-full border-slate-800 my-2" />
               <Link href="/annonces/new" onClick={() => setMobileOpen(false)} className="w-full">
                 <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-xl font-semibold shadow-lg">Publier une mission</button>
@@ -188,11 +187,11 @@ export default function HomePage() {
                   </button>
                 </Link>
                 
-                <Link href="/register?type=employer">
+                <Link href="/annonces">
                   <button
                     className="text-lg sm:text-xl py-3 sm:py-4 px-6 sm:px-8 rounded-xl sm:rounded-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-xl hover:shadow-purple-500/25 hover:scale-105 transition-all duration-200 whitespace-nowrap"
                   >
-                    Trouver un remplaçant
+                    Explorer les opportunités
                   </button>
                 </Link>
               </div>

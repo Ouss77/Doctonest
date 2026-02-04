@@ -95,7 +95,7 @@ export default function AvailableMissionsSection() {
   return (
     <>
       {/* LinkedIn-style Card: Available Missions Section */}
-      <Card className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+      <Card className="bg-white rounded-lg shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow">
         <CardHeader className="pb-3 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
@@ -113,7 +113,7 @@ export default function AvailableMissionsSection() {
           <div className="mb-4">
             <MissionFilterBar
               specialtyFilter={specialtyFilter}
-              setSpecialtyFilter={setSpecialtyFilter}
+              setSpecialtyFilter={setSpecialtyFilter} 
               locationFilter={locationFilter}
               setLocationFilter={setLocationFilter}
               keywordFilter={keywordFilter}

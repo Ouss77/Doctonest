@@ -39,24 +39,7 @@ export default function FeedPage() {
             </div>
           </div>
         </div>
-        <div className="flex items-center justify-between px-2">
-          <button className="flex items-center gap-2 p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-            </svg>
-            <span className="text-sm font-medium">Photo</span>
-          </button>
-          <button className="flex items-center gap-2 p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-            </svg>
-            <span className="text-sm font-medium">Vidéo</span>
-          </button>
-          <button className="flex items-center gap-2 p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors">
-            <Calendar className="w-5 h-5" />
-            <span className="text-sm font-medium">Événement</span>
-          </button>
-        </div>
+
       </div>
 
       {/* Post officiel DoctoNest */}

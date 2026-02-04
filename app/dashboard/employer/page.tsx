@@ -56,13 +56,14 @@ export default function EmployerDashboard() {
       })
   }, [employerId])
 
-  const pendingApplications = 7
+  // const pendingApplications = 7
 
   const navigationItems: { id: typeof activeTab; label: string; icon: any; badge?: number }[] = [
     { id: "feed", label: "Accueil", icon: Home },
     { id: "missions", label: "Missions", icon: Briefcase },
     { id: "doctors", label: "Médecins", icon: Users },
-    { id: "applications", label: "Candidatures", icon: UserCheck, badge: pendingApplications },
+    // { id: "applications", label: "Candidatures", icon: UserCheck, badge: pendingApplications },
+    { id: "applications", label: "Candidatures", icon: UserCheck },
     { id: "profile", label: "Établissement", icon: Building2 },
   ]
 

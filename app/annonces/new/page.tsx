@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect	 } from 'react';
 import { useRouter } from 'next/navigation';
 import {  ArrowRight,  FileText,  User,  Phone,  Mail,  MapPin,  Building2,  Stethoscope,  CheckCircle2,  AlertCircle,   X,
   Shield,   Eye,  EyeOff,  Loader2,  Info } from 'lucide-react';
@@ -8,7 +8,7 @@ import Header from '@/components/annonces/header';
 
 export default function NewAnnouncementPage() {
   const router = useRouter();
-  const formRef = useRef<HTMLFormElement | null>(null);
+  const listRef = useRef<HTMLFormElement | null>(null);
 
   const [currentStep, setCurrentStep] = useState(1);
   const [title, setTitle] = useState('');
@@ -164,6 +164,16 @@ export default function NewAnnouncementPage() {
     }
   };
 
+    useEffect(() => {
+  const timer = setTimeout(() => {
+    listRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 500); // ⏳ 2.5 secondes (tu peux mettre 2000 ou 3000)
+
+  return () => clearTimeout(timer);
+}, []);
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <Header />
@@ -194,7 +204,7 @@ export default function NewAnnouncementPage() {
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-8" id="annonces-list" ref={listRef}>
         {/* HEADER */}
         {/* <div className="mb-10 text-center">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white mb-4 shadow-lg">
@@ -216,7 +226,7 @@ export default function NewAnnouncementPage() {
               </div>
               <span className={`text-sm font-medium ${currentStep >= 1 ? 'text-blue-600' : 'text-gray-500'}`}>
                 Détails
-              </span>
+              </span> 
             </div>
             
             <div className="flex-1 h-1 mx-4 bg-gray-200">
@@ -263,30 +273,32 @@ export default function NewAnnouncementPage() {
                   </h2>
                   
                   <div className="space-y-5">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Titre de l'annonce *
-                      </label>
-                      <input
-                        value={title}
-                        onChange={e => setTitle(e.target.value)}
-                        placeholder="Ex : Recherche médecin généraliste - Cabinet Rabat"
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Localisation *
-                      </label>
-                      <div className="relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Titre de l'annonce *
+                        </label>
                         <input
-                          value={location}
-                          onChange={e => setLocation(e.target.value)}
-                          placeholder="Ville, adresse, région"
-                          className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                          value={title}
+                          onChange={e => setTitle(e.target.value)}
+                          placeholder="Ex : Recherche médecin généraliste - Cabinet Rabat"
+                          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                         />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Localisation *
+                        </label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                          <input
+                            value={location}
+                            onChange={e => setLocation(e.target.value)}
+                            placeholder="Ville, adresse, région"
+                            className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                          />
+                        </div>
                       </div>
                     </div>
 

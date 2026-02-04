@@ -1,56 +1,82 @@
-
-import Link from "next/link"
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
+
 function Headerannonces() {
   return (
-    <div>
-            {/* HEADER Annonces */}
-    <div
-      className="relative top-0 w-full bg-cover bg-center min-h-[500px]"
-      style={{
-        
-        backgroundImage: "url('annonces.png')"
-      }}
-    >
-      <div className="absolute inset-0 bg-gradient-to-b from-[#071d45]/20 to-[#071d45]/30"></div>
-      <header className="relative top-5 z-20 max-w-7xl mx-auto px-10 py-3 mt-0 flex items-center justify-between bg-[#071d45]/40 backdrop-blur-md rounded-xl shadow">
-        <Link href="/" className="flex items-center gap-3 group">
-          <img src="/logo.png" className="w-10 h-10 rounded-xl" />
-          <span className="text-xl font-semibold text-white group-hover:text-blue-200 transition">DoctoNest</span>
-        </Link>
+    <div className="relative w-full">
+      {/* BACKGROUND */}
+      <div
+        className="relative w-full min-h-[420px] sm:min-h-[480px] md:min-h-[540px] bg-cover bg-center"
+        style={{ backgroundImage: "url('/annonces.png')" }}
+      >
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#071d45]/30 via-[#071d45]/40 to-[#071d45]/70" />
 
-        <div className="flex items-center gap-4">
-          <Link href="/login">
-            <Button className="border border-white/40 text-white px-4 py-2 rounded-lg hover:bg-white/10 transition">
-              Connexion
-            </Button>
-          </Link>
-          <Link href="/register">
-            <Button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-              S’inscrire
-            </Button>
-          </Link>
-        </div>
-      </header>
-      {/* HERO CONTENT */}
-      <div className="relative z-20 max-w-7xl mx-auto px-10 py-10">
-        <h1 className="text-3xl md:text-5xl font-bold text-white max-w-3xl leading-tight">
-          Annonces Médicales au Maroc :<br />Votre Avenir en Santé
-        </h1>
-        <p className="text-lg mt-4 text-blue-200 max-w-xl">
-          Explorez les opportunités d'emploi et de stages dans tout le Royaume.
-        </p>
-        <div className="flex gap-4 mt-6">
-          <Link href="/annonces/new">
-            <Button className="bg-blue-700 hover:bg-blue-800 text-lg h-15 text-white font-semibold px-6 py-3 rounded-xl transition">
-              Publier une Annonce
-            </Button>
-          </Link>
+        {/* HEADER NAV */}
+        <header className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 md:px-10 pt-4">
+          <div className="flex items-center justify-between gap-4 bg-[#071d45]/60 backdrop-blur-lg border border-white/10 rounded-2xl px-4 sm:px-6 py-3 shadow-xl">
+            {/* LOGO */}
+            <Link href="/" className="flex items-center gap-3 group">
+              <img
+                src="/logo.png"
+                alt="DoctoNest"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl shadow-md"
+              />
+              <span className="text-lg sm:text-xl font-semibold text-white group-hover:text-blue-300 transition">
+              DoctoNest
+              </span>
+            </Link>
+
+            {/* ACTIONS */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Link href="/login">
+                <Button
+                  variant="ghost"
+                  className="text-white border border-white/30 hover:bg-white/10 hover:border-white/50 rounded-xl px-4"
+                >
+                  Connexion
+                </Button>
+              </Link>
+
+              <Link href="/register">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 shadow-md">
+                  S’inscrire
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </header>
+
+        {/* HERO CONTENT */}
+        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 md:px-10 pt-16 sm:pt-20 md:pt-24">
+          <div className="max-w-3xl">
+            <span className="inline-block mb-4 px-4 py-1 rounded-full bg-blue-600/20 text-blue-200 text-sm font-medium">
+              🇲🇦 Opportunités médicales au Maroc
+            </span>
+
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight">
+              Annonces Médicales <br className="hidden sm:block" />
+              pour construire votre avenir
+            </h1>
+
+            <p className="mt-4 text-base sm:text-lg text-blue-200 max-w-xl">
+              Trouvez des missions, emplois et collaborations médicales
+              partout au Royaume, en toute simplicité.
+            </p>
+
+            {/* CTA */}
+            <div className="mt-8 flex flex-wrap gap-4 mb-5">
+              <Link href="/annonces/new">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg h-12 sm:h-14 px-6 sm:px-8 rounded-xl font-semibold shadow-lg">
+                  Publier une annonce
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    </div>
-  )
+  );
 }
 
-export default Headerannonces
+export default Headerannonces;

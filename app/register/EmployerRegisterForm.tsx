@@ -1,213 +1,436 @@
+"use client";
+
+import type React from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, User, Mail, Phone, Building, MapPin } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, User, Mail, Phone, MapPin, Briefcase, Stethoscope, Lock, FileText, Shield } from "lucide-react";
 
-interface EmployerRegisterFormProps {
-  formData: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    companyName: string;
-    companyType: string;
-    location: string;
-    password: string;
-    confirmPassword: string;
-    acceptTerms: boolean;
-    profession: string;
-  };
-  setFormData: (data: any) => void;
+interface ReplacementRegisterFormProps {
+  formData: any;
+  setFormData: React.Dispatch<React.SetStateAction<any>>;
   showPassword: boolean;
   setShowPassword: (show: boolean) => void;
-  handleInputChange: (field: string, value: any) => void;
+  handleInputChange: (field: string, value: string | boolean | File) => void;
   handleSubmit: (e: React.FormEvent) => void;
-  companyTypes: string[];
 }
 
-export default function EmployerRegisterForm({
+export default function ReplacementRegisterForm({
   formData,
+  setFormData,
   showPassword,
   setShowPassword,
   handleInputChange,
   handleSubmit,
-  companyTypes,
-}: EmployerRegisterFormProps) {
-  return (
-    <div className="flex items-center justify-center mt-10 px-4 bg-gray-900">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-3xl space-y-8 border border-gray-700"
-      >
-        {/* Header */}
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-blue-400">Inscription Employeur</h2>
-          <p className="text-gray-400 text-sm mt-1">
-            Créez un compte pour publier vos offres
-          </p>
-        </div>
+}: ReplacementRegisterFormProps) {
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-        {/* Personal Info */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="relative">
-            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <Input
-              id="firstName"
-              value={formData.firstName}
-              onChange={(e) => handleInputChange("firstName", e.target.value)}
-              required
-              className="pl-12 h-12 border-gray-700 bg-gray-900 text-white focus:border-blue-500 focus:ring-blue-500 rounded"
-              placeholder="Prénom"
-            />
+  const professions = [
+    "Médecin généraliste",
+    "Médecin spécialiste",
+    "Chirurgien",
+    "Dentiste",
+    "Infirmier(ère)",
+    "Kinésithérapeute",
+    "Sage-femme",
+    "Pharmacien(ne)",
+  ];
+
+  const specialties = [
+    "Cardiologie",
+    "Dermatologie",
+    "Gastro-entérologie",
+    "Gynécologie",
+    "Neurologie",
+    "Ophtalmologie",
+    "ORL",
+    "Pédiatrie",
+    "Psychiatrie",
+    "Radiologie",
+    "Rhumatologie",
+    "Urologie",
+  ];
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.firstName.trim()) newErrors.firstName = "Le prénom est requis";
+    if (!formData.lastName.trim()) newErrors.lastName = "Le nom est requis";
+    if (!formData.email.trim()) {
+      newErrors.email = "L'email est requis";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email invalide";
+    }
+    if (!formData.phone.trim()) newErrors.phone = "Le téléphone est requis";
+    if (!formData.profession) newErrors.profession = "La profession est requise";
+    if (formData.profession === "Médecin spécialiste" && !formData.specialty) {
+      newErrors.specialty = "La spécialité est requise";
+    }
+    if (!formData.location.trim()) newErrors.location = "La localisation est requise";
+    if (formData.password.length < 6) newErrors.password = "Minimum 6 caractères";
+    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Les mots de passe ne correspondent pas";
+    if (!formData.acceptTerms) newErrors.acceptTerms = "Vous devez accepter les conditions";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateForm()) {
+      handleSubmit(e);
+    }
+  };
+
+  return (
+    <form onSubmit={handleFormSubmit} className="space-y-5">
+      {/* Informations personnelles */}
+      <div>
+        <h3 className="text-lg font-semibold text-white mb-4 pb-2 border-b border-gray-700 flex items-center gap-2">
+          <User className="h-5 w-5 text-blue-400" />
+          Informations personnelles
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="firstName" className="text-gray-300">
+              Prénom <span className="text-red-400">*</span>
+            </Label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Input
+                id="firstName"
+                value={formData.firstName}
+                onChange={(e) => {
+                  handleInputChange("firstName", e.target.value);
+                  if (errors.firstName) setErrors(prev => ({...prev, firstName: ""}));
+                }}
+                className="h-11 rounded-lg border-gray-700 bg-gray-900 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-11"
+                placeholder="Jean"
+              />
+            </div>
+            {errors.firstName && (
+              <p className="text-sm text-red-400 flex items-center gap-1">
+                <AlertCircle className="h-4 w-4" />
+                {errors.firstName}
+              </p>
+            )}
           </div>
-          <div className="relative">
-            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <Input
-              id="lastName"
-              value={formData.lastName}
-              onChange={(e) => handleInputChange("lastName", e.target.value)}
-              required
-              className="pl-12 h-12 border-gray-700 bg-gray-900 text-white focus:border-blue-500 focus:ring-blue-500 rounded"
-              placeholder="Nom"
-            />
+
+          <div className="space-y-2">
+            <Label htmlFor="lastName" className="text-gray-300">
+              Nom <span className="text-red-400">*</span>
+            </Label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Input
+                id="lastName"
+                value={formData.lastName}
+                onChange={(e) => {
+                  handleInputChange("lastName", e.target.value);
+                  if (errors.lastName) setErrors(prev => ({...prev, lastName: ""}));
+                }}
+                className="h-11 rounded-lg border-gray-700 bg-gray-900 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-11"
+                placeholder="Dupont"
+              />
+            </div>
+            {errors.lastName && (
+              <p className="text-sm text-red-400 flex items-center gap-1">
+                <AlertCircle className="h-4 w-4" />
+                {errors.lastName}
+              </p>
+            )}
           </div>
+        </div>
+      </div>
+
+      {/* Contact */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-gray-300">
+            Email <span className="text-red-400">*</span>
+          </Label>
           <div className="relative">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <Input
               id="email"
               type="email"
               value={formData.email}
-              onChange={(e) => handleInputChange("email", e.target.value)}
-              required
-              className="pl-12 h-12 border-gray-700 bg-gray-900 text-white focus:border-blue-500 focus:ring-blue-500 rounded"
-              placeholder="Adresse email"
+              onChange={(e) => {
+                handleInputChange("email", e.target.value);
+                if (errors.email) setErrors(prev => ({...prev, email: ""}));
+              }}
+              className="h-11 rounded-lg border-gray-700 bg-gray-900 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-11"
+              placeholder="jean.dupont@email.fr"
             />
           </div>
+          {errors.email && (
+            <p className="text-sm text-red-400 flex items-center gap-1">
+              <AlertCircle className="h-4 w-4" />
+              {errors.email}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="phone" className="text-gray-300">
+            Téléphone <span className="text-red-400">*</span>
+          </Label>
           <div className="relative">
-            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <Input
               id="phone"
-              type="tel"
               value={formData.phone}
-              onChange={(e) => handleInputChange("phone", e.target.value)}
-              required
-              className="pl-12 h-12 border-gray-700 bg-gray-900 text-white focus:border-blue-500 focus:ring-blue-500 rounded"
-              placeholder="Téléphone"
+              onChange={(e) => {
+                handleInputChange("phone", e.target.value);
+                if (errors.phone) setErrors(prev => ({...prev, phone: ""}));
+              }}
+              className="h-11 rounded-lg border-gray-700 bg-gray-900 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-11"
+              placeholder="06 12 34 56 78"
             />
           </div>
+          {errors.phone && (
+            <p className="text-sm text-red-400 flex items-center gap-1">
+              <AlertCircle className="h-4 w-4" />
+              {errors.phone}
+            </p>
+          )}
+        </div>
+      </div>
 
+      {/* Profession et spécialité */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="profession" className="text-gray-300">
+            Profession <span className="text-red-400">*</span>
+          </Label>
           <div className="relative">
-            <Building className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <Input
-              id="companyName"
-              value={formData.companyName}
-              onChange={(e) => handleInputChange("companyName", e.target.value)}
-              required
-              className="pl-12 h-12 border-gray-700 bg-gray-900 text-white focus:border-blue-500 focus:ring-blue-500 rounded"
-              placeholder="Nom de l'établissement"
-            />
-          </div>
-          <div className="relative ">
-            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <Input
-              id="location"
-              value={formData.location}
-              onChange={(e) => handleInputChange("location", e.target.value)}
-              required
-              className="pl-12 h-12 border-gray-700 bg-gray-900 text-white focus:border-blue-500 focus:ring-blue-500 rounded"
-              placeholder="Ville ou région"
-            />
-          </div>
-
-          <Select
-            value={formData.companyType}
-            onValueChange={(value) => handleInputChange("companyType", value)}
-          >
-            <SelectTrigger className="!h-12 w-full border-gray-700 bg-gray-900 text-white focus:border-blue-500 focus:ring-blue-500 rounded">
-              <SelectValue placeholder="Type d'établissement" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-900 text-white border-gray-700">
-              {companyTypes.map((type: string) => (
-                <SelectItem key={type} value={type} className="bg-gray-900 text-white hover:bg-blue-900">
-                  {type}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <div className="relative">
+            <Briefcase className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 z-10" />
             <Select
               value={formData.profession}
-              onValueChange={(value) => handleInputChange("profession", value)}
-              required
+              onValueChange={(value) => {
+                handleInputChange("profession", value);
+                if (errors.profession) setErrors(prev => ({...prev, profession: ""}));
+              }}
             >
-              <SelectTrigger className="!h-12 w-full border-gray-700 bg-gray-900 text-white focus:border-blue-500 focus:ring-blue-500 rounded">
-                <SelectValue placeholder="Sélectionner une profession" />
+              <SelectTrigger className="h-11 rounded-lg border-gray-700 bg-gray-900 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-11">
+                <SelectValue placeholder="Sélectionner votre profession" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 text-white border-gray-700">
-                <SelectItem value="Médecin" className="bg-gray-900 text-white hover:bg-blue-900">Médecin</SelectItem>
-                <SelectItem value="Dentiste" className="bg-gray-900 text-white hover:bg-blue-900">Dentiste</SelectItem>
-                <SelectItem value="Kinésithérapeute" className="bg-gray-900 text-white hover:bg-blue-900">Kinésithérapeute</SelectItem>
-                <SelectItem value="Infirmier" className="bg-gray-900 text-white hover:bg-blue-900">Infirmier</SelectItem>
+              <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                {professions.map((profession) => (
+                  <SelectItem key={profession} value={profession} className="hover:bg-gray-800">
+                    {profession}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
-
-        </section>
-
-        <div className="relative">
-          <Input
-            id="password"
-            type={showPassword ? "text" : "password"}
-            value={formData.password}
-            onChange={(e) => handleInputChange("password", e.target.value)}
-            required
-            className="pr-12 pl-4 h-12 border-gray-700 bg-gray-900 text-white focus:border-blue-500 focus:ring-blue-500 rounded"
-            placeholder="Mot de passe"
-          />
-          <button
-            type="button"
-            className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-200"
-            onClick={() => setShowPassword(!showPassword)}
-            aria-label={showPassword ? "Masquer" : "Afficher"}
-          >
-            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-          </button>
+          {errors.profession && (
+            <p className="text-sm text-red-400 flex items-center gap-1">
+              <AlertCircle className="h-4 w-4" />
+              {errors.profession}
+            </p>
+          )}
         </div>
 
-        {/* Terms */}
-        <div className="flex items-start gap-2">
-          <Checkbox
+        {formData.profession === "Médecin spécialiste" && (
+          <div className="space-y-2">
+            <Label htmlFor="specialty" className="text-gray-300">
+              Spécialité <span className="text-red-400">*</span>
+            </Label>
+            <div className="relative">
+              <Stethoscope className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 z-10" />
+              <Select
+                value={formData.specialty}
+                onValueChange={(value) => {
+                  handleInputChange("specialty", value);
+                  if (errors.specialty) setErrors(prev => ({...prev, specialty: ""}));
+                }}
+              >
+                <SelectTrigger className="h-11 rounded-lg border-gray-700 bg-gray-900 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-11">
+                  <SelectValue placeholder="Sélectionner votre spécialité" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                  {specialties.map((specialty) => (
+                    <SelectItem key={specialty} value={specialty} className="hover:bg-gray-800">
+                      {specialty}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {errors.specialty && (
+              <p className="text-sm text-red-400 flex items-center gap-1">
+                <AlertCircle className="h-4 w-4" />
+                {errors.specialty}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Localisation */}
+      <div className="space-y-2">
+        <Label htmlFor="location" className="text-gray-300">
+          Localisation (Ville/Département) <span className="text-red-400">*</span>
+        </Label>
+        <div className="relative">
+          <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <Input
+            id="location"
+            value={formData.location}
+            onChange={(e) => {
+              handleInputChange("location", e.target.value);
+              if (errors.location) setErrors(prev => ({...prev, location: ""}));
+            }}
+            className="h-11 rounded-lg border-gray-700 bg-gray-900 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-11"
+            placeholder="Paris, Île-de-France"
+          />
+        </div>
+        {errors.location && (
+          <p className="text-sm text-red-400 flex items-center gap-1">
+            <AlertCircle className="h-4 w-4" />
+            {errors.location}
+          </p>
+        )}
+      </div>
+
+      {/* Description */}
+      <div className="space-y-2">
+        <Label htmlFor="description" className="text-gray-300 flex items-center gap-2">
+          <FileText className="h-4 w-4 text-purple-400" />
+          Présentation / Expérience
+        </Label>
+        <Textarea
+          id="description"
+          value={formData.description}
+          onChange={(e) => handleInputChange("description", e.target.value)}
+          className="min-h-[100px] rounded-lg border-gray-700 bg-gray-900 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+          placeholder="Parlez-nous de votre expérience, vos disponibilités..."
+        />
+      </div>
+
+      {/* Sécurité */}
+      <div>
+        <h3 className="text-lg font-semibold text-white mb-4 pb-2 border-b border-gray-700 flex items-center gap-2">
+          <Shield className="h-5 w-5 text-green-400" />
+          Sécurité du compte
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-gray-300">
+              Mot de passe <span className="text-red-400">*</span>
+            </Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={(e) => {
+                  handleInputChange("password", e.target.value);
+                  if (errors.password) setErrors(prev => ({...prev, password: ""}));
+                }}
+                className="h-11 rounded-lg border-gray-700 bg-gray-900 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-11 pr-12"
+                placeholder="••••••••"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-1 top-1 h-9 w-9 hover:bg-gray-800"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4 text-gray-400" />
+                ) : (
+                  <Eye className="h-4 w-4 text-gray-400" />
+                )}
+              </Button>
+            </div>
+            {errors.password && (
+              <p className="text-sm text-red-400 flex items-center gap-1">
+                <AlertCircle className="h-4 w-4" />
+                {errors.password}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword" className="text-gray-300">
+              Confirmer le mot de passe <span className="text-red-400">*</span>
+            </Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={formData.confirmPassword}
+                onChange={(e) => {
+                  handleInputChange("confirmPassword", e.target.value);
+                  if (errors.confirmPassword) setErrors(prev => ({...prev, confirmPassword: ""}));
+                }}
+                className="h-11 rounded-lg border-gray-700 bg-gray-900 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-11"
+                placeholder="••••••••"
+              />
+            </div>
+            {errors.confirmPassword && (
+              <p className="text-sm text-red-400 flex items-center gap-1">
+                <AlertCircle className="h-4 w-4" />
+                {errors.confirmPassword}
+              </p>
+            )}
+          </div>
+        </div>
+        <p className="text-xs text-gray-500 mt-2">
+          Minimum 6 caractères - Majuscules, minuscules et chiffres recommandés
+        </p>
+      </div>
+
+      {/* Conditions */}
+      <div className="space-y-3">
+        <div className="flex items-start gap-3">
+          <input
+            type="checkbox"
             id="acceptTerms"
             checked={formData.acceptTerms}
-            onCheckedChange={(checked) =>
-              handleInputChange("acceptTerms", checked as boolean)
-            }
-            className="border-gray-700 rounded focus:ring-blue-500 mt-1"
+            onChange={(e) => {
+              handleInputChange("acceptTerms", e.target.checked);
+              if (errors.acceptTerms) setErrors(prev => ({...prev, acceptTerms: ""}));
+            }}
+            className="mt-1 h-4 w-4 rounded border-gray-700 bg-gray-900 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900"
           />
-          <span className="text-sm text-gray-400 leading-5">
-            J'accepte les{" "}
-            <a href="/terms" className="text-blue-400 hover:underline">
-              conditions d'utilisation
-            </a>{" "}
-            et la{" "}
-            <a href="/privacy" className="text-blue-400 hover:underline">
-              politique de confidentialité
-            </a>
-            .
-          </span>
+          <div className="flex-1">
+            <Label htmlFor="acceptTerms" className="text-gray-300 cursor-pointer">
+              J'accepte les{" "}
+              <a href="/terms" className="text-blue-400 hover:underline">
+                conditions d'utilisation
+              </a>{" "}
+              et la{" "}
+              <a href="/privacy" className="text-blue-400 hover:underline">
+                politique de confidentialité
+              </a>{" "}
+              <span className="text-red-400">*</span>
+            </Label>
+            {errors.acceptTerms && (
+              <p className="text-sm text-red-400 flex items-center gap-1 mt-1">
+                <AlertCircle className="h-4 w-4" />
+                {errors.acceptTerms}
+              </p>
+            )}
+          </div>
         </div>
+      </div>
 
-        {/* Submit */}
-        <Button
-          type="submit"
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-xl shadow-lg transition duration-300 disabled:opacity-50"
-          disabled={!formData.acceptTerms}
-        >
-          Créer mon compte
-        </Button>
-      </form>
-    </div>
+      {/* Bouton d'inscription */}
+      <Button
+        type="submit"
+        className="w-full h-12 rounded-xl font-semibold text-base bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+      >
+        Créer mon compte médecin
+      </Button>
+    </form>
   );
 }

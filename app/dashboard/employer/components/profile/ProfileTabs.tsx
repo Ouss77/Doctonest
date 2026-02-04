@@ -18,9 +18,6 @@ export default function ProfileTabs({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  /* =========================
-     FETCH PROFILE
-  ========================= */
   useEffect(() => {
     async function fetchProfile() {
       try {
@@ -52,9 +49,6 @@ export default function ProfileTabs({
     fetchProfile();
   }, []);
 
-  /* =========================
-     SAVE PROFILE
-  ========================= */
   async function handleSave() {
     try {
       let photo_url = form?.photo_url || profileData?.photo_url || "";
@@ -124,17 +118,17 @@ export default function ProfileTabs({
   if (!profileData) return null;
 
   return (
-    <div className="max-w-6xl mx-auto font-sans">
+    <div className="max-w-6xl mx-auto font-sans px-4 sm:px-6">
       {/* PROFILE CARD */}
-      <Card className="overflow-hidden border-slate-200 shadow-xl rounded-2xl pt-0">
+      <Card className="overflow-hidden border-slate-200 shadow-md hover:shadow-lg transition-shadow rounded-2xl pt-0">
         {/* Banner */}
-        <div className="h-20 bg-gradient-to-r from-blue-700 via-blue-800 to-slate-900 relative" />
+        <div className="h-16 sm:h-20 bg-gradient-to-r from-blue-700 via-blue-800 to-slate-900 relative" />
 
-        <CardContent className="relative px-8 pb-8">
-          <div className="flex flex-col md:flex-row gap-8 -mt-20">
-            {/* Avatar */}
-            <div className="shrink-0">
-              <div className="w-48 h-56 mt-16 rounded-3xl border-[6px] border-white overflow-hidden bg-slate-100 shadow-lg">
+        <CardContent className="relative px-4 sm:px-6 md:px-8 pb-6 md:pb-8">
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+            {/* Avatar - Responsive positioning */}
+            <div className="shrink-0 -mt-12 sm:-mt-16 md:-mt-20 mx-auto md:mx-0">
+              <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-56 rounded-2xl md:rounded-3xl border-4 md:border-[6px] border-white overflow-hidden bg-slate-100 shadow-lg">
                 {profileData.photo_url ? (
                   <img
                     src={profileData.photo_url}
@@ -150,28 +144,28 @@ export default function ProfileTabs({
             </div>
 
             {/* Info */}
-            <div className="flex-1 pt-24 space-y-6">
-              <div className="flex flex-col md:flex-row md:justify-between gap-4">
-                <div>
-                  <h1 className="text-4xl font-bold text-slate-900">
+            <div className="flex-1 pt-4 md:pt-24 space-y-4 md:space-y-6">
+              <div className="flex flex-col gap-4">
+                <div className="text-center md:text-left">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900">
                     {profileData.firstName} {profileData.lastName}
                   </h1>
-                  <p className="text-xl font-semibold text-blue-600 flex items-center gap-2 mt-1">
-                    <Briefcase size={18} />
-                    {profileData.fonction || "Poste non renseigné"}
+                  <p className="text-base sm:text-lg md:text-xl font-semibold text-blue-600 flex items-center justify-center md:justify-start gap-2 mt-1 flex-wrap">
+                    <Briefcase size={16} className="sm:w-[18px] sm:h-[18px]" />
+                    <span className="break-words">{profileData.fonction || "Poste non renseigné"}</span>
                   </p>
                   {profileData.address && (
-                    <p className="text-base text-slate-600 flex items-center gap-2 mt-2">
-                      <MapPin size={16} />
-                      {profileData.address}
+                    <p className="text-sm sm:text-base text-slate-600 flex items-center justify-center md:justify-start gap-2 mt-2 flex-wrap">
+                      <MapPin size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
+                      <span className="break-words">{profileData.address}</span>
                     </p>
                   )}
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 md:gap-2 w-full">
                   <Button
                     onClick={() => setContactDialogOpen(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6"
+                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 sm:px-6 py-2 text-sm sm:text-base w-full sm:w-auto"
                   >
                     <MessageSquare className="w-4 h-4 mr-2" />
                     Contacter
@@ -182,7 +176,7 @@ export default function ProfileTabs({
                       setForm({ ...profileData });
                       setEditOpen(true);
                     }}
-                    className="bg-blue-100 hover:bg-blue-200 text-slate-900 rounded-lg px-6"
+                    className="bg-blue-100 hover:bg-blue-200 text-slate-900 rounded-lg px-4 sm:px-6 py-2 text-sm sm:text-base w-full sm:w-auto"
                   >
                     <Pencil className="w-4 h-4 mr-2" />
                     Modifier
@@ -191,7 +185,7 @@ export default function ProfileTabs({
                   <Button
                     variant="outline"
                     onClick={onOpenDocuments}
-                    className="border-blue-200 text-blue-700"
+                    className="border-blue-200 text-blue-700 px-4 sm:px-6 py-2 text-sm sm:text-base w-full sm:w-auto"
                   >
                     <FileText className="w-4 h-4 mr-2" />
                     Documents
@@ -200,7 +194,7 @@ export default function ProfileTabs({
               </div>
 
               {/* Info grid - Améliorée */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 border-t border-slate-100">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 pt-4 md:pt-6 border-t border-slate-100">
                 <InfoItem
                   icon={<Building2 size={20} />}
                   label="Nom d'établissement"
@@ -223,12 +217,12 @@ export default function ProfileTabs({
       </Card>
 
       {/* ABOUT */}
-      <Card className="mt-6 border-slate-200 shadow-sm rounded-2xl">
-        <CardContent className="p-8">
-          <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <Info size={20} className="text-blue-600" /> À propos
+      <Card className="mt-4 sm:mt-6 border-slate-200 shadow-md hover:shadow-lg transition-shadow rounded-2xl">
+        <CardContent className="p-4 sm:p-6 md:p-8">
+          <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-3 sm:mb-4 flex items-center gap-2">
+            <Info size={18} className="sm:w-5 sm:h-5 text-blue-600" /> À propos
           </h2>
-          <p className="text-slate-600 italic text-lg">
+          <p className="text-slate-600 italic text-sm sm:text-base md:text-lg leading-relaxed break-words">
             {profileData.description || "Aucune description renseignée."}
           </p>
         </CardContent>
@@ -333,15 +327,15 @@ function InfoItem({
   value?: string;
 }) {
   return (
-    <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-      <div className="p-2 bg-white rounded-lg text-blue-600 shadow-sm">
+    <div className="flex items-start gap-2 sm:gap-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+      <div className="p-1.5 sm:p-2 bg-white rounded-lg text-blue-600 shadow-sm flex-shrink-0">
         {icon}
       </div>
-      <div className="flex-1">
-        <p className="text-xs uppercase font-semibold text-slate-500 mb-1">
+      <div className="flex-1 min-w-0">
+        <p className="text-xs uppercase font-semibold text-slate-500 mb-1 truncate">
           {label}
         </p>
-        <p className="text-sm font-medium text-slate-900">
+        <p className="text-xs sm:text-sm font-medium text-slate-900 break-words">
           {value}
         </p>
       </div>

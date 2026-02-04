@@ -117,7 +117,7 @@ export default function Candidature({ missions }: CandidatureProps) {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Candidatures reçues</h1>
+            <h1 className="text-2xl font-bold text-slate-900">Candidatures reçues </h1>
             <p className="text-slate-600 text-sm mt-1">
               {applications.length} candidature{applications.length > 1 ? 's' : ''} • {missions.length} mission{missions.length > 1 ? 's' : ''}
             </p>
@@ -219,7 +219,7 @@ export default function Candidature({ missions }: CandidatureProps) {
                     <MessageSquare className="w-4 h-4 mr-2" />
                     Contacter
                   </Button>
-                  <DownloadCVButton className="mt-0 pt-0" userId={app.user_id || app.id} />
+                  {/* <DownloadCVButton className="mt-0 pt-0" userId={app.user_id || app.id} /> */}
                   {app.phone && (
                     <div className="flex-1">
                       <a

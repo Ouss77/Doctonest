@@ -91,7 +91,7 @@ export default function Profile({
             Coordonnées de contact
           </DialogDescription>
         </DialogHeader>
-        
+         
         <div className="space-y-4 py-4">
           {profileData.email && (
             <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
@@ -176,9 +176,9 @@ export default function Profile({
     <>
       <ContactDialog />
       
-      <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden mb-6">
+      <div className="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden mb-6 hover:shadow-lg transition-shadow">
         {/* Bandeau bleu */}
-        <div className="h-20 bg-gradient-to-r from-blue-600 to-blue-700" />
+        <div className="h-10 bg-gradient-to-r from-blue-600 to-blue-700" />
 
         {/* Contenu avec layout responsive */}
         <div className="px-4 md:px-8 py-6 md:py-8">
