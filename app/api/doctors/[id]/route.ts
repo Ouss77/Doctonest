@@ -24,7 +24,6 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     const diplomas = await db.getDiplomasByUser(id);
     // Combine all data
 
-    console.log("Doctor details fetched:", { publicUser, profile, experiences, diplomas });
     return NextResponse.json({
       ...publicUser,
       profile,

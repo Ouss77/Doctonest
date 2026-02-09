@@ -36,7 +36,7 @@ export default function AdminDashboard() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all"); 
   const [activeTab, setActiveTab] = useState("users");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -135,7 +135,7 @@ useEffect(() => {
         employer: m.organization_name ?? "",
         location: m.location ?? "",
         dates:    m.dates    ??  (m.start_date && m.end_date ? `${m.start_date} → ${m.end_date}`   : ""),
-        status:   m.status   ?? "open",
+        status:   m.status   ?? "pending",
         applicants:    m.applications_count ?? 0,
         publishedDate: m.created_at ?? "",
         email : m.email ?? "Not found",

@@ -2,29 +2,11 @@
 
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardDescription,
-} from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardContent, CardDescription,} from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import {
-  FileText,
-  MapPin,
-  Calendar,
-  BarChart3,
-  Eye,
-  CheckCircle,
-  XCircle,
-  Trash2,
-  Search,
-  Clock,
-  User,
-  Mail,
-} from "lucide-react"
+import {  FileText,  MapPin,  Calendar,  BarChart3,  Eye,  CheckCircle,  XCircle,  Trash2,  Search,
+  Clock,  User,  Mail,} from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export type Mission = {
@@ -56,10 +38,6 @@ export default function TabMissions({
 
   const router = useRouter()
 
-  /* ===========================
-     STATUS CONFIG
-  ============================ */
-
   const getStatusConfig = (status: Mission["status"]) => {
     const configs = {
       pending: {
@@ -87,12 +65,8 @@ export default function TabMissions({
         icon: XCircle,
       },
     }
-    return configs[status]
+    return configs[status] ?? configs.pending
   }
-
-  /* ===========================
-     ADMIN ACTIONS
-  ============================ */
 
   const updateStatus = async (
     missionId: string,
@@ -159,10 +133,6 @@ export default function TabMissions({
     }
   }
 
-  /* ===========================
-     FILTERING
-  ============================ */
-
   const filteredMissions = localMissions.filter((mission) => {
     const matchesSearch =
       !searchQuery ||
@@ -182,10 +152,6 @@ export default function TabMissions({
     private: localMissions.filter((m) => m.status === "private").length,
     refused: localMissions.filter((m) => m.status === "refused").length,
   }
-
-  /* ===========================
-     RENDER
-  ============================ */
 
   return (
     <div className="space-y-6">

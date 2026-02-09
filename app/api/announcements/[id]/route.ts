@@ -14,16 +14,23 @@ export async function GET(
 
     const rows = await sql`
       SELECT
-        id,
-        title,
-        specialty_required AS specialty,
-        location,
-        description,
-        mission_type,
-        status,
-        created_at AS posted_date
-      FROM missions
-      WHERE id = ${id}
+        m.id,
+        m.title,
+        m.specialty_required AS specialty,
+        m.location,
+        m.description,
+        m.mission_type,
+        m.status,
+        m.created_at AS posted_date,
+        ep.organization_name,
+        u.first_name,
+        u.last_name,
+        u.phone,
+        (u.phone IS NOT NULL) AS hide_contact
+      FROM missions m
+      LEFT JOIN users u ON m.employer_id = u.id
+      LEFT JOIN employer_profiles ep ON u.id = ep.user_id
+      WHERE m.id = ${id}
       LIMIT 1
     `;
 

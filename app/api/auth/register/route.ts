@@ -19,16 +19,10 @@ export async function POST(request: NextRequest) {
       companyType, 
       description, 
       profession, 
-      specialty // Added specialty field
+      specialty, // Added specialty field
+      hideContact = false
     } = await request.json();
 
-    // Validate required fields
-    // if (!email || !password || !userType || !firstName || !lastName) {
-    //   return NextResponse.json(
-    //     { error: 'Tous les champs requis doivent être remplis' },
-    //     { status: 400 }
-    //   );
-    // }
 if (password) {
   if (!email || !userType || !firstName) {
     return NextResponse.json(
@@ -59,9 +53,11 @@ if (password) {
     }
 
     // Create user
+    const normalizedPhone = hideContact ? phone : null;
+
     const user = await sql`
       INSERT INTO users (email, password_hash, user_type, first_name, last_name, phone)
-      VALUES (${email}, ${password}, ${userType}, ${firstName}, ${lastName}, ${phone})
+      VALUES (${email}, ${password}, ${userType}, ${firstName}, ${lastName}, ${normalizedPhone})
       RETURNING id, email, user_type, first_name, last_name, phone
     `;
 
@@ -115,6 +111,7 @@ if (password) {
         userType,
         firstName,
         lastName,
+        hideContact: Boolean(hideContact),
       },
     });
 

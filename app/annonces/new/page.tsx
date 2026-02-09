@@ -14,11 +14,12 @@ export default function NewAnnouncementPage() {
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
+  const [specialtyRequired, setSpecialtyRequired] = useState('');
   const [contactName, setContactName] = useState('');
   const [contactEmail, setContactEmail] = useState('');
   const [contactPhone, setContactPhone] = useState('');
   const [userRole, setUserRole] = useState<'medecin' | 'institution'>('medecin');
-  const [hidePhone, setHidePhone] = useState(false);
+  const [showContact, setShowContact] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userCreationError, setUserCreationError] = useState<string | null>(null);
@@ -29,6 +30,7 @@ export default function NewAnnouncementPage() {
     if (step === 1) {
       if (!title.trim()) return "Le titre est obligatoire";
       if (!location.trim()) return "La localisation est obligatoire";
+      if (!specialtyRequired.trim()) return "La spécialité requise est obligatoire";
       if (description.trim().length < 50) return "La description doit contenir au moins 50 caractères";
       return null;
     }
@@ -68,7 +70,7 @@ export default function NewAnnouncementPage() {
     if (step1Error || step2Error) {
       setError(step1Error || step2Error);
       return;
-    }
+    } 
 
     setLoading(true);
     let employerId: string | null = null;
@@ -87,6 +89,7 @@ export default function NewAnnouncementPage() {
           lastName: '',
           phone: contactPhone || '',
           location,
+          hideContact: showContact
         }),
       });
 
@@ -120,13 +123,8 @@ export default function NewAnnouncementPage() {
       }
 
       /* 3️⃣ Format final description */
-      const formattedDescription = `${description.trim()}
+      const cleanDescription = description.trim();
 
-	--- Contact ---
-	${contactName ? `Nom : ${contactName}` : ''}
-	${contactEmail ? `Email : ${contactEmail}` : ''}
-	${contactPhone ? `Téléphone : ${hidePhone ? '(masqué)' : contactPhone}` : ''}
-	Type d'annonceur : ${userRole === 'medecin' ? 'Médecin' : 'Institution'}`;
 
       /* 4️⃣ Create mission */
       const resMission = await fetch('/api/missions', {
@@ -134,11 +132,10 @@ export default function NewAnnouncementPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: title.trim(),
-          description: formattedDescription,
+          description: cleanDescription,
           location: location.trim(),
-          status: 'pending',
           employer_id: employerId,
-          hide_phone: hidePhone,
+          specialty_required: specialtyRequired.trim()
         }),
       });
 
@@ -154,7 +151,7 @@ export default function NewAnnouncementPage() {
       );
       setPublishSuccess(true);
 
-      setTimeout(() => {
+      setTimeout(() => { 
         router.push('/annonces');
       }, 5000);
     } catch (err: any) {
@@ -303,6 +300,21 @@ export default function NewAnnouncementPage() {
                     </div>
 
                     <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Spécialité requise *
+                      </label>
+                      <div className="relative">
+                        <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          value={specialtyRequired}
+                          onChange={e => setSpecialtyRequired(e.target.value)}
+                          placeholder="Ex : Médecine générale, Cardiologie..."
+                          className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
                       <div className="flex items-center justify-between mb-2">
                         <label className="block text-sm font-medium text-gray-700">
                           Description détaillée *
@@ -417,13 +429,13 @@ export default function NewAnnouncementPage() {
                         <input
                           id="hidePhone"
                           type="checkbox"
-                          checked={hidePhone}
-                          onChange={e => setHidePhone(e.target.checked)}
+                          checked={showContact}
+                          onChange={e => setShowContact(e.target.checked)}
                           className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                         />
                         <label htmlFor="hidePhone" className="text-sm text-gray-700 flex items-center gap-2">
-                          {hidePhone ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          Masquer mon numéro sur l'annonce publique
+                          {showContact ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                          Afficher mon numéro sur l'annonce publique
                         </label>
                       </div>
                     </div>

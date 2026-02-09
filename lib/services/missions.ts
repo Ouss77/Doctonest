@@ -1,5 +1,5 @@
 import { sql } from "@/lib/database"
-
+ 
 export type MissionFilters = {
   specialty?: string
   location?: string
@@ -25,7 +25,7 @@ async function listMissions(
   userId?: string
 ) {
   let query = sql`
-    SELECT m.*, ep.organization_name,
+    SELECT m.*, ep.organization_name, u.first_name, u.last_name, u.phone,
       (SELECT COUNT(*) FROM applications a WHERE a.mission_id = m.id) AS applications_count
     FROM missions m
     LEFT JOIN users u ON m.employer_id = u.id
@@ -76,7 +76,7 @@ async function createMission(payload: CreateMissionInput) {
       ${payload.description},
       ${payload.specialty_required},
       ${payload.location},
-      ${payload.status || 'completed'}
+      ${payload.status || 'pending'}
     )
     RETURNING *
   `

@@ -8,10 +8,10 @@ import { Menu, X, ArrowRight, Mail, Phone, MapPin, Facebook, Twitter, Linkedin, 
 } from "lucide-react";
 
 const socialLinks = [
-  { name: 'Facebook', icon: Facebook, href: 'https://facebook.com/lefoyermedical' },
-  { name: 'Twitter', icon: Twitter, href: 'https://twitter.com/lefoyermedical' },
-  { name: 'LinkedIn', icon: Linkedin, href: 'https://linkedin.com/company/lefoyermedical' },
-  { name: 'Instagram', icon: Instagram, href: 'https://instagram.com/lefoyermedical' },
+  { name: 'Facebook', icon: Facebook, href: 'https://facebook.com/doctonest' },
+  { name: 'Twitter', icon: Twitter, href: 'https://twitter.com/doctonest' },
+  { name: 'LinkedIn', icon: Linkedin, href: 'https://linkedin.com/company/doctonest' },
+  { name: 'Instagram', icon: Instagram, href: 'https://instagram.com/doctonest' },
 ];
 
 const steps = [
@@ -327,18 +327,18 @@ export default function HomePage() {
               <ul className="space-y-3">
                 <li className="flex items-center gap-3">
                   <Mail className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                  <a href="mailto:contact@lefoyermedical.com" className="hover:text-blue-400 transition-colors">
-                    contact@lefoyermedical.com
+                  <a href="mailto:support@doctonest.com" className="hover:text-blue-400 transition-colors">
+                    support@doctonest.com
                   </a>
                 </li>
                 <li className="flex items-center gap-3">
                   <Phone className="w-5 h-5 text-blue-400 flex-shrink-0" />
                   <span>+212 6 00 00 00 00</span>
                 </li>
-                <li className="flex items-center gap-3">
+                {/* <li className="flex items-center gap-3">
                   <MapPin className="w-5 h-5 text-blue-400 flex-shrink-0" />
                   <span>Rabat, Maroc</span>
-                </li>
+                </li> */}
               </ul>
             </div>
 

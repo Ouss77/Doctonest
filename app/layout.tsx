@@ -19,7 +19,7 @@ const merriweather = Merriweather({
 
 export const metadata: Metadata = {
   
-  title: "Le foyer médical",
+  title: "Doctonest - Plateforme de mise en relation entre établissements de santé et médecins remplaçants",
   description:
     "Connectez établissements de santé et médecins remplaçants grâce à notre système de matching intelligent.",
   generator: "v0.dev",
@@ -35,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${inter.variable} ${merriweather.variable} antialiased`}>
       <Head>
-        <title>Le foyer médical</title>
+        <title>Doctonest - Plateforme de mise en relation entre établissements de santé et médecins remplaçants</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <link rel="icon" href="logo.png" type="image/png" />

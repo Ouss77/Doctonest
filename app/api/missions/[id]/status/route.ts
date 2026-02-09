@@ -79,7 +79,7 @@ export async function PATCH(
       UPDATE missions
       SET status = ${status}, updated_at = NOW()
       WHERE id = ${id}
-        AND status = 'pending'
+        AND status IN ('pending', 'open')
       RETURNING id, status
     `
 

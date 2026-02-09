@@ -18,7 +18,6 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
-  const [rememberMe, setRememberMe] = useState(false)
   const [formValid, setFormValid] = useState(false)
   const router = useRouter()
   const { refreshUser } = useAuth()
@@ -27,8 +26,7 @@ export default function LoginPage() {
   useEffect(() => {
     const isValid = email.includes("@") && 
                    email.includes(".") && 
-                   email.length > 5 && 
-                   password.length >= 6
+                   email.length > 5 
     setFormValid(isValid)
   }, [email, password])
 
@@ -53,7 +51,6 @@ export default function LoginPage() {
         body: JSON.stringify({
           email,
           password,
-          rememberMe,
         }),
         credentials: "include"
       })
@@ -271,7 +268,7 @@ export default function LoginPage() {
                       <Input
                         id="password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="••••••••"
+                        placeholder="••••••"
                         value={password}
                         onChange={(e) => {
                           setPassword(e.target.value)
@@ -302,18 +299,6 @@ export default function LoginPage() {
 
                   {/* Remember me et lien aide */}
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id="remember"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                        className="h-4 w-4 rounded border-gray-700 bg-gray-900 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900"
-                      />
-                      <label htmlFor="remember" className="ml-2 text-sm text-gray-400">
-                        Se souvenir de moi
-                      </label>
-                    </div>
                     <Link
                       href="/aide"
                       className="text-sm text-gray-400 hover:text-gray-300 transition-colors"

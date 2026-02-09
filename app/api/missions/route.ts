@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       employer_id: employerIdFromBody
     } = body;
 
-    if (!title || !description ||  !location) {
+    if (!title || !description || !location || !specialty_required) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
     const finalEmployerId =
       employerIdFromBody ||
       decoded?.userId ||
-      null;
+      null; 
 
     if (!finalEmployerId) { 
       return NextResponse.json({
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
 
     const mission = await missionsService.create({
       employer_id: finalEmployerId,
-      status: "completed",
+      status: "pending",
       ...body
     });
 

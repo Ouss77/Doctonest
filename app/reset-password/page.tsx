@@ -51,7 +51,7 @@ function ResetPasswordContent() {
       {/* Left Side - Dark Hero Style */}
       <div className="hidden md:flex flex-col items-center bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white p-10 relative">
         <h2 className="text-3xl font-extrabold text-center w-full absolute top-0 left-0 mt-0 pt-8 drop-shadow-lg">
-          Bienvenue sur Le Foyer Médical
+          Bienvenue sur Doctonest
         </h2>
         <div className="flex-1 flex flex-col justify-center w-full pt-20">
           <img
@@ -68,7 +68,7 @@ function ResetPasswordContent() {
           <div className="text-center mb-6">
             <Link href="/" className="inline-flex items-center gap-2 mb-3">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <img src="/logo.png" alt="Le Foyer Médical" className="w-10 h-10 rounded-full" />
+                <img src="/logo.png" alt="Doctonest" className="w-10 h-10 rounded-full" />
               </div>
             </Link>
             <p className="text-gray-300 text-lg font-bold">Réinitialisez votre mot de passe</p>

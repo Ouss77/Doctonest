@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       },
     });
     await transporter.sendMail({
-      from: process.env.SMTP_FROM || 'no-reply@lefoyermedical.com',
+      from: process.env.SMTP_FROM || 'no-reply@doctonest.com',
       to: email,
       subject: "Réinitialisation de votre mot de passe",
       html: `<p>Pour réinitialiser votre mot de passe, cliquez sur ce lien : <a href="${resetUrl}">${resetUrl}</a></p>`
