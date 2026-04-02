@@ -14,7 +14,6 @@ function Headerannonces() {
         {/* HEADER NAV */}
         <header className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 md:px-10 pt-4">
           <div className="flex items-center justify-between gap-4 bg-[#071d45]/60 backdrop-blur-lg border border-white/10 rounded-2xl px-4 sm:px-6 py-3 shadow-xl">
-            {/* LOGO */}
             <Link href="/" className="flex items-center gap-3 group">
               <img
                 src="/logo.png"
