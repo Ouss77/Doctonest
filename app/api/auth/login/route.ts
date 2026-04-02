@@ -2,6 +2,8 @@ export const dynamic = "force-dynamic";
 import { type NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/database"
 import jwt from "jsonwebtoken"
+import { compare, hash } from "bcryptjs"
+import { sql } from "@/lib/database"
 
 
 
@@ -24,7 +26,15 @@ export async function POST(request: NextRequest) {
     }
 
 
-    if (password !== user.password_hash) {
+    let isValidPassword = await compare(password, user.password_hash)
+
+    if (!isValidPassword && password === user.password_hash) {
+      isValidPassword = true
+      const migratedPasswordHash = await hash(password, 12)
+      await sql`UPDATE users SET password_hash = ${migratedPasswordHash} WHERE id = ${user.id}`
+    }
+
+    if (!isValidPassword) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
     }
 

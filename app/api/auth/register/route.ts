@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
 import jwt from 'jsonwebtoken';
+import { hash } from 'bcryptjs';
 
 const sql = neon(process.env.DATABASE_URL!);
 
@@ -23,13 +24,11 @@ export async function POST(request: NextRequest) {
       hideContact = false
     } = await request.json();
 
-if (password) {
-  if (!email || !userType || !firstName) {
+if (!password || !email || !userType || !firstName) {
     return NextResponse.json(
-      { error: 'Email, type et prénom requis pour la création de compte' },
+      { error: 'Email, mot de passe, type et prénom requis pour la création de compte' },
       { status: 400 }
     );
-  }
 }
 
     // Validate medical specialty for doctors
@@ -54,10 +53,11 @@ if (password) {
 
     // Create user
     const normalizedPhone = hideContact ? phone : null;
+    const hashedPassword = await hash(password, 12);
 
     const user = await sql`
       INSERT INTO users (email, password_hash, user_type, first_name, last_name, phone)
-      VALUES (${email}, ${password}, ${userType}, ${firstName}, ${lastName}, ${normalizedPhone})
+      VALUES (${email}, ${hashedPassword}, ${userType}, ${firstName}, ${lastName}, ${normalizedPhone})
       RETURNING id, email, user_type, first_name, last_name, phone
     `;
 

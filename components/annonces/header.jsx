@@ -20,7 +20,7 @@ function Headerannonces() {
               <img
                 src="/logo.png"
                 alt="DoctoNest"
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl shadow-md"
+                className="w-9 h-9 sm:w-10 sm:h-10  rounded-xl shadow-md"
               />
               <span className="text-lg sm:text-xl font-semibold text-white group-hover:text-blue-300 transition">
                 DoctoNest

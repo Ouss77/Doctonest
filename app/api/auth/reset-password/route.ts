@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
+import { hash } from 'bcryptjs';
 
 const sql = neon(process.env.DATABASE_URL!);
 
@@ -28,9 +29,10 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = resetRecord[0].user_id;
+    const hashedPassword = await hash(password, 12);
     // Update user's password
     await sql`
-      UPDATE users SET password_hash = ${password} WHERE id = ${userId}
+      UPDATE users SET password_hash = ${hashedPassword} WHERE id = ${userId}
     `;
 
     // Delete the reset token

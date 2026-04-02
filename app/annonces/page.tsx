@@ -156,7 +156,7 @@ export default function AnnoncesPage() {
       <Headerannonces />
       
       {/* BARRE DE FILTRE MODERNISÉE */}
-      <div className="relative z-30 max-w-7xl mx-auto -mt-6 sm:-mt-10 px-4 sm:px-6 lg:px-10">
+      <div className="relative z-30 max-w-7xl mx-auto -mt-6 sm:-mt-8 px-4 sm:px-6 lg:px-10">
         <div className="bg-white/90 backdrop-blur-sm shadow-xl rounded-2xl sm:rounded-3xl p-5 sm:p-7 border border-gray-200/50">
           {/* Header des filtres */}
           <div className="flex items-center gap-3 mb-5">

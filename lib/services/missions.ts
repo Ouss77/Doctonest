@@ -86,7 +86,7 @@ async function createMission(payload: CreateMissionInput) {
 
 export const missionsService = {
   list: listMissions,
-  create: createMission,
+  create: createMission, 
 }
 
 // Named exports for convenience

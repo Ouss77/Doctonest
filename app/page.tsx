@@ -122,7 +122,7 @@ export default function HomePage() {
         }`}
       >
         <div className="flex items-center gap-3">
-          <img src="logo.png" alt="Logo DoctoNest" className="w-10 h-10 rounded-full ring-2 ring-blue-500/20" />
+          <img src="logo.png" alt="Logo DoctoNest" className="w-11 h-11 rounded-xl ring-2 ring-blue-500/20" />
           <span className="font-bold text-xl text-white">DoctoNest</span>
         </div>
         <nav className="hidden md:flex gap-10">
@@ -199,53 +199,60 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Professionnels de santé Section - ENHANCED VERSION */}
-        <section id="features" className="py-24 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
-          {/* Background decoration */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent"></div>
-          
-          <div className="container mx-auto px-4 relative z-10">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                Tous les professionnels de{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
-                  santé
-                </span>
-              </h2>
-              <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-                Notre plateforme couvre tous les domaines de la santé pour répondre à vos besoins
-              </p>
-            </div>
+{/* Professionnels de santé Section - ENHANCED VERSION */}
+<section id="features" className="py-24 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+  {/* Background decoration */}
+  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent"></div>
+  
+  <div className="container mx-auto px-4 relative z-10">
+    <div className="text-center mb-16">
+      <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+        Tous les professionnels de{' '}
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
+          santé
+        </span>
+      </h2>
+      <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+        Notre plateforme couvre tous les domaines de la santé pour répondre à vos besoins
+      </p>
+    </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              {professionals.map((prof, index) => {
-                const Icon = prof.icon;
-                return (
-                  <div
-                    key={index}
-                    className={`group relative bg-slate-900/50 backdrop-blur-sm rounded-2xl p-8 border ${prof.borderColor} ${prof.hoverBorder} transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${prof.bgColor}`}
-                  >
-                    {/* Icon container with gradient */}
-                    <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${prof.gradient} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                      <Icon className="w-8 h-8 text-white" strokeWidth={2} />
-                    </div>
-                    
-                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-400 transition-all duration-300">
-                      {prof.title}
-                    </h3>
-                    
-                    <p className="text-gray-400 leading-relaxed">
-                      {prof.description}
-                    </p>
-
-                    {/* Decorative corner gradient */}
-                    <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${prof.gradient} opacity-0 group-hover:opacity-10 blur-2xl transition-opacity duration-300 rounded-full`}></div>
-                  </div>
-                );
-              })}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+      {professionals.map((prof, index) => {
+        const Icon = prof.icon;
+        return (
+          <div
+            key={index}
+            className={`group relative bg-slate-900/50 backdrop-blur-sm rounded-2xl p-8 border ${prof.borderColor} ${prof.hoverBorder} transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${prof.bgColor}`}
+          >
+            {/* Icon container with gradient - Indicatif style */}
+            <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${prof.gradient} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 relative`}>
+              <Icon className="w-8 h-8 text-white" strokeWidth={2} />
+              {/* Indicatif badge indicator */}
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-lg">
+                <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+              </div>
             </div>
+            
+            <h3 className="text-xl font-bold text-white mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-400 transition-all duration-300">
+              {prof.title}
+            </h3>
+            
+            <p className="text-gray-400 leading-relaxed">
+              {prof.description}
+            </p>
+
+            {/* Specialist indicator line */}
+            <div className="absolute bottom-0 left-8 right-8 h-0.5 bg-gradient-to-r from-transparent via-white/20 to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+
+            {/* Decorative corner gradient */}
+            <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${prof.gradient} opacity-0 group-hover:opacity-10 blur-2xl transition-opacity duration-300 rounded-full`}></div>
           </div>
-        </section>
+        );
+      })}
+    </div>
+  </div>
+</section>
 
         {/* CTA Section - Enhanced */}
         <section className="py-24 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white relative overflow-hidden">
@@ -311,8 +318,8 @@ export default function HomePage() {
         <div className="container mx-auto px-6 py-12">
           <div className="flex flex-col md:flex-row justify-between items-start gap-10 md:gap-16">
             <div className="max-w-sm">
-              <div className="flex items-center gap-3 mb-4">
-                <img src="/logo.png" alt="Logo DoctoNest" className="w-12 h-12 rounded-full ring-2 ring-blue-500/20" />
+<div className="w-12 h-12 rounded-full ring-2 ring-blue-500/20 p-0 overflow-hidden">
+                <img src="/logo.png" alt="Logo DoctoNest" className="w-12 h-12 object-cover rounded-full ring-2 ring-blue-500/20" />
                 <span className="text-xl font-bold text-white tracking-wide">
                   DoctoNest
                 </span>
@@ -333,7 +340,7 @@ export default function HomePage() {
                 </li>
                 <li className="flex items-center gap-3">
                   <Phone className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                  <span>+212 6 00 00 00 00</span>
+                  <span>+212699945245</span>
                 </li>
                 {/* <li className="flex items-center gap-3">
                   <MapPin className="w-5 h-5 text-blue-400 flex-shrink-0" />

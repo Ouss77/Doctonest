@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     const {
-      title,
+      title, 
       description,
       specialty_required,
       location,
@@ -94,10 +94,12 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    const missionStatus = decoded?.userType === "employer" ? "private" : "pending"
+ 
     const mission = await missionsService.create({
+      ...body,
       employer_id: finalEmployerId,
-      status: "pending",
-      ...body
+      status: missionStatus,
     });
 
     return NextResponse.json({ mission }, { status: 201 });

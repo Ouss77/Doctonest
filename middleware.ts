@@ -36,9 +36,89 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
+    if (pathname === "/dashboard") {
+      const defaultPath =
+        decoded.userType === "replacement"
+          ? "/dashboard/replacement/feed"
+          : decoded.userType === "employer"
+          ? "/dashboard/employer/feed"
+          : decoded.userType === "admin"
+          ? "/dashboard/admin/users"
+          : `/dashboard/${decoded.userType}`;
+
+      return NextResponse.redirect(new URL(defaultPath, request.url));
+    }
+
     if (pathname.startsWith("/dashboard/")) {
-      const requestedDashboard = pathname.split("/")[2];
-      if (requestedDashboard && requestedDashboard !== decoded.userType) {
+      const dashboardSegment = pathname.split("/")[2];
+
+      if (decoded.userType === "replacement") {
+        if (dashboardSegment !== "replacement") {
+          return NextResponse.redirect(
+            new URL("/dashboard/replacement/feed", request.url)
+          );
+        }
+
+        const replacementSubsegment = pathname.split("/")[3];
+        const allowedReplacementSubRoutes = ["feed", "missions", "profile"];
+
+        if (
+          replacementSubsegment &&
+          !allowedReplacementSubRoutes.includes(replacementSubsegment)
+        ) {
+          return NextResponse.redirect(
+            new URL("/dashboard/replacement/feed", request.url)
+          );
+        }
+      } else if (decoded.userType === "employer") {
+        if (dashboardSegment !== "employer") {
+          return NextResponse.redirect(
+            new URL("/dashboard/employer/feed", request.url)
+          );
+        }
+
+        const employerSubsegment = pathname.split("/")[3];
+        const allowedEmployerSubRoutes = [
+          "feed",
+          "missions",
+          "doctors",
+          "applications",
+          "profile",
+          "documents",
+        ];
+
+        if (
+          employerSubsegment &&
+          !allowedEmployerSubRoutes.includes(employerSubsegment)
+        ) {
+          return NextResponse.redirect(
+            new URL("/dashboard/employer/feed", request.url)
+          );
+        }
+      } else if (decoded.userType === "admin") {
+        if (dashboardSegment !== "admin") {
+          return NextResponse.redirect(
+            new URL("/dashboard/admin/users", request.url)
+          );
+        }
+
+        const adminSubsegment = pathname.split("/")[3];
+        const allowedAdminSubRoutes = [
+          "users",
+          "missions",
+          "documents",
+          "analytics",
+        ];
+
+        if (
+          adminSubsegment &&
+          !allowedAdminSubRoutes.includes(adminSubsegment)
+        ) {
+          return NextResponse.redirect(
+            new URL("/dashboard/admin/users", request.url)
+          );
+        }
+      } else if (dashboardSegment && dashboardSegment !== decoded.userType) {
         return NextResponse.redirect(
           new URL(`/dashboard/${decoded.userType}`, request.url)
         );

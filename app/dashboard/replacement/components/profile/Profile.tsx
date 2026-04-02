@@ -2,27 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  MapPin,
-  User,
-  Pencil,
-  FileText,
-  Briefcase,
-  Languages,
-  BookOpen,
-  CheckCircle,
-  XCircle,
-  MessageSquare,
-  Calendar,
-  Mail,
-  Phone,
+import {  MapPin,  User,  Pencil,  FileText,  Briefcase,  Languages,  BookOpen,  CheckCircle,  XCircle,  MessageSquare,  Calendar,  Mail,  Phone,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+  Dialog,  DialogContent,  DialogHeader,  DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
 
@@ -190,7 +174,7 @@ export default function Profile({
                 <img
                   src={profileData.imageProfile}
                   alt="Photo de profil"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain object-center bg-white"
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
                   }}

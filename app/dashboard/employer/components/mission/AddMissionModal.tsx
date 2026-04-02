@@ -45,7 +45,7 @@ export default function AddMissionModal({ showForm, setShowForm, setMissions, em
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          title: form.title,
+          title: form.title, 
           description: form.description,
           specialty_required: form.specialty,
           location: form.location,
