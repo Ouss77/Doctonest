@@ -9,7 +9,6 @@ function Headerannonces() {
         className="relative w-full min-h-[420px] sm:min-h-[480px] md:min-h-[540px] bg-cover bg-center"
         style={{ backgroundImage: "url('/annonces.png')" }}
       >
-        {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#071d45]/30 via-[#071d45]/40 to-[#071d45]/70" />
 
         {/* HEADER NAV */}
