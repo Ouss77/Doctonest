@@ -28,7 +28,6 @@ export default function RegisterPage() {
     location: "",
     companyName: "",
     companyType: "",
-    description: "",
     profession: "",
     specialty: "",
   });
@@ -90,7 +89,6 @@ export default function RegisterPage() {
           location: formData.location,
           companyName: formData.companyName,
           companyType: formData.companyType,
-          description: formData.description,
           profession: formData.profession,
           specialty: formData.specialty,
         }),
@@ -142,7 +140,10 @@ export default function RegisterPage() {
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
+    <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden bg-gradient-to-br from-gray-900 via-slate-900 to-gray-950">
+      <div className="absolute inset-0 bg-slate-950/60" />
+
+      <div className="relative z-10 w-full flex items-center justify-center">
       <AnimatePresence>
         {showSuccessPopup && (
           <motion.div
@@ -309,16 +310,14 @@ export default function RegisterPage() {
             </AnimatePresence>
 
             {/* Right Side - Formulaire d'inscription */}
-            <div className={`${showLeftPanel && isMobile ? 'hidden' : 'lg:w-5/6'} w-full p-6 lg:p-8`}>
-              <div className="mb-6">
+            <div className={`${showLeftPanel && isMobile ? 'hidden' : 'lg:w-5/6'} w-full p-4 lg:p-5`}>
+              <div className="mb-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-2xl font-bold text-white mb-2">
+                    <h2 className="text-2xl font-bold text-white mb-1">
                       Créer votre compte
                     </h2>
-                    <p className="text-gray-400">
-                      Choisissez votre profil pour commencer
-                    </p>
+
                   </div>
                   {/* Bouton pour voir les informations sur mobile */}
                   {isMobile && (
@@ -339,7 +338,7 @@ export default function RegisterPage() {
                 onValueChange={(value: string) => setUserType(value as 'replacement' | 'employer')}
                 className="w-full"
               >
-                <TabsList className="grid grid-cols-2 h-full w-full mb-8 bg-gray-900/50 p-1 rounded-xl border border-gray-700">
+                <TabsList className="grid grid-cols-2 h-full w-full mb-3 bg-gray-900/50 p-1 rounded-xl border border-gray-700">
                   <TabsTrigger
                     value="replacement"
                     className="text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=inactive]:bg-gray-800/50 data-[state=inactive]:border data-[state=inactive]:border-gray-600 rounded-lg py-3 transition-all hover:text-gray-100"
@@ -389,7 +388,7 @@ export default function RegisterPage() {
               </Tabs>
 
               {/* Lien de connexion */}
-              <div className="text-center pt-6 border-t border-gray-700 mt-8">
+              <div className="text-center pt-4 border-t border-gray-700 mt-4">
                 <p className="text-gray-400 text-sm">
                   Déjà inscrit ?{" "}
                   <Link
@@ -399,7 +398,7 @@ export default function RegisterPage() {
                     Se connecter
                   </Link>
                 </p>
-                <p className="text-gray-500 text-xs mt-3">
+                <p className="text-gray-500 text-xs mt-2">
                   En créant un compte, vous acceptez nos{" "}
                   <Link href="/terms" className="text-blue-400 hover:underline">
                     Conditions d'utilisation
@@ -421,6 +420,7 @@ export default function RegisterPage() {
           </p>
         </div>
       </motion.div>
+      </div>
     </div>
   );
 }

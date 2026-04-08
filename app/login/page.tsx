@@ -78,6 +78,8 @@ export default function LoginPage() {
           default:
             router.push("/dashboard")
         }
+          await refreshUser()
+
       } else {
         // Messages d'erreur plus spécifiques
         switch (response.status) {
