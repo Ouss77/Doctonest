@@ -48,7 +48,7 @@ export default function AnnoncesPage() {
 
   useEffect(() => {
     const fetchAnnouncements = async () => {
-      setLoading(true);
+      setLoading(true); 
       setError("");
       try {
         const res = await fetch("/api/missions");

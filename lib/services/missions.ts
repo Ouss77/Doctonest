@@ -74,7 +74,7 @@ async function createMission(payload: CreateMissionInput) {
       ${payload.employer_id},
       ${payload.title},
       ${payload.description},
-      ${payload.specialty_required},
+      ${payload.specialty_required}, 
       ${payload.location},
       ${payload.status || 'pending'}
     )
