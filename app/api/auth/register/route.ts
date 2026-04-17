@@ -9,7 +9,7 @@ const sql = neon(process.env.DATABASE_URL!);
 export async function POST(request: NextRequest) {
   try {
     const { 
-      email, 
+      email,  
       password, 
       userType, 
       firstName, 
@@ -93,7 +93,6 @@ if (!password || !email || !userType || !firstName) {
     )
   `;
 }
-
 
     // Generate JWT token
     const token = jwt.sign(

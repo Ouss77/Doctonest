@@ -25,15 +25,28 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
 
     const decoded = getUserFromJWT(request)
+    const visibility = (searchParams.get("visibility") || "public") as
+      | "public"
+      | "private"
+      | "mine"
 
-    const context =
-      decoded?.userType === "admin"
-        ? "admin" 
-        : decoded?.userType === "employer"
-        ? "employer"
-        : decoded?.userType === "replacement"
-        ? "replacement"
-        : "public"
+    if (!["public", "private", "mine"].includes(visibility)) {
+      return NextResponse.json(
+        { error: "Invalid visibility value" },
+        { status: 400 }
+      )
+    }
+
+    if (visibility === "private" && !decoded?.userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    if (
+      visibility === "mine" &&
+      (!decoded?.userId || decoded?.userType !== "employer")
+    ) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
 
     const filters: Record<string, any> = {}
 
@@ -45,11 +58,11 @@ export async function GET(request: NextRequest) {
       filters.location = searchParams.get("location")
     }
 
-    const missions = await missionsService.list(
-      filters,
-      context,
-      decoded?.userId
-    )
+    const missions = await missionsService.list(filters, {
+      visibility,
+      userId: decoded?.userId,
+      userType: decoded?.userType as "replacement" | "employer" | "admin" | undefined,
+    })
 
     return NextResponse.json({ missions })
   } catch (error) {

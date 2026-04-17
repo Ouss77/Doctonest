@@ -7,6 +7,14 @@ export type MissionFilters = {
   employerId?: string
 }
 
+export type MissionVisibility = "public" | "private" | "mine"
+
+type ListMissionsOptions = {
+  visibility?: MissionVisibility
+  userId?: string
+  userType?: "replacement" | "employer" | "admin"
+}
+
 export type CreateMissionInput = {
   employer_id: string
   title: string
@@ -18,12 +26,13 @@ export type CreateMissionInput = {
   start_date?: string
   end_date?: string
 }
-
+ 
 async function listMissions(
   filters: MissionFilters = {},
-  context: "public" | "replacement" | "employer" | "admin",
-  userId?: string
+  options: ListMissionsOptions = {}
 ) {
+  const visibility = options.visibility || "public"
+
   let query = sql`
     SELECT m.*, ep.organization_name, u.first_name, u.last_name, u.phone,
       (SELECT COUNT(*) FROM applications a WHERE a.mission_id = m.id) AS applications_count
@@ -33,24 +42,17 @@ async function listMissions(
     WHERE 1=1
   `
 
-  // 🔐 VISIBILITÉ (backend only)
-  if (context === "public") {
+  // Admin users can access all missions regardless of visibility.
+  if (options.userType === "admin") {
+    // no restriction
+  } else if (visibility === "public") {
     query = sql`${query} AND m.status = 'public'`
-  }
-
-  if (context === "replacement") {
+  } else if (visibility === "private") {
     query = sql`${query} AND m.status = 'private'`
-  }
-
-  if (context === "employer") {
+  } else if (visibility === "mine") {
     query = sql`${query}
-      AND m.status = 'private'
-      AND m.employer_id = ${userId}
+      AND m.employer_id = ${options.userId}
     `
-  }
-
-  if (context === "admin") {
-    // voit tout
   }
 
   // 🎯 Filtres métier autorisés

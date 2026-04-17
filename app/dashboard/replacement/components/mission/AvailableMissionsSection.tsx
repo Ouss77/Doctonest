@@ -44,7 +44,7 @@ export default function AvailableMissionsSection() {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch("/api/missions");
+        const res = await fetch("/api/missions?visibility=private", { credentials: "include" });
         if (!res.ok) throw new Error("Erreur lors du chargement des missions");
         const data = await res.json();
         setMissions(data.missions || []); 

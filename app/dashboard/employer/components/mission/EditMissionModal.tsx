@@ -84,7 +84,7 @@ export default function EditMissionModal({
                 }),
               });
               if (!res.ok) throw new Error("Erreur lors de la modification de la mission");
-              const missionsRes = await fetch(`/api/missions?employerId=${employerId}`, {
+              const missionsRes = await fetch(`/api/missions?visibility=mine`, {
                 credentials: "include",
               });
               const missionsData = await missionsRes.json();
