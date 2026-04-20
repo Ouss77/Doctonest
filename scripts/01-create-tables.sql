@@ -67,6 +67,10 @@ CREATE TABLE IF NOT EXISTS missions (
   mission_type VARCHAR(20) DEFAULT 'replacement' CHECK (mission_type IN ('replacement', 'vacation', 'emergency')),
   status VARCHAR(20) DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'completed', 'cancelled')),
   is_urgent BOOLEAN DEFAULT false,
+  edit_token TEXT,
+  is_guest BOOLEAN DEFAULT false,
+  guest_email TEXT,
+  guest_name TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -188,6 +192,7 @@ CREATE INDEX IF NOT EXISTS idx_missions_specialty ON missions(specialty_required
 CREATE INDEX IF NOT EXISTS idx_missions_location ON missions(location);
 CREATE INDEX IF NOT EXISTS idx_missions_status ON missions(status);
 CREATE INDEX IF NOT EXISTS idx_missions_dates ON missions(start_date, end_date);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_edit_token ON missions(edit_token);
 CREATE INDEX IF NOT EXISTS idx_applications_mission ON applications(mission_id);
 CREATE INDEX IF NOT EXISTS idx_applications_replacement ON applications(replacement_id);
 CREATE INDEX IF NOT EXISTS idx_documents_user ON documents(user_id);

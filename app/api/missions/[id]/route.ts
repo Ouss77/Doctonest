@@ -88,12 +88,16 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     const mission = await sql`
       SELECT m.*, ep.organization_name, u.first_name, u.last_name, u.email, u.phone
       FROM missions m
-      JOIN users u ON m.employer_id = u.id
+      LEFT JOIN users u ON m.employer_id = u.id
       LEFT JOIN employer_profiles ep ON u.id = ep.user_id
       WHERE m.id = ${params.id}
     `;
 
     if (mission.length === 0) {
+      return NextResponse.json({ error: "Mission not found" }, { status: 404 });
+    }
+
+    if (mission[0].is_guest) {
       return NextResponse.json({ error: "Mission not found" }, { status: 404 });
     }
 
@@ -129,7 +133,22 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       endDate,
     } = body
 
-    await sql`
+    const existingMission = await sql`
+      SELECT id, employer_id, is_guest
+      FROM missions
+      WHERE id = ${params.id}
+      LIMIT 1
+    `
+
+    if (existingMission.length === 0 || existingMission[0].is_guest) {
+      return NextResponse.json({ error: "Mission not found" }, { status: 404 })
+    }
+
+    if (existingMission[0].employer_id !== decoded.userId) {
+      return NextResponse.json({ error: "Mission not found" }, { status: 404 })
+    }
+
+    const updated = await sql`
       UPDATE missions 
       SET title = ${title},
           description = ${description},
@@ -139,9 +158,14 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
           end_date = ${endDate},
           updated_at = NOW()
       WHERE id = ${params.id} AND employer_id = ${decoded.userId}
+      RETURNING *
     `
 
-    return NextResponse.json({ message: "Mission updated successfully" })
+    if (!updated || updated.length === 0) {
+      return NextResponse.json({ error: "Mission not found" }, { status: 404 })
+    }
+
+    return NextResponse.json({ message: "Mission updated successfully", mission: updated[0] })
   } catch (error) {
     console.error("Mission update error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

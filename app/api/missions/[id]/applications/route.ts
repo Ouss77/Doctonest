@@ -72,17 +72,19 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     // Get mission details for notification
     const mission = await db.sql`
-      SELECT title, employer_id FROM missions WHERE id = ${params.id}
+      SELECT title, employer_id, is_guest FROM missions WHERE id = ${params.id}
     `
 
     if (mission.length > 0) {
-      // Notify employer
-      await db.sql`
-        INSERT INTO notifications (user_id, title, message, notification_type, related_id)
-        VALUES (${mission[0].employer_id}, 'Nouvelle candidature', 
-                ${`Un médecin a postulé pour votre mission "${mission[0].title}".`}, 
-                'new_application', ${application.id})
-      `
+      if (mission[0].employer_id) {
+        // Notify employer
+        await db.sql`
+          INSERT INTO notifications (user_id, title, message, notification_type, related_id)
+          VALUES (${mission[0].employer_id}, 'Nouvelle candidature', 
+                  ${`Un médecin a postulé pour votre mission "${mission[0].title}".`}, 
+                  'new_application', ${application.id})
+        `
+      }
     }
 
     return NextResponse.json({ application }, { status: 201 })

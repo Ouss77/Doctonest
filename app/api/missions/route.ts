@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import crypto from "crypto"
 import jwt from "jsonwebtoken"
 import { missionsService } from "@/lib/services/missions"
 
@@ -76,8 +77,10 @@ export async function GET(request: NextRequest) {
 
 
 /**
- * POST /api/missions * Employers create new missions
- */
+ * POST /api/missions
+ * Authenticated employers create missions with employer_id.
+ * Guests create missions with an edit token.
+ */ 
 export async function POST(request: NextRequest) {
   try {
     const decoded = getUserFromJWT(request);
@@ -88,34 +91,54 @@ export async function POST(request: NextRequest) {
       description,
       specialty_required,
       location,
-      employer_id: employerIdFromBody
+      guest_email: guestEmail,
+      guest_name: guestName
     } = body;
 
     if (!title || !description || !location || !specialty_required) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    // NEW LOGIC:
-    const finalEmployerId =
-      employerIdFromBody ||
-      decoded?.userId ||
-      null; 
+    const isEmployer = decoded?.userType === "employer" && decoded?.userId
 
-    if (!finalEmployerId) { 
-      return NextResponse.json({
-        error: "No employer ID available. User must be logged in or email must match an existing user."
-      }, { status: 400 });
+    if (isEmployer) {
+      const mission = await missionsService.create({
+        title: String(title).trim(),
+        description: String(description).trim(),
+        specialty_required: String(specialty_required).trim(),
+        location: String(location).trim(),
+        employer_id: decoded.userId,
+        status: "private",
+        is_guest: false,
+      });
+
+      return NextResponse.json({ mission }, { status: 201 });
     }
 
-    const missionStatus = decoded?.userType === "employer" ? "private" : "pending"
- 
+    if (!guestName || !guestEmail) {
+      return NextResponse.json(
+        { error: "Guest name and email are required" },
+        { status: 400 }
+      )
+    }
+
+    const editToken = crypto.randomBytes(32).toString("hex")
     const mission = await missionsService.create({
-      ...body,
-      employer_id: finalEmployerId,
-      status: missionStatus,
+      title: String(title).trim(),
+      description: String(description).trim(),
+      specialty_required: String(specialty_required).trim(),
+      location: String(location).trim(),
+      employer_id: null,
+      status: "open",
+      is_guest: true,
+      guest_email: String(guestEmail).trim(),
+      guest_name: String(guestName).trim(),
+      edit_token: editToken,
     });
 
-    return NextResponse.json({ mission }, { status: 201 });
+    const editLink = `${request.nextUrl.origin}/edit-mission?token=${editToken}`
+
+    return NextResponse.json({ mission, editLink }, { status: 201 });
   }
   catch (error) {
     console.error("POST /missions error:", error);

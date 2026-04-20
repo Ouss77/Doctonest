@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     let sqlQuery = db.sql`
       SELECT m.*, ep.organization_name, u.first_name, u.last_name
       FROM missions m
-      JOIN users u ON m.employer_id = u.id
+      LEFT JOIN users u ON m.employer_id = u.id
       LEFT JOIN employer_profiles ep ON u.id = ep.user_id
       WHERE m.status = 'open'
     `

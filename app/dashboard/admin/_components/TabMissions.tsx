@@ -5,19 +5,17 @@ import { useRouter } from "next/navigation"
 import { Card, CardHeader, CardTitle, CardContent, CardDescription,} from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import {  FileText,  MapPin,  Calendar,  BarChart3,  Eye,  CheckCircle,  XCircle,  Trash2,  Search,
-  Clock,  User,  Mail,} from "lucide-react"
+import {  FileText,  MapPin,  Calendar,  BarChart3,  Eye,  CheckCircle,  XCircle,  Trash2,  Search, Clock,  User,  Mail,} from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export type Mission = {
   id: string
   title: string
   location: string
-  status: "pending" | "public" | "private" | "refused"
+  status: "open" | "pending" | "public" | "private" | "refused"
   applicants: number
   publishedDate?: string
   author?: string
-  email?: string
 }
 
 interface TabMissionsProps {
@@ -32,14 +30,21 @@ export default function TabMissions({
   const [processingIds, setProcessingIds] = useState<string[]>([])
   const [localMissions, setLocalMissions] = useState<Mission[]>(missions)
   const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState<
-    "all" | "pending" | "public" | "private" | "refused"
-  >("all")
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "public" | "private" | "refused">("all")
 
   const router = useRouter()
 
+  const isAwaitingReview = (status: Mission["status"]) =>
+    status === "pending" || status === "open"
+
   const getStatusConfig = (status: Mission["status"]) => {
     const configs = {
+      open: {
+        label: "En attente",
+        color: "text-amber-700",
+        bgColor: "bg-amber-50 border-amber-200",
+        icon: Clock,
+      },
       pending: {
         label: "En attente",
         color: "text-amber-700",
@@ -140,14 +145,16 @@ export default function TabMissions({
       mission.location.toLowerCase().includes(searchQuery.toLowerCase())
 
     const matchesStatus =
-      statusFilter === "all" || mission.status === statusFilter
+      statusFilter === "all" ||
+      (statusFilter === "pending" && isAwaitingReview(mission.status)) ||
+      mission.status === statusFilter
 
     return matchesSearch && matchesStatus
   })
 
   const statusCounts = {
     all: localMissions.length,
-    pending: localMissions.filter((m) => m.status === "pending").length,
+    pending: localMissions.filter((m) => isAwaitingReview(m.status)).length,
     public: localMissions.filter((m) => m.status === "public").length,
     private: localMissions.filter((m) => m.status === "private").length,
     refused: localMissions.filter((m) => m.status === "refused").length,
@@ -223,11 +230,6 @@ export default function TabMissions({
                   </div>
 
                   <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <MapPin className="w-4 h-4" />
-                    {mission.location}
-                  </div>
-
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
                     <BarChart3 className="w-4 h-4" />
                     {mission.applicants} candidature(s)
                   </div>
@@ -245,13 +247,6 @@ export default function TabMissions({
                       {mission.author}
                     </div>
                   )}
-
-                  {mission.email && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="w-4 h-4" />
-                      {mission.email}
-                    </div>
-                  )}
                 </div>
 
                 {/* ACTIONS */}
@@ -266,15 +261,26 @@ export default function TabMissions({
                     Détails
                   </Button>
 
-                  {mission.status === "pending" && (
-                    <Button
-                      size="sm"
-                      onClick={() => updateStatus(mission.id, "public")}
-                      disabled={isProcessing}
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      Approuver
-                    </Button>
+                  {isAwaitingReview(mission.status) && (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={() => updateStatus(mission.id, "public")}
+                        disabled={isProcessing}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        Approuver
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        onClick={() => updateStatus(mission.id, "refused")}
+                        disabled={isProcessing}
+                        className="bg-amber-600 hover:bg-amber-700 text-white"
+                      >
+                        Refuser
+                      </Button>
+                    </>
                   )}
 
                   <Button

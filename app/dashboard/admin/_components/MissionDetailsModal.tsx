@@ -34,15 +34,11 @@ export default function MissionDetailsModal({ mission, onClose }: {
           <span className="font-semibold">Dates :</span> {mission.dates}
         </div>
         <div className="mb-2 text-sm text-gray-700">
-          <span className="font-semibold">Salaire :</span> {mission.salary}
-        </div>
-        <div className="mb-2 text-sm text-gray-700">
           <span className="font-semibold">Candidatures :</span> {mission.applicants}
         </div>
                 <div className="mb-2 text-sm text-gray-700">
           <span className="font-semibold">Description :</span> {mission.description}
         </div>
-        {/* Ajoutez ici d'autres champs détaillés si besoin */}
       </div>
     </div>
   );

@@ -8,7 +8,7 @@ import Header from '@/components/annonces/header';
 
 export default function NewAnnouncementPage() {
   const router = useRouter();
-  const listRef = useRef<HTMLFormElement | null>(null);
+  const listRef = useRef<HTMLDivElement | null>(null);
 
   const [currentStep, setCurrentStep] = useState(1);
   const [title, setTitle] = useState('');
@@ -22,9 +22,9 @@ export default function NewAnnouncementPage() {
   const [showContact, setShowContact] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [userCreationError, setUserCreationError] = useState<string | null>(null);
   const [publishSuccess, setPublishSuccess] = useState(false);
   const [publishMessage, setPublishMessage] = useState<string | null>(null);
+  const [editLink, setEditLink] = useState<string | null>(null);
 
   const validateStep = (step: number) => {
     if (step === 1) {
@@ -62,7 +62,7 @@ export default function NewAnnouncementPage() {
 
   const submit = async () => {
     setError(null);
-    setUserCreationError(null);
+    setEditLink(null);
 
     const step1Error = validateStep(1);
     const step2Error = validateStep(2);
@@ -73,69 +73,18 @@ export default function NewAnnouncementPage() {
     } 
 
     setLoading(true);
-    let employerId: string | null = null;
 
     try {
-      /* 1️⃣ Create or find user */
-      const userType = userRole === 'medecin' ? 'replacement' : 'employer';
-
-      const resUser = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: contactEmail,
-          userType,
-          firstName: contactName,
-          lastName: '',
-          phone: contactPhone || '',
-          location,
-          hideContact: showContact
-        }),
-      });
-
-      const userData = await resUser.json();
-
-      if (resUser.ok) {
-        employerId = userData?.user?.id || null;
-      } else if (userData?.error?.includes('existe déjà')) {
-        const resFind = await fetch(
-          `/api/auth/find-by-email?email=${encodeURIComponent(contactEmail)}`
-        );
-        const findData = await resFind.json();
-        employerId = findData?.user?.id || null;
-      } else {
-        throw new Error(userData?.error || 'Impossible de créer le compte utilisateur.');
-      }
-
-      /* 2️⃣ Fallback: current user */
-      if (!employerId) {
-        const meRes = await fetch('/api/auth/me');
-        if (meRes.ok) {
-          const meData = await meRes.json();
-          employerId = meData?.user?.id || null;
-        }
-      }
-
-      if (!employerId) {
-        throw new Error(
-          "Impossible d'identifier l'annonceur : connectez-vous ou fournissez un email valide."
-        );
-      }
-
-      /* 3️⃣ Format final description */
-      const cleanDescription = description.trim();
-
-
-      /* 4️⃣ Create mission */
       const resMission = await fetch('/api/missions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: title.trim(),
-          description: cleanDescription,
+          description: description.trim(),
           location: location.trim(),
-          employer_id: employerId,
-          specialty_required: specialtyRequired.trim()
+          specialty_required: specialtyRequired.trim(),
+          guest_email: contactEmail.trim(),
+          guest_name: contactName.trim(),
         }),
       });
 
@@ -145,15 +94,19 @@ export default function NewAnnouncementPage() {
         throw new Error(missionData?.error || 'Erreur lors de la création de l\'annonce.');
       }
 
-      /* 5️⃣ Success */
+      setEditLink(missionData?.editLink || null);
       setPublishMessage(
-        "Annonce soumise avec succès ! Votre annonce est en attente de validation par un administrateur. Vous serez notifié(e) par email après validation."
+        missionData?.editLink
+          ? "Annonce créée avec succès. Ce lien sécurisé vous permet de la modifier ou de la supprimer."
+          : "Annonce soumise avec succès ! Votre annonce est en attente de validation par un administrateur. Vous serez notifié(e) par email après validation."
       );
       setPublishSuccess(true);
 
-      setTimeout(() => { 
-        router.push('/annonces');
-      }, 5000);
+      if (!missionData?.editLink) {
+        setTimeout(() => {
+          router.push('/annonces');
+        }, 5000);
+      }
     } catch (err: any) {
       setError(err.message || 'Une erreur est survenue. Veuillez réessayer.');
     } finally {
@@ -184,9 +137,16 @@ export default function NewAnnouncementPage() {
               <div className="flex-1">
                 <h3 className="font-bold text-lg">Annonce soumise !</h3>
                 <p className="text-sm mt-1 text-white/95">{publishMessage}</p>
+                {editLink && (
+                  <div className="mt-3 rounded-lg bg-white/10 border border-white/20 px-3 py-2 text-sm break-all">
+                    <a href={editLink} className="underline underline-offset-2" target="_blank" rel="noreferrer">
+                      {editLink}
+                    </a>
+                  </div>
+                )}
                 <div className="mt-3 flex items-center text-sm text-white/80">
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Redirection dans 5 secondes...
+                  {editLink ? 'Conservez ce lien pour modifier ou supprimer votre annonce.' : 'Redirection dans 5 secondes...'}
                 </div>
               </div>
               <button 
@@ -244,12 +204,12 @@ export default function NewAnnouncementPage() {
         </div>
 
         {/* ERROR MESSAGE */}
-        {(error || userCreationError) && (
+        {error && (
           <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 animate-fade-in">
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
               <div className="text-sm text-red-700">
-                {error || userCreationError}
+                {error}
               </div>
             </div>
           </div>
