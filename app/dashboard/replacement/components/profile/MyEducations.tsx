@@ -235,7 +235,7 @@ export default function MyEducations() {
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span>Chargement des formations...</span>
               </div>
-            </div>
+            </div> 
           ) : diplomas.length === 0 ? (
             <div className="text-center py-8">
               <GraduationCap className="w-12 h-12 text-slate-300 mx-auto mb-3" />
@@ -326,7 +326,7 @@ export default function MyEducations() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={openDialog} onOpenChange={handleCloseDialog}>
-        <DialogContent className="w-[95vw] !max-w-5xl h-[90vh] sm:h-[85vh] p-0 rounded-xl bg-white shadow-2xl flex flex-col border-0 overflow-hidden">
+        <DialogContent className="w-[95vw] !max-w-5xl h-[90vh] sm:h-[85vh] p-0 rounded-xl bg-white shadow-2xl flex flex-col border-0 overflow-hidden" showCloseButton={false}>
           <DialogHeader className="px-4 sm:px-6 py-4 border-b bg-slate-50 flex flex-row items-center justify-between">
             <div className="min-w-0 pr-4">
               <DialogTitle className="text-lg sm:text-xl font-semibold text-slate-900 truncate">
@@ -507,15 +507,6 @@ export default function MyEducations() {
                     {dialogSuccess || dialogError}
                   </p>
                 </div>
-                <button
-                  className="text-slate-400 hover:text-slate-600 flex-shrink-0"
-                  onClick={() => {
-                    setDialogSuccess(null);
-                    setDialogError(null);
-                  }}
-                >
-                  <X className="w-4 h-4" />
-                </button>
               </div>
             </div>
           )}

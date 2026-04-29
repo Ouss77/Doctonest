@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useState, useEffect } from "react"
 
-const formatMonthYear = (dateStr?: string) => {
+const formatMonthYear = (dateStr?: string) => { 
   if (!dateStr) return "";
   const date = new Date(dateStr);
   return date.toLocaleString("fr-FR", { month: "long", year: "numeric" });
@@ -305,7 +305,7 @@ const handleSave = async () => {
 
       {/* Edit Dialog */}
       <Dialog open={openDialog} onOpenChange={(open) => { setOpenDialog(open); if (!open) setEditId(null); }}>
-        <DialogContent className="w-[95vw] !max-w-6xl h-[90vh] p-0 rounded-xl bg-white shadow-2xl flex flex-col border-0 overflow-hidden">
+        <DialogContent className="w-[95vw] !max-w-6xl h-[90vh] p-0 rounded-xl bg-white shadow-2xl flex flex-col border-0 overflow-hidden" showCloseButton={false}>
           <DialogHeader className="px-4 sm:px-6 py-4 border-b bg-slate-50 flex flex-row items-center justify-between">
             <div className="min-w-0 pr-4">
               <DialogTitle className="text-lg sm:text-xl font-semibold text-slate-900 truncate">
@@ -547,17 +547,6 @@ const handleSave = async () => {
                     {success ? successMessage : error}
                   </p>
                 </div>
-
-                {/* Bouton fermer le message */}
-                <button
-                  className="text-slate-400 hover:text-slate-600 flex-shrink-0"
-                  onClick={() => {
-                    setSuccess(false);
-                    setError("");
-                  }}
-                >
-                  <X className="w-4 h-4" />
-                </button>
               </div>
             </div>
           )}
