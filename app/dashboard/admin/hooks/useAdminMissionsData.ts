@@ -1,5 +1,4 @@
 "use client"
-
 import { useEffect, useState } from "react"
 
 export type AdminMission = {
@@ -46,13 +45,11 @@ export function useAdminMissionsData() {
           status: m.status ?? "pending",
           applicants: m.applications_count ?? 0,
           publishedDate: m.created_at ?? "",
-          email: m.email ?? "Not found",
           description: m.description ?? "No description provided",
           author:
             m.first_name || m.last_name
               ? `${m.first_name ?? ""} ${m.last_name ?? ""}`.trim()
               : undefined,
-          salary: "",
         }))
 
         setMissions(mapped)

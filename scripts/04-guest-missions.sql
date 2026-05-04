@@ -1,0 +1,7 @@
+ALTER TABLE missions
+ADD COLUMN IF NOT EXISTS edit_token TEXT,
+ADD COLUMN IF NOT EXISTS is_guest BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS guest_email TEXT,
+ADD COLUMN IF NOT EXISTS guest_name TEXT;
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_edit_token ON missions(edit_token);

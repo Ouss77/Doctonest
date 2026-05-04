@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/database";
-import { writeFile } from "fs/promises";
+import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 
 // POST /api/users/profile/upload-photo
@@ -25,6 +25,7 @@ export async function POST(req: Request) {
     const uploadDir = path.join(process.cwd(), "public", "uploads");
     const filePath = path.join(uploadDir, fileName);
     console.log("[UPLOAD-API] Saving file to:", filePath);
+    await mkdir(uploadDir, { recursive: true });
     const arrayBuffer = await file.arrayBuffer();
     await writeFile(filePath, Buffer.from(arrayBuffer)); 
     // Update DB

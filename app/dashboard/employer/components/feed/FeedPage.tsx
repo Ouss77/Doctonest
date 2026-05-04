@@ -122,7 +122,7 @@ export default function FeedPage() {
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-8 text-center text-white">
               <div className="max-w-md mx-auto">
                 <div className="text-4xl font-bold mb-2">EN DÉVELOPPEMENT</div>
-                <div className="text-xl font-light mb-4">Lancement prévu : Décembre 2024</div>
+                <div className="text-xl font-light mb-4">Lancement prévu : Décembre 2026</div>
                 <div className="h-2 bg-white/30 rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-white rounded-full transition-all duration-1000"

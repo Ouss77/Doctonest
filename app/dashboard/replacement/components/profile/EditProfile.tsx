@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { User, Upload, MapPin, Briefcase, Languages, Calendar, Phone, Mail, Check, Badge, Camera, AlertCircle, Loader2, X } from 'lucide-react';
+import { User, Upload, MapPin, Briefcase, Languages, Calendar, Phone, Mail, Check, Badge, Camera, AlertCircle, Loader2, X, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,12 +30,45 @@ export default function EditProfile({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [isPhotoRemoved, setIsPhotoRemoved] = useState(false);
+
+  const currentPhotoUrl = isPhotoRemoved ? undefined : (previewUrl ?? profileData.imageProfile);
+
+  const resetPhotoState = () => {
+    setSelectedFile(null);
+    setPreviewUrl(undefined);
+    setIsPhotoRemoved(false);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleClose = () => {
+    resetPhotoState();
+    setError("");
+    setSuccess(false);
+    setSuccessMessage("");
+    onOpenChange(false);
+    setIsEditProfileOpen(false);
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setIsPhotoRemoved(false);
     setSelectedFile(file);
     setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleRemovePhoto = () => {
+    setSelectedFile(null);
+    setPreviewUrl(undefined);
+    setIsPhotoRemoved(true);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleSaveProfile = async () => {
@@ -44,7 +77,7 @@ export default function EditProfile({
     setSuccess(false);
     setSuccessMessage("");
 
-    let photoUrl = profileData.imageProfile;
+    let photoUrl: string | null = isPhotoRemoved ? null : profileData.imageProfile || null;
 
     try {
       // Upload photo first if selected
@@ -119,7 +152,10 @@ export default function EditProfile({
       console.log("[CLIENT] Save successful:", result);
 
       // Update parent state with all new data
-      setProfileData({ ...profileData, imageProfile: photoUrl });
+      setProfileData({
+        ...profileData,
+        imageProfile: photoUrl || "",
+      });
       
       // Show success message
       setSuccess(true);
@@ -127,10 +163,7 @@ export default function EditProfile({
       
       // Close dialog after 2 seconds
       setTimeout(() => {
-        setIsEditProfileOpen(false);
-        setSelectedFile(null);
-        setPreviewUrl(undefined);
-        setSuccess(false);
+        handleClose();
       }, 2000);
       
     } catch (e) {
@@ -142,8 +175,8 @@ export default function EditProfile({
   };
 
   return ( 
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] !max-w-6xl h-[95vh] md:h-[90vh] p-0 rounded-xl bg-white shadow-2xl flex flex-col border-0 overflow-hidden">
+    <Dialog open={open} onOpenChange={(nextOpen) => (nextOpen ? onOpenChange(true) : handleClose())}>
+      <DialogContent showCloseButton={false} className="w-[95vw] !max-w-6xl h-[95vh] md:h-[90vh] p-0 rounded-xl bg-white shadow-2xl flex flex-col border-0 overflow-hidden">
         
         {/* HEADER */}
         <DialogHeader className="px-6 py-4 border-b bg-slate-50 flex flex-row items-center justify-between">
@@ -155,7 +188,7 @@ export default function EditProfile({
           <Button 
             variant="ghost" 
             size="icon"
-            onClick={() => onOpenChange?.(false)}
+            onClick={handleClose}
             className="h-8 w-8 rounded-full hover:bg-slate-200"
           >
             <X className="h-4 w-4" />
@@ -171,9 +204,9 @@ export default function EditProfile({
               <div className="flex flex-col items-center gap-4 mb-6">
                 <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                   <div className="w-32 h-32 md:w-36 md:h-36 rounded-xl overflow-hidden bg-white border-2 border-slate-300 shadow-md flex items-center justify-center">
-                    {previewUrl || profileData.imageProfile ? (
+                    {currentPhotoUrl ? (
                       <img
-                        src={previewUrl || profileData.imageProfile}
+                        src={currentPhotoUrl}
                         className="w-full h-full object-cover"
                         alt="Profile"
                       />
@@ -195,7 +228,19 @@ export default function EditProfile({
                   disabled={loading}
                 >
                   <Upload className="w-3 h-3 mr-2" />
-                  {previewUrl || profileData.imageProfile ? "Changer la photo" : "Ajouter une photo"}
+                  {currentPhotoUrl ? "Changer la photo" : "Ajouter une photo"}
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 text-sm"
+                  onClick={handleRemovePhoto}
+                  disabled={loading || !currentPhotoUrl}
+                >
+                  <Trash2 className="w-3 h-3 mr-2" />
+                  Supprimer la photo
                 </Button>
 
                 <input
@@ -403,35 +448,20 @@ export default function EditProfile({
             <div className="text-sm text-slate-500 order-2 sm:order-1">
               <span className="text-red-500">*</span> Champs obligatoires
             </div>
-            <div className="flex items-center gap-3 order-1 sm:order-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsEditProfileOpen(false);
-                  setSelectedFile(null);
-                  setPreviewUrl(undefined);
-                  setError("");
-                }}
-                disabled={loading}
-                className="h-10 px-4 text-sm"
-              >
-                Annuler
-              </Button>
-              <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 h-10 text-sm font-medium"
-                onClick={handleSaveProfile}
-                disabled={loading}
-              >
-                {loading ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Enregistrement...</span>
-                  </div>
-                ) : (
-                  "Enregistrer les modifications"
-                )}
-              </Button>
-            </div>
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 h-10 text-sm font-medium order-1 sm:order-2"
+              onClick={handleSaveProfile}
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Enregistrement...</span>
+                </div>
+              ) : (
+                "Enregistrer les modifications"
+              )}
+            </Button>
           </div>
         </DialogFooter>
       </DialogContent>

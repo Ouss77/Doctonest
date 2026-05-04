@@ -7,8 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, Shield, Stethoscope, Clock, Users } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/lib/auth"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function LoginPage() {
@@ -19,8 +17,6 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const [formValid, setFormValid] = useState(false)
-  const router = useRouter()
-  const { refreshUser } = useAuth()
 
   // Validation du formulaire en temps réel
   useEffect(() => {
@@ -59,25 +55,25 @@ export default function LoginPage() {
 
       if (response.ok) {
         setSuccess("Connexion réussie ! Redirection en cours...")
-        await refreshUser()
+
+        const targetRoute = (() => {
+          switch (data.user.userType) {
+            case "replacement":
+              return "/dashboard/replacement"
+            case "employer":
+              return "/dashboard/employer"
+            case "admin":
+              return "/dashboard/admin"
+            default:
+              return "/dashboard"
+          }
+        })()
         
         // Petite animation avant la redirection
         await new Promise(resolve => setTimeout(resolve, 500))
         
-        // Redirection basée sur le type d'utilisateur
-        switch (data.user.userType) {
-          case "replacement":
-            router.push("/dashboard/replacement")
-            break
-          case "employer":
-            router.push("/dashboard/employer")
-            break
-          case "admin":
-            router.push("/dashboard/admin")
-            break
-          default:
-            router.push("/dashboard")
-        }
+        window.location.replace(targetRoute)
+
       } else {
         // Messages d'erreur plus spécifiques
         switch (response.status) {

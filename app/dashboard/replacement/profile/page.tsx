@@ -66,13 +66,8 @@ export default function ProfilePage() {
         profileData={profileData}
         setProfileData={setProfileData}
         fileInputRef={fileInputRef}
-        previewUrl={previewUrl || profileData.imageProfile}
-        setPreviewUrl={(url) => {
-          setPreviewUrl(url)
-          if (typeof url === "string") {
-            setProfileData((prev) => ({ ...prev, imageProfile: url }))
-          }
-        }}
+        previewUrl={previewUrl}
+        setPreviewUrl={setPreviewUrl}
         selectedFile={selectedFile}
         setSelectedFile={setSelectedFile}
         setIsEditProfileOpen={setIsEditProfileOpen}

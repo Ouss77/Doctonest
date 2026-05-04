@@ -31,7 +31,7 @@ export function useEmployerDashboardData() {
     setLoading(true)
     setError(null)
 
-    fetch(`/api/missions?employerId=${employerId}`, { credentials: "include" })
+    fetch(`/api/missions?visibility=mine`, { credentials: "include" })
       .then((res) => res.json())
       .then((data) => {
         setMissions(data.missions || [])

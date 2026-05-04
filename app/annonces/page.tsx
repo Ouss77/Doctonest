@@ -48,10 +48,10 @@ export default function AnnoncesPage() {
 
   useEffect(() => {
     const fetchAnnouncements = async () => {
-      setLoading(true);
+      setLoading(true); 
       setError("");
       try {
-        const res = await fetch("/api/missions");
+        const res = await fetch("/api/missions?visibility=public");
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
         } 

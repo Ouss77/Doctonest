@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 // PATCH experience (alias for PUT)
 export async function PATCH(request: NextRequest, ctx: { params: { id: string } }) {
   return PUT(request, ctx);

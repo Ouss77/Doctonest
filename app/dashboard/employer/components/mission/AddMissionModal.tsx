@@ -55,7 +55,7 @@ export default function AddMissionModal({ showForm, setShowForm, setMissions, em
         const errData = await res.json().catch(() => ({}));
         throw new Error(errData.error || "Erreur lors de l'ajout de la mission");
       }
-      const missionsRes = await fetch(`/api/missions?employerId=${employerId}`, { credentials: "include" });
+      const missionsRes = await fetch(`/api/missions?visibility=mine`, { credentials: "include" });
       const missionsData = await missionsRes.json();
       setMissions(missionsData.missions || []);
       setForm({ title: "", specialty: "", location: "", description: "" });
