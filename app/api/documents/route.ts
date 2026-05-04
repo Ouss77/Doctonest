@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic"
 
 import { type NextRequest, NextResponse } from "next/server"
 import jwt from "jsonwebtoken"
@@ -13,7 +14,6 @@ export async function GET(request: NextRequest) {
     if (!token) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
-
     const decoded = jwt.verify(token, JWT_SECRET) as {
       userId: string
       userType: string

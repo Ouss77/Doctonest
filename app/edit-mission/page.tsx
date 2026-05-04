@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, type ChangeEvent } from "react"
+import { Suspense, useEffect, useState, type ChangeEvent } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { AlertCircle, CheckCircle2, Loader2, Trash2, Save, Briefcase, MapPin, Sparkles, Clock3, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -18,7 +18,7 @@ type Mission = {
   guest_email?: string | null
 }
 
-export default function EditMissionPage() {
+function EditMissionContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get("token") || ""
@@ -335,5 +335,21 @@ export default function EditMissionPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function EditMissionPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-slate-100 px-4 py-10">
+          <div className="mx-auto max-w-6xl rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-2xl">
+            Chargement de la page de modification...
+          </div>
+        </div>
+      }
+    >
+      <EditMissionContent />
+    </Suspense>
   )
 }
