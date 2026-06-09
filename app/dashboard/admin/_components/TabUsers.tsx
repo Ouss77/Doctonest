@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, Mail, MapPin, FileText, Calendar, Eye, UserCheck, UserX } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 
 type User = {
   id: number;
@@ -39,6 +39,22 @@ export default function TabUsers({ pendingUsers, searchTerm, setSearchTerm, filt
   React.useEffect(() => {
     setUsers(pendingUsers);
   }, [pendingUsers]);
+
+  const visibleUsers = useMemo(() => {
+    return users.filter((user) => {
+      const matchesSearch =
+        searchTerm.trim() === "" ||
+        [user.name, user.email, user.specialty, user.location]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
+
+      const matchesStatus = filterStatus === "all" || user.status === filterStatus;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [users, searchTerm, filterStatus]);
 
   const handleShowModal = async (user: User) => {
     setModalUser(user);
@@ -84,6 +100,12 @@ export default function TabUsers({ pendingUsers, searchTerm, setSearchTerm, filt
     }
   };
 
+  const handleDeactivateApproval = async (userId: number) => {
+    if (window.confirm("Révoquer l'approbation de cet utilisateur ?")) {
+      await updateUserStatus(userId, 'pending');
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Search and Filters */}
@@ -124,12 +146,12 @@ export default function TabUsers({ pendingUsers, searchTerm, setSearchTerm, filt
       {/* Pending Users */}
       <Card className="bg-orange-50/60 shadow rounded-2xl border-0">
         <CardHeader className="bg-transparent pb-2">
-          <CardTitle className="text-orange-800 font-bold">Utilisateurs à valider</CardTitle>
-          <CardDescription>Profils nécessitant une validation manuelle</CardDescription>
+          <CardTitle className="text-orange-800 font-bold">Utilisateurs</CardTitle>
+          <CardDescription>Liste complète filtrable par statut et recherche</CardDescription>
         </CardHeader>
         <CardContent className="p-6">
           <div className="space-y-4">
-            {users.map((user) => (
+            {visibleUsers.map((user) => (
               <div key={user.id} className="border border-orange-100 rounded-xl p-4 hover:shadow-lg transition-shadow bg-white/80 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-3">
@@ -185,23 +207,47 @@ export default function TabUsers({ pendingUsers, searchTerm, setSearchTerm, filt
                     <Eye className="h-4 w-4 mr-1" />
                     Voir
                   </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => handleApprove(user.id)}
-                    className="bg-green-500 hover:bg-green-600 text-white rounded-xl"
-                  >
-                    <UserCheck className="h-4 w-4 mr-1" />
-                    Approuver
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleReject(user.id)}
-                    className="rounded-xl"
-                  >
-                    <UserX className="h-4 w-4 mr-1" />
-                    Rejeter
-                  </Button>
+                  {user.status === "approved" ? (
+                    <>
+                      <Button
+                        size="sm"
+                        disabled
+                        className="rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm cursor-default opacity-100"
+                      >
+                        <UserCheck className="h-4 w-4 mr-1" />
+                        Déjà approuvé
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeactivateApproval(user.id)}
+                        className="rounded-xl border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:text-amber-800"
+                      >
+                        <UserX className="h-4 w-4 mr-1" />
+                        Désactiver
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      size="sm"
+                      onClick={() => handleApprove(user.id)}
+                      className="bg-green-500 hover:bg-green-600 text-white rounded-xl"
+                    >
+                      <UserCheck className="h-4 w-4 mr-1" />
+                      Approuver
+                    </Button>
+                  )}
+                  {user.status !== "approved" && (
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleReject(user.id)}
+                      className="rounded-xl"
+                    >
+                      <UserX className="h-4 w-4 mr-1" />
+                      Rejeter
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}

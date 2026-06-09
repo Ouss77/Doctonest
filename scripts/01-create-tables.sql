@@ -171,6 +171,13 @@ CREATE TABLE IF NOT EXISTS notifications (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Password reset tokens
+CREATE TABLE IF NOT EXISTS password_resets (
+  user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  token TEXT NOT NULL,
+  expires_at TIMESTAMP NOT NULL
+);
+
 -- Availability calendar for replacement doctors
 CREATE TABLE IF NOT EXISTS availability (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

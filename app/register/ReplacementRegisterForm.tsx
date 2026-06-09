@@ -182,7 +182,7 @@ export default function ReplacementRegisterForm({
                       if (errors.firstName) setErrors((prev) => ({ ...prev, firstName: "" }));
                     }}
                     className="h-11 rounded-lg border-gray-700 bg-gray-900 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-11"
-                    placeholder="Jean"
+                    placeholder="Youssef"
                   />
                 </div>
                 {errors.firstName && (
@@ -207,7 +207,7 @@ export default function ReplacementRegisterForm({
                       if (errors.lastName) setErrors((prev) => ({ ...prev, lastName: "" }));
                     }}
                     className="h-11 rounded-lg border-gray-700 bg-gray-900 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-11"
-                    placeholder="Dupont"
+                    placeholder="El Amrani"
                   />
                 </div>
                 {errors.lastName && (
@@ -236,7 +236,7 @@ export default function ReplacementRegisterForm({
                     if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
                   }}
                   className="h-11 rounded-lg border-gray-700 bg-gray-900 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-11"
-                  placeholder="jean.dupont@email.fr"
+                  placeholder="youssef.elamrani@exemple.ma"
                 />
               </div>
               {errors.email && (
@@ -288,7 +288,7 @@ export default function ReplacementRegisterForm({
                   }}
                 >
                   <SelectTrigger className="h-11 rounded-lg border-gray-700 bg-gray-900 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-11">
-                    <SelectValue placeholder="Sélectionner votre profession" />
+                    <SelectValue placeholder="Choisir votre profession au Maroc" />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-900 border-gray-700 text-white">
                     {professions.map((profession) => (
@@ -322,7 +322,7 @@ export default function ReplacementRegisterForm({
                     }}
                   >
                     <SelectTrigger className="h-11 rounded-lg border-gray-700 bg-gray-900 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-11">
-                      <SelectValue placeholder="Sélectionner votre spécialité" />
+                      <SelectValue placeholder="Choisir votre spécialité" />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-900 border-gray-700 text-white">
                       {specialties.map((specialty) => (
@@ -357,7 +357,7 @@ export default function ReplacementRegisterForm({
                   if (errors.location) setErrors((prev) => ({ ...prev, location: "" }));
                 }}
                 className="h-11 rounded-lg border-gray-700 bg-gray-900 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-11"
-                placeholder="Paris, Île-de-France"
+                placeholder="Casablanca, Maroc"
               />
             </div>
             {errors.location && (
@@ -401,7 +401,7 @@ export default function ReplacementRegisterForm({
                       if (errors.password) setErrors((prev) => ({ ...prev, password: "" }));
                     }}
                     className="h-11 rounded-lg border-gray-700 bg-gray-900 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-11 pr-12"
-                    placeholder="••••••••"
+                    placeholder="Mot de passe sécurisé"
                   />
                   <Button
                     type="button"
@@ -440,7 +440,7 @@ export default function ReplacementRegisterForm({
                       if (errors.confirmPassword) setErrors((prev) => ({ ...prev, confirmPassword: "" }));
                     }}
                     className="h-11 rounded-lg border-gray-700 bg-gray-900 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-11"
-                    placeholder="••••••••"
+                    placeholder="Confirmez votre mot de passe"
                   />
                 </div>
                 {errors.confirmPassword && (

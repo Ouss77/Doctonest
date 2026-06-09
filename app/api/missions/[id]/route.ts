@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken"
 import { sql } from "@/lib/database";   // 👈 import sql here
 
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"
+const JWT_SECRET = process.env.JWT_SECRET || "medical-replacement-platform-secret-key-2024"
 // Delete mission (employer only)
 export async function DELETE(
   request: NextRequest,
@@ -119,9 +119,14 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as {
-      userId: string
-      userType: string
+    let decoded: { userId: string; userType: string }
+    try {
+      decoded = jwt.verify(token, JWT_SECRET) as {
+        userId: string
+        userType: string
+      }
+    } catch {
+      return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 })
     }
 
 
@@ -156,8 +161,6 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
           description = ${description},
           specialty_required = ${specialty},
           location = ${location}, 
-          start_date = ${startDate},
-          end_date = ${endDate},
           updated_at = NOW()
       WHERE id = ${params.id} AND employer_id = ${decoded.userId}
       RETURNING *

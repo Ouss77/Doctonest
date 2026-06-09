@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { neon } from "@neondatabase/serverless"
 import jwt from "jsonwebtoken"
+import nodemailer from "nodemailer"
 
 export const dynamic = "force-dynamic"
 
@@ -71,6 +72,22 @@ export async function PATCH(
       )
     }
 
+    const missionRows = await sql`
+      SELECT id, title, status, guest_email, guest_name, edit_token
+      FROM missions
+      WHERE id = ${id}
+      LIMIT 1
+    `
+
+    if (!missionRows || missionRows.length === 0) {
+      return NextResponse.json(
+        { error: "Mission introuvable" },
+        { status: 404 }
+      )
+    }
+
+    const mission = missionRows[0]
+
     /* ===========================
        UPDATE
     ============================ */
@@ -88,6 +105,53 @@ export async function PATCH(
         { error: "Mission introuvable ou déjà traitée" },
         { status: 404 }
       )
+    }
+
+    if (status === "public" && mission.guest_email) {
+      const hasSmtpConfig =
+        process.env.SMTP_HOST &&
+        process.env.SMTP_PORT &&
+        process.env.SMTP_USER &&
+        process.env.SMTP_PASS
+
+      if (hasSmtpConfig) {
+        const transporter = nodemailer.createTransport({
+          host: process.env.SMTP_HOST,
+          port: Number(process.env.SMTP_PORT),
+          secure: Number(process.env.SMTP_PORT) === 465,
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+          },
+        })
+
+        const publicUrl = `${request.nextUrl.origin}/annonces/${id}`
+        const managementUrl = mission.edit_token
+          ? `${request.nextUrl.origin}/edit-mission?token=${mission.edit_token}`
+          : null
+
+        try {
+          await transporter.sendMail({
+            from: process.env.SMTP_FROM || "no-reply@doctonest.com",
+            to: mission.guest_email,
+            subject: "Votre annonce a été publiée",
+            html: `
+              <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a;">
+                <h2 style="margin: 0 0 12px; color: #1d4ed8;">Votre annonce est maintenant publiée</h2>
+                <p>Bonjour${mission.guest_name ? ` ${mission.guest_name}` : ""},</p>
+                <p>Votre annonce <strong>${mission.title}</strong> a été approuvée par notre équipe et est désormais visible publiquement.</p>
+                <p><a href="${publicUrl}">Voir l'annonce publique</a></p>
+                ${managementUrl ? `<p><a href="${managementUrl}">Modifier ou supprimer l'annonce</a></p>` : ""}
+                <p>Merci pour votre patience.</p>
+              </div>
+            `,
+          })
+        } catch (mailError) {
+          console.error("Approval email delivery failed:", mailError)
+        }
+      } else {
+        console.warn("SMTP not configured, approval email skipped for mission:", id)
+      }
     }
 
     return NextResponse.json({

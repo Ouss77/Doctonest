@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { NextResponse } from "next/server"
 import { db } from "@/lib/database" 
 
@@ -5,7 +7,7 @@ import { db } from "@/lib/database"
 export async function GET() {
   try {
     // Only fetch users with type 'replacement' and active
-    const doctors = await db.getReplacementDoctors()
+    const doctors = await db.getApprovedReplacementDoctors()
     return NextResponse.json({ doctors })
   } catch (error) {
     console.error("Error fetching doctors:", error)

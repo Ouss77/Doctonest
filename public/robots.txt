@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /annonces
+Allow: /register
+Allow: /login
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /edit-mission
+
+Sitemap: https://www.doctonest.com/sitemap.xml

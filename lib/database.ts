@@ -16,6 +16,13 @@ export const db = {
   async savePasswordResetToken(userId: string, token: string, expiresAt: number) {
     try {
       await sql`
+        CREATE TABLE IF NOT EXISTS password_resets (
+          user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+          token TEXT NOT NULL,
+          expires_at TIMESTAMP NOT NULL
+        )
+      `;
+      await sql`
         INSERT INTO password_resets (user_id, token, expires_at)
         VALUES (${userId}, ${token}, to_timestamp(${expiresAt} / 1000.0))
         ON CONFLICT (user_id) DO UPDATE SET token = ${token}, expires_at = to_timestamp(${expiresAt} / 1000.0)
@@ -55,6 +62,24 @@ export const db = {
       return result
     } catch (error) {
       console.error("Error fetching replacement doctors:", error)
+      return []
+    }
+  },
+  async getApprovedReplacementDoctors() {
+    try {
+      const result = await sql`
+        SELECT u.id, u.first_name, u.last_name, u.email, u.phone,
+          rp.photo_url, rp.profession, rp.specialty, rp.location, rp.created_at, rp.bio, rp.availability_start,
+          rp.availability_end, rp.experience_years, rp.is_available, rp.profile_status
+        FROM users u
+        JOIN replacement_profiles rp ON u.id = rp.user_id
+        WHERE u.user_type = 'replacement'
+          AND rp.profile_status = 'approved'
+        ORDER BY u.first_name, u.last_name
+      `
+      return result
+    } catch (error) {
+      console.error("Error fetching approved replacement doctors:", error)
       return []
     }
   },
