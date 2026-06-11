@@ -1,14 +1,82 @@
 'use client';
 
-import { useState, useRef, useEffect	 } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import {  ArrowRight,  FileText,  User,  Phone,  Mail,  MapPin,  Building2,  Stethoscope,  CheckCircle2,  AlertCircle,   X,
+import {  ArrowRight,  FileText,  User,  Phone,  Mail,  MapPin,  Building2,  Stethoscope,  CheckCircle2,  AlertCircle,
   Shield,   Eye,  EyeOff,  Loader2,  Info } from 'lucide-react';
 import Header from '@/components/annonces/header';
+
+type FormField =
+  | 'title'
+  | 'location'
+  | 'specialtyRequired'
+  | 'description'
+  | 'contactName'
+  | 'contactEmail';
+
+const moroccanCities = [
+  'Casablanca',
+  'Rabat',
+  'Fès',
+  'Marrakech',
+  'Tanger',
+  'Agadir',
+  'Meknès',
+  'Oujda',
+  'Kenitra',
+  'Tétouan',
+  'Safi',
+  'El Jadida',
+  'Béni Mellal',
+  'Nador',
+  'Khouribga',
+  'Taza',
+  'Larache',
+  'Ksar El Kébir',
+  'Settat',
+  'Mohammedia',
+  'Laâyoune',
+  'Dakhla',
+  'Salé',
+  'Errachidia',
+  'Taroudant',
+];
+
+const doctorSpecialties = [
+  'Médecine générale',
+  'Cardiologie',
+  'Pédiatrie',
+  'Gynécologie-obstétrique',
+  'Dermatologie',
+  'Ophtalmologie',
+  'Orthopédie',
+  'Psychiatrie',
+  'Radiologie',
+  'Anesthésie-réanimation',
+  'ORL',
+  'Urologie',
+  'Neurologie',
+  'Endocrinologie',
+  'Rhumatologie',
+  'Chirurgie générale',
+  'Chirurgie pédiatrique',
+  'Néphrologie',
+  'Oncologie',
+  'Urgences',
+  'Médecine interne',
+  'Médecine du travail',
+  'Médecine physique et réadaptation',
+  'Gastro-entérologie',
+  'Pneumologie',
+  'Hématologie',
+];
 
 export default function NewAnnouncementPage() {
   const router = useRouter();
   const listRef = useRef<HTMLDivElement | null>(null);
+  const fieldRefs = useRef<Partial<Record<FormField, HTMLInputElement | HTMLTextAreaElement | null>>>({});
+
+  const [pendingFocusField, setPendingFocusField] = useState<FormField | null>(null);
 
   const [currentStep, setCurrentStep] = useState(1);
   const [title, setTitle] = useState('');
@@ -17,36 +85,59 @@ export default function NewAnnouncementPage() {
   const [specialtyRequired, setSpecialtyRequired] = useState('');
   const [contactName, setContactName] = useState('');
   const [contactEmail, setContactEmail] = useState('');
+  const [contactEmailError, setContactEmailError] = useState<string | null>(null);
   const [contactPhone, setContactPhone] = useState('');
   const [userRole, setUserRole] = useState<'medecin' | 'institution'>('medecin');
   const [showContact, setShowContact] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [publishSuccess, setPublishSuccess] = useState(false);
-  const [publishMessage, setPublishMessage] = useState<string | null>(null);
-  const [editLink, setEditLink] = useState<string | null>(null);
 
-  const validateStep = (step: number) => {
+  const focusField = (field: FormField) => {
+    setPendingFocusField(field);
+  };
+
+  const validateAndReturnFirstInvalidField = (step: number): { message: string; field: FormField } | null => {
     if (step === 1) {
-      if (!title.trim()) return "Le titre est obligatoire";
-      if (!location.trim()) return "La localisation est obligatoire";
-      if (!specialtyRequired.trim()) return "La spécialité requise est obligatoire";
-      if (description.trim().length < 50) return "La description doit contenir au moins 50 caractères";
+      if (!title.trim()) return { message: "Le titre est obligatoire", field: 'title' };
+      if (!location.trim()) return { message: "La localisation est obligatoire", field: 'location' };
+      if (!specialtyRequired.trim()) return { message: "La spécialité requise est obligatoire", field: 'specialtyRequired' };
+      if (description.trim().length < 50) return { message: "La description doit contenir au moins 50 caractères", field: 'description' };
       return null;
     }
     if (step === 2) {
-      if (!contactName.trim()) return "Le nom est obligatoire";
-      if (!contactEmail.trim()) return "L'email est obligatoire";
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) return "Format d'email invalide";
+      if (!contactName.trim()) return { message: "Le nom est obligatoire", field: 'contactName' };
+      if (!contactEmail.trim()) return { message: "Le champ email est obligatoire", field: 'contactEmail' };
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) return { message: "Format d'email invalide", field: 'contactEmail' };
       return null;
     }
     return null;
   };
 
+  const validateStep = (step: number) => {
+    return validateAndReturnFirstInvalidField(step)?.message || null;
+  };
+
+  useEffect(() => {
+    if (!pendingFocusField) {
+      return;
+    }
+
+    const element = fieldRefs.current[pendingFocusField];
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      element.focus({ preventScroll: true });
+      setPendingFocusField(null);
+    }
+  }, [pendingFocusField, currentStep]);
+
   const nextStep = () => {
-    const validationError = validateStep(currentStep);
-    if (validationError) {
-      setError(validationError);
+    const validationResult = validateAndReturnFirstInvalidField(currentStep);
+    if (validationResult) {
+      setError(validationResult.message);
+      if (validationResult.field === 'contactEmail') {
+        setContactEmailError(validationResult.message);
+      }
+      focusField(validationResult.field);
       return;
     }
     setError(null);
@@ -62,13 +153,23 @@ export default function NewAnnouncementPage() {
 
   const submit = async () => {
     setError(null);
-    setEditLink(null);
 
-    const step1Error = validateStep(1);
-    const step2Error = validateStep(2);
-    
-    if (step1Error || step2Error) {
-      setError(step1Error || step2Error);
+    const step1Validation = validateAndReturnFirstInvalidField(1);
+    if (step1Validation) {
+      setError(step1Validation.message);
+      setCurrentStep(1);
+      focusField(step1Validation.field);
+      return;
+    }
+
+    const step2Validation = validateAndReturnFirstInvalidField(2);
+    if (step2Validation) {
+      setError(step2Validation.message);
+      setCurrentStep(2);
+      if (step2Validation.field === 'contactEmail') {
+        setContactEmailError(step2Validation.message);
+      }
+      focusField(step2Validation.field);
       return;
     } 
 
@@ -94,24 +195,39 @@ export default function NewAnnouncementPage() {
         throw new Error(missionData?.error || 'Erreur lors de la création de l\'annonce.');
       }
 
-      setEditLink(missionData?.editLink || null);
-      setPublishMessage(
-        missionData?.editLink
-          ? "Annonce créée avec succès. Ce lien sécurisé vous permet de la modifier ou de la supprimer."
-          : "Annonce soumise avec succès ! Votre annonce est en attente de validation par un administrateur. Vous serez notifié(e) par email après validation."
-      );
-      setPublishSuccess(true);
+      const missionTitle = missionData?.mission?.title || title.trim();
+      const missionId = missionData?.mission?.id || missionData?.mission?.mission_id || missionData?.mission?.missionId;
 
-      if (!missionData?.editLink) {
-        setTimeout(() => {
-          router.push('/annonces');
-        }, 5000);
+      const confirmationUrl = new URL('/annonces/new/confirmation', window.location.origin);
+      if (missionTitle) {
+        confirmationUrl.searchParams.set('title', missionTitle);
       }
+      if (missionId) {
+        confirmationUrl.searchParams.set('missionId', String(missionId));
+      }
+
+      router.replace(confirmationUrl.toString());
     } catch (err: any) {
       setError(err.message || 'Une erreur est survenue. Veuillez réessayer.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleContactEmailChange = (value: string) => {
+    setContactEmail(value);
+
+    if (!value.trim()) {
+      setContactEmailError("Le champ email est obligatoire");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      setContactEmailError("Format d'email invalide");
+      return;
+    }
+
+    setContactEmailError(null);
   };
 
     useEffect(() => {
@@ -127,39 +243,6 @@ export default function NewAnnouncementPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <Header />
-
-      {/* SUCCESS BANNER */}
-      {publishSuccess && publishMessage && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-2xl animate-fade-in">
-          <div className="bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl shadow-2xl p-5">
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-6 h-6 flex-shrink-0" />
-              <div className="flex-1">
-                <h3 className="font-bold text-lg">Annonce soumise !</h3>
-                <p className="text-sm mt-1 text-white/95">{publishMessage}</p>
-                {editLink && (
-                  <div className="mt-3 rounded-lg bg-white/10 border border-white/20 px-3 py-2 text-sm break-all">
-                    <a href={editLink} className="underline underline-offset-2" target="_blank" rel="noreferrer">
-                      {editLink}
-                    </a>
-                  </div>
-                )}
-                <div className="mt-3 flex items-center text-sm text-white/80">
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  {editLink ? 'Conservez ce lien pour modifier ou supprimer votre annonce.' : 'Redirection dans 5 secondes...'}
-                </div>
-              </div>
-              <button 
-                onClick={() => setPublishSuccess(false)}
-                className="text-white/80 hover:text-white p-1"
-                aria-label="Fermer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="max-w-7xl mx-auto px-4 py-8" id="annonces-list" ref={listRef}>
         {/* HEADER */}
@@ -236,6 +319,7 @@ export default function NewAnnouncementPage() {
                           Titre de l'annonce *
                         </label>
                         <input
+                          ref={element => { fieldRefs.current.title = element; }}
                           value={title}
                           onChange={e => setTitle(e.target.value)}
                           placeholder="Ex : Recherche médecin généraliste - Cabinet Rabat"
@@ -250,12 +334,16 @@ export default function NewAnnouncementPage() {
                         <div className="relative">
                           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                           <input
+                            ref={element => { fieldRefs.current.location = element; }}
                             value={location}
                             onChange={e => setLocation(e.target.value)}
+                            list="moroccan-cities-suggestions"
                             placeholder="Ville, adresse, région"
+                            autoComplete="off"
                             className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                           />
                         </div>
+                        <p className="mt-2 text-xs text-gray-500">Suggestions de villes marocaines disponibles dans la liste.</p>
                       </div>
                     </div>
 
@@ -266,12 +354,16 @@ export default function NewAnnouncementPage() {
                       <div className="relative">
                         <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <input
+                          ref={element => { fieldRefs.current.specialtyRequired = element; }}
                           value={specialtyRequired}
                           onChange={e => setSpecialtyRequired(e.target.value)}
+                          list="doctor-specialties-suggestions"
                           placeholder="Ex : Médecine générale, Cardiologie..."
+                          autoComplete="off"
                           className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                         />
                       </div>
+                      <p className="mt-2 text-xs text-gray-500">Spécialités médicales fréquemment utilisées pour les annonces.</p>
                     </div>
 
                     <div>
@@ -284,6 +376,7 @@ export default function NewAnnouncementPage() {
                         </span>
                       </div>
                       <textarea
+                        ref={element => { fieldRefs.current.description = element; }}
                         value={description}
                         onChange={e => setDescription(e.target.value)}
                         rows={5}
@@ -349,6 +442,7 @@ export default function NewAnnouncementPage() {
                         Nom complet *
                       </label>
                       <input
+                        ref={element => { fieldRefs.current.contactName = element; }}
                         value={contactName}
                         onChange={e => setContactName(e.target.value)}
                         placeholder="Votre nom"
@@ -363,13 +457,24 @@ export default function NewAnnouncementPage() {
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <input
+                          ref={element => { fieldRefs.current.contactEmail = element; }}
                           value={contactEmail}
-                          onChange={e => setContactEmail(e.target.value)}
+                          onChange={e => handleContactEmailChange(e.target.value)}
+                          onBlur={() => {
+                            if (!contactEmail.trim()) {
+                              setContactEmailError("Le champ email est obligatoire");
+                            }
+                          }}
                           placeholder="votre@email.com"
                           type="email"
                           className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                         />
                       </div>
+                      {contactEmailError && (
+                        <p className="mt-2 text-center text-xs font-medium text-red-600">
+                          {contactEmailError}
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -468,6 +573,18 @@ export default function NewAnnouncementPage() {
             L'annonce sera validée par notre équipe sous 24h maximum
           </p>
         </div>
+
+        <datalist id="moroccan-cities-suggestions">
+          {moroccanCities.map((city) => (
+            <option key={city} value={city} />
+          ))}
+        </datalist>
+
+        <datalist id="doctor-specialties-suggestions">
+          {doctorSpecialties.map((specialty) => (
+            <option key={specialty} value={specialty} />
+          ))}
+        </datalist>
       </div>
     </div>
   );

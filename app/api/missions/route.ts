@@ -136,9 +136,7 @@ export async function POST(request: NextRequest) {
       edit_token: editToken,
     });
 
-    const editLink = `${request.nextUrl.origin}/edit-mission?token=${editToken}`
-
-    return NextResponse.json({ mission, editLink }, { status: 201 });
+    return NextResponse.json({ mission }, { status: 201 });
   }
   catch (error) {
     console.error("POST /missions error:", error);

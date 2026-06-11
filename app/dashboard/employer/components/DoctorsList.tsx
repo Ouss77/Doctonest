@@ -51,7 +51,7 @@ import DoctorProfileModal from "./DoctorProfileModal";
         setLoading(true);
         setError("");
         try {
-          const res = await fetch("/api/doctors");
+          const res = await fetch("/api/doctors", { cache: "no-store" });
           if (!res.ok) throw new Error("Erreur lors du chargement des médecins");
           const data = await res.json();
           setDoctors(data.doctors || []);
@@ -217,9 +217,12 @@ import DoctorProfileModal from "./DoctorProfileModal";
               {filteredDoctors.map((doctor) => (
                 <Card
                   key={doctor.id}
-                  className="h-full w-full max-w-sm  bg-white rounded-xl border border-slate-200 hover:shadow-md transition-shadow"
+                  className="group relative h-full w-full max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-sky-50/80 to-slate-50 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky-200 hover:shadow-xl"
                 >
-                  <CardContent className="p-6 flex h-full flex-col">
+                  <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500" />
+                  <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-sky-200/30 blur-3xl transition-opacity duration-300 group-hover:bg-sky-200/40" />
+                  <div className="absolute -bottom-12 -left-10 h-36 w-36 rounded-full bg-indigo-200/25 blur-3xl transition-opacity duration-300 group-hover:bg-indigo-200/35" />
+                  <CardContent className="relative z-10 flex h-full flex-col p-6">
                     {/* Header */}
                     <div className="flex items-center gap-6 mb-4">
                       <Avatar className="w-20 h-20 rounded-full">
@@ -233,10 +236,10 @@ import DoctorProfileModal from "./DoctorProfileModal";
                         <h3 className="font-semibold text-xl text-slate-900">
                           Dr. {doctor.first_name} {doctor.last_name}
                         </h3>
-                        <Badge className="mt-2 bg-blue-50 text-blue-700 border-0 px-2 py-0.5 text-xs rounded">
+                        <Badge className="mt-2 rounded-full border border-blue-100 bg-white/80 px-2.5 py-0.5 text-xs text-blue-700 shadow-sm backdrop-blur-sm">
                           {doctor.specialty}
                         </Badge>
-                        <div className="mt-2 text-sm text-slate-500 font-medium flex items-center gap-2">
+                        <div className="mt-2 flex items-center gap-2 text-sm font-medium text-slate-600">
                           <MapPin className="w-4 h-4 text-blue-500" />
                           {doctor.location}
                         </div>
@@ -244,7 +247,7 @@ import DoctorProfileModal from "./DoctorProfileModal";
                     </div>
 
                     {/* Info */}
-                    <div className="space-y-2 text-slate-700 text-sm mb-4 flex-1">
+                    <div className="mb-4 flex-1 space-y-2 rounded-2xl border border-white/70 bg-white/70 p-4 text-sm text-slate-700 shadow-sm backdrop-blur-sm">
                       {doctor.rating && (
                         <div className="flex items-center gap-2">
                           <Star className="w-4 h-4 text-amber-500" />
@@ -272,7 +275,7 @@ import DoctorProfileModal from "./DoctorProfileModal";
                         </span>
                       </div>
                       {doctor.about && (
-                        <p className="text-xs text-slate-500 mt-1 line-clamp-3">{doctor.about}</p>
+                        <p className="mt-1 line-clamp-3 text-xs text-slate-500">{doctor.about}</p>
                       )}
                     </div>
 
@@ -280,7 +283,7 @@ import DoctorProfileModal from "./DoctorProfileModal";
                     <div className="mt-auto pt-2 flex gap-3">
                       <Button
                         variant="outline"
-                        className="flex-1 border-slate-200 text-slate-700 hover:bg-slate-50 rounded-lg"
+                        className="flex-1 rounded-xl border-slate-200 bg-white/80 text-slate-700 shadow-sm backdrop-blur-sm hover:bg-white"
                         onClick={() => {
                           setSelectedDoctorId(doctor.id);
                           setProfileOpen(true);
@@ -290,7 +293,7 @@ import DoctorProfileModal from "./DoctorProfileModal";
                         Profil
                       </Button>
                       <Button
-                        className="flex-1 bg-blue-600 text-white rounded-lg"
+                        className="flex-1 rounded-xl bg-gradient-to-r from-blue-600 via-sky-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20 hover:from-blue-700 hover:via-sky-700 hover:to-indigo-700"
                         onClick={() => {
                           setContactDoctor(doctor);
                           setContactOpen(true);

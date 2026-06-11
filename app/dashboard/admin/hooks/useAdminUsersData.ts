@@ -29,7 +29,7 @@ export function useAdminUsersData() {
       setError(null)
 
       try {
-        const res = await fetch("/api/admin/users")
+        const res = await fetch("/api/admin/users", { cache: "no-store" })
         if (!res.ok) {
           throw new Error("Erreur lors du chargement des utilisateurs")
         }
