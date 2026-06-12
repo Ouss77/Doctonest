@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ArrowLeft, CheckCircle2, Home, Mail, Sparkles, List, Shield, Clock3 } from 'lucide-react';
 
-export default function AnnouncementConfirmationPage() {
+function ConfirmationContent() {
   const searchParams = useSearchParams();
   const title = searchParams.get('title');
 
@@ -50,7 +50,7 @@ export default function AnnouncementConfirmationPage() {
                 ) : (
                   <>Votre annonce a bien été transmise à notre équipe.</>
                 )}
-                {' '}Elle n’est pas encore publiée. Un administrateur va la relire et la valider manuellement avant sa mise en ligne.
+                {' '}Elle n'est pas encore publiée. Un administrateur va la relire et la valider manuellement avant sa mise en ligne.
               </p>
 
               <div className="mt-6 rounded-2xl border border-blue-100 bg-blue-50/70 p-5">
@@ -61,7 +61,7 @@ export default function AnnouncementConfirmationPage() {
                   <div>
                     <p className="font-bold text-slate-900">Email automatique dès approbation</p>
                     <p className="mt-1 text-sm text-slate-600 leading-relaxed">
-                      Dès que l’annonce sera approuvée, vous recevrez un email de confirmation avec le lien public de l’annonce et, si applicable, un lien sécurisé pour la modifier ou la supprimer.
+                      Dès que l'annonce sera approuvée, vous recevrez un email de confirmation avec le lien public de l'annonce et, si applicable, un lien sécurisé pour la modifier ou la supprimer.
                     </p>
                   </div>
                 </div>
@@ -97,7 +97,7 @@ export default function AnnouncementConfirmationPage() {
                 <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-700 font-bold">1</div>
                 <div>
                   <p className="font-semibold text-slate-900">Révision manuelle</p>
-                  <p className="text-sm text-slate-600">Notre équipe vérifie le contenu et la conformité de l’annonce.</p>
+                  <p className="text-sm text-slate-600">Notre équipe vérifie le contenu et la conformité de l'annonce.</p>
                 </div>
               </div>
 
@@ -121,7 +121,7 @@ export default function AnnouncementConfirmationPage() {
             <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 flex items-start gap-3">
               <Shield className="w-5 h-5 text-slate-600 mt-0.5" />
               <p className="text-sm text-slate-600 leading-relaxed">
-                Le lien de gestion sécurisé n’est jamais affiché avant approbation, afin d’éviter toute confusion sur le statut de publication.
+                Le lien de gestion sécurisé n'est jamais affiché avant approbation, afin d'éviter toute confusion sur le statut de publication.
               </p>
             </div>
 
@@ -133,5 +133,13 @@ export default function AnnouncementConfirmationPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AnnouncementConfirmationPage() {
+  return (
+    <Suspense>
+      <ConfirmationContent />
+    </Suspense>
   );
 }
