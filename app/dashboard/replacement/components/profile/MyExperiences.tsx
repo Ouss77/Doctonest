@@ -1,8 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Briefcase, Star, Plus, Pencil, Trash2, MapPin, Calendar, X, Loader2, Mail, Phone, User, FileText, Clock, Building, Check } from "lucide-react"
+import { Briefcase, Plus, Pencil, Trash2, MapPin, Calendar, X, Loader2, Mail, Phone, User, FileText, Clock, Building, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -159,11 +158,11 @@ const handleSave = async () => {
   return (
     <>
       {/* LinkedIn-style Card: Experiences Section */}
-      <Card className="bg-white rounded-xl border border-slate-100 shadow-md hover:shadow-lg transition-shadow overflow-hidden">
-        <CardHeader className="pb-4 border-b border-slate-200 bg-slate-50 mt-0 px-4 sm:px-6">
+      <Card className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(251,191,36,0.1)] transition-all duration-300 overflow-hidden">
+        <CardHeader className="pb-4 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-white px-5 sm:px-6 pt-5">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3 w-full sm:w-auto">
-              <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center flex-shrink-0">
                 <Briefcase className="w-5 h-5 text-amber-600" />
               </div>
               <div className="min-w-0">
@@ -175,7 +174,7 @@ const handleSave = async () => {
               size="sm"
               variant="outline"
               onClick={handleOpenAdd}
-              className="border-blue-600 text-blue-600 hover:bg-blue-50 font-medium h-10 px-4 w-full sm:w-auto mt-2 sm:mt-0"
+              className="border-blue-500 text-blue-600 hover:bg-blue-50 font-semibold h-9 px-4 rounded-xl text-sm w-full sm:w-auto"
             >
               <Plus className="w-4 h-4 mr-2" />
               Ajouter une expérience
@@ -183,7 +182,7 @@ const handleSave = async () => {
           </div>
         </CardHeader>
 
-        <CardContent className="p-4 sm:p-6">
+        <CardContent className="p-4 sm:p-5">
           {error && (
             <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200">
               {error}
@@ -215,10 +214,10 @@ const handleSave = async () => {
               {experiences.map((exp) => (
                 <div
                   key={exp.id}
-                  className="py-4 flex items-start gap-4 hover:bg-slate-50 transition px-0"
+                  className="py-4 px-3 flex items-start gap-4 hover:bg-amber-50/40 transition-all duration-200 rounded-xl"
                 >
                   {/* Small icon */}
-                  <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center flex-shrink-0">
                     <Briefcase className="w-5 h-5 text-amber-600" />
                   </div>
 

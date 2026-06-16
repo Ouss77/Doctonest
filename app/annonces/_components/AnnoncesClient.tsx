@@ -23,24 +23,24 @@ interface Announcement {
 }
 
 const specialties = [
-  "Cardiologie", "Médecine générale", "Pédiatrie", "Dermatologie", "Gynécologie", 
-  "Ophtalmologie", "Orthopédie", "Psychiatrie", "Radiologie", "Chirurgie", 
+  "Cardiologie", "Médecine générale", "Pédiatrie", "Dermatologie", "Gynécologie",
+  "Ophtalmologie", "Orthopédie", "Psychiatrie", "Radiologie", "Chirurgie",
   "Anesthésie", "ORL", "Urologie", "Neurologie", "Endocrinologie", "Rhumatologie"
 ];
 
 const cities = [
-  "Rabat", "Casablanca", "Fès", "Marrakech", "Tanger", "Agadir", "Oujda", 
+  "Rabat", "Casablanca", "Fès", "Marrakech", "Tanger", "Agadir", "Oujda",
   "Kenitra", "Tetouan", "Safi", "El Jadida", "Beni Mellal", "Errachidia", "Taza"
 ];
 
 export default function AnnoncesPage() {
   const listRef = useRef<HTMLDivElement | null>(null);
-  
+
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [filteredAnnouncements, setFilteredAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  
+
   // Filter states
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedSpecialty, setSelectedSpecialty] = useState("");
@@ -48,15 +48,15 @@ export default function AnnoncesPage() {
 
   useEffect(() => {
     const fetchAnnouncements = async () => {
-      setLoading(true); 
+      setLoading(true);
       setError("");
       try {
         const res = await fetch("/api/missions?visibility=public");
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
-        } 
+        }
         const data = await res.json();
-        
+
         if (data.missions && Array.isArray(data.missions)) {
           const normalized: Announcement[] = data.missions.map((m: any) => {
             const authorName =
@@ -99,7 +99,7 @@ export default function AnnoncesPage() {
         setLoading(false);
       }
     };
-    
+
     fetchAnnouncements();
   }, []);
 
@@ -114,7 +114,7 @@ export default function AnnoncesPage() {
     }
 
     if (selectedSpecialty && selectedSpecialty !== "all") {
-      filtered = filtered.filter(announcement => 
+      filtered = filtered.filter(announcement =>
         announcement.specialty.toLowerCase() === selectedSpecialty.toLowerCase()
       );
     }
@@ -154,7 +154,7 @@ export default function AnnoncesPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50">
       {/* HEADER */}
       <Headerannonces />
-      
+
       {/* BARRE DE FILTRE MODERNISÉE */}
       <div className="relative z-30 max-w-7xl mx-auto -mt-6 sm:-mt-8 px-4 sm:px-6 lg:px-10">
         <div className="bg-white/90 backdrop-blur-sm shadow-xl rounded-2xl sm:rounded-3xl p-5 sm:p-7 border border-gray-200/50">
@@ -182,7 +182,7 @@ export default function AnnoncesPage() {
                 className="w-full pl-12 pr-4 py-3.5 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all text-sm sm:text-base bg-gray-50 focus:bg-white"
               />
             </div>
-            
+
             {/* Grille de filtres */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               {/* Spécialité */}
@@ -199,7 +199,7 @@ export default function AnnoncesPage() {
                   ))}
                 </select>
               </div>
-              
+
               {/* Ville */}
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none z-10" />
@@ -214,7 +214,7 @@ export default function AnnoncesPage() {
                   ))}
                 </select>
               </div>
-              
+
               {/* Bouton réinitialiser */}
               <button
                 className="px-6 py-3 rounded-xl bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 border-2 border-gray-300 transition-all flex items-center justify-center gap-2 text-sm sm:text-base font-semibold text-gray-700 hover:shadow-md active:scale-95"
@@ -241,7 +241,7 @@ export default function AnnoncesPage() {
               <span>{error}</span>
             </div>
           )}
-          
+
           {loading ? (
             <div className="text-center text-gray-700 py-20">
               <div className="relative w-16 h-16 mx-auto mb-6">
@@ -274,7 +274,7 @@ export default function AnnoncesPage() {
                 >
                   {/* En-tête colorée */}
                   <div className={`h-2 ${announcement.type === 'offer' ? 'bg-gradient-to-r from-blue-500 to-blue-600' : 'bg-gradient-to-r from-green-500 to-green-600'}`}></div>
-                  
+
                   <div className="p-6">
                     {/* Badges et urgence */}
                     <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
@@ -294,13 +294,11 @@ export default function AnnoncesPage() {
                         </span>
                       )}
                     </div>
-                    
+
                     {/* Titre */}
                     <h3 className="font-bold text-xl text-gray-900 mb-4 line-clamp-2 min-h-[3.5rem] group-hover:text-blue-600 transition-colors">
                       {announcement.title}
                     </h3>
-                    
-
 
                     {/* Métadonnées */}
                     <div className="space-y-2.5 mb-5 bg-gray-50 p-4 rounded-xl border border-gray-100">
@@ -310,7 +308,7 @@ export default function AnnoncesPage() {
                         </div>
                         <span className="font-medium">{announcement.location}</span>
                       </div>
-                      
+
                       <div className="flex items-center gap-3 text-gray-600 text-sm">
                         <div className="p-1.5 bg-green-100 rounded-lg">
                           <Calendar className="w-4 h-4 text-green-600" />
@@ -320,7 +318,7 @@ export default function AnnoncesPage() {
                         </span>
                       </div>
                     </div>
-                    
+
                     {/* Description */}
                     <div className="mb-5">
                       <p className="text-gray-700 text-sm leading-relaxed line-clamp-3">
@@ -340,13 +338,13 @@ export default function AnnoncesPage() {
                             <p className="text-sm font-bold text-gray-900">{announcement.authorName}</p>
                           </div>
                         </div>
-                        
+
                         {announcement.phone && !announcement.hideContact && (
                           <div className="flex items-center gap-3 mt-3 pt-3 border-t border-blue-200">
                             <div className="p-2 bg-white rounded-lg shadow-sm">
                               <Phone className="w-4 h-4 text-green-600" />
                             </div>
-                            <a 
+                            <a
                               href={`tel:${announcement.phone}`}
                               className="text-sm font-semibold text-green-700 hover:text-green-800 transition-colors"
                             >
@@ -356,7 +354,7 @@ export default function AnnoncesPage() {
                         )}
                       </div>
                     )}
-                    
+
                     {/* Bouton CTA */}
                     <Link href={`/annonces/${encodeURIComponent(String(announcement.id))}`}>
                       <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-95 group">
