@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapPin, Calendar, Clock, Building, User, Mail, Phone, Menu, X, Star, Users, TrendingUp, Shield, Award, CheckCircle, Stethoscope, Send, Briefcase, FileText, Eye, Heart, Sparkles } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, MapPin, Clock, Phone, X, Shield, CheckCircle, Send, Briefcase, FileText, Calendar } from 'lucide-react';
 import Link from "next/link";
-import Headerannonces from '@/components/annonces/header';
 
 interface AnnouncementDetail {
   id: string;
@@ -25,63 +27,104 @@ interface AnnouncementDetail {
   hide_contact?: boolean;
 }
 
+interface ContactForm {
+  senderName: string;
+  senderEmail: string;
+  senderPhone: string;
+  message: string;
+}
+
 export default function AnnouncementDetailPage() {
-  const [mobileOpen, setMobileOpen] = useState(false);
   const params = useParams();
   const router = useRouter();
   const [announcement, setAnnouncement] = useState<AnnouncementDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [showPhone, setShowPhone] = useState(false);
 
+  const [showContactForm, setShowContactForm] = useState(false);
+  const [formData, setFormData] = useState<ContactForm>({
+    senderName: '',
+    senderEmail: '',
+    senderPhone: '',
+    message: '',
+  });
+  const [formError, setFormError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormError('');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.senderName.trim() || !formData.senderEmail.trim() || !formData.message.trim()) {
+      setFormError('Veuillez remplir tous les champs obligatoires.');
+      return;
+    }
+    setSubmitting(true);
+    setFormError('');
+    try {
+      const res = await fetch(`/api/announcements/${params.titre}/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setFormError(data.error || 'Une erreur est survenue. Veuillez réessayer.');
+      } else {
+        setSubmitted(true);
+      }
+    } catch {
+      setFormError('Erreur de connexion. Veuillez réessayer.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const closeForm = () => {
+    setShowContactForm(false);
+    setSubmitted(false);
+    setFormError('');
+    setFormData({ senderName: '', senderEmail: '', senderPhone: '', message: '' });
+  };
+
   useEffect(() => {
-    const fetchAnnouncement = async () => { 
+    const fetchAnnouncement = async () => {
       setLoading(true);
-      setError("");
       try {
         const res = await fetch(`/api/announcements/${params.titre}`);
-        if (!res.ok) {
-          if (res.status === 404) {
-            throw new Error("Annonce non trouvée");
-          }
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
+        if (!res.ok) throw new Error(res.status === 404 ? 'Annonce non trouvée' : 'Erreur serveur');
         const data = await res.json();
-        
         if (data.success && data.announcement) {
           setAnnouncement(data.announcement);
         } else {
-          throw new Error(data.error || "Erreur lors du chargement de l'annonce");
+          throw new Error(data.error || "Erreur lors du chargement");
         }
-      } catch (error) {
-        console.error('Error fetching announcement:', error);
-        setError(error instanceof Error ? error.message : "Erreur lors du chargement de l'annonce");
+      } catch (err) {
+        console.error(err);
         setAnnouncement(null);
       } finally {
         setLoading(false);
       }
     };
-
-    if (params.titre) {
-      fetchAnnouncement();
-    }
+    if (params.titre) fetchAnnouncement();
   }, [params.titre]);
+
+  const authorName = announcement?.organization_name ||
+    [announcement?.first_name, announcement?.last_name].filter(Boolean).join(' ') ||
+    'Annonceur';
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-        <header className="bg-white/80 backdrop-blur-md border-b border-gray-200">
-          <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl"></div>
-              <span className="font-bold text-lg text-gray-900">DoctoNest</span>
-            </Link>
-          </div>
-        </header>
-        <div className="flex items-center justify-center py-32">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Nav />
+        <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-700 font-medium">Chargement de l'annonce...</p>
+            <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-sm text-gray-500">Chargement...</p>
           </div>
         </div>
       </div>
@@ -90,22 +133,15 @@ export default function AnnouncementDetailPage() {
 
   if (!announcement) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-        <header className="bg-white/80 backdrop-blur-md border-b border-gray-200">
-          <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl"></div>
-              <span className="font-bold text-lg text-gray-900">DoctoNest</span>
-            </Link>
-          </div>
-        </header>
-        <div className="flex items-center justify-center py-32">
-          <div className="text-center bg-white rounded-2xl shadow-xl p-10 max-w-md border-l-4 border-blue-600">
-            <div className="text-5xl mb-4">😞</div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Annonce introuvable</h1>
-            <p className="text-gray-600 mb-6 text-sm">Cette annonce n'existe plus</p>
-            <Button onClick={() => router.back()} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white">
-              <ArrowLeft className="w-4 h-4 mr-2" />
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Nav />
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="text-center max-w-sm">
+            <p className="text-4xl mb-4">😞</p>
+            <h1 className="text-xl font-semibold text-gray-900 mb-2">Annonce introuvable</h1>
+            <p className="text-sm text-gray-500 mb-6">Cette annonce n'existe plus ou a été supprimée.</p>
+            <Button onClick={() => router.back()} variant="outline" className="gap-2">
+              <ArrowLeft className="w-4 h-4" />
               Retour
             </Button>
           </div>
@@ -114,191 +150,289 @@ export default function AnnouncementDetailPage() {
     );
   }
 
-  const authorName = announcement?.organization_name ||
-    [announcement?.first_name, announcement?.last_name].filter(Boolean).join(" ") ||
-    "Annonceur";
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      {/* Colorful Header */}
-              {/* HEADER NAV */}
-              <header className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 md:px-10 pt-4">
-                <div className="flex items-center justify-between gap-4 bg-[#071d45]/60 backdrop-blur-lg border border-white/10 rounded-2xl px-4 sm:px-6 py-3 shadow-xl">
-                  {/* LOGO */}
-                  <Link href="/" className="flex items-center gap-3 group">
-                    <img
-                      src="/logo.png"
-                      alt="DoctoNest"
-                      className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl shadow-md"
-                    />
-                    <span className="text-lg sm:text-xl font-semibold text-white group-hover:text-blue-300 transition">
-                    DoctoNest
-                    </span>
-                  </Link>
-      
-                  {/* ACTIONS */}
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <Link href="/login">
-                      <Button
-                        variant="ghost"
-                        className="text-white border border-white/30 hover:bg-white/10 hover:border-white/50 rounded-xl px-4"
-                      >
-                        Connexion
-                      </Button>
-                    </Link>
-      
-                    <Link href="/register">
-                      <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 shadow-md">
-                        S’inscrire
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </header>
-   
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        {/* Creative Back Button */}
-        <button 
-          onClick={() => router.back()} 
-          className="mb-6 px-4 py-2 rounded-xl bg-white/80 backdrop-blur-sm border border-gray-200 hover:border-blue-300 text-sm text-gray-700 hover:text-blue-600 font-medium flex items-center gap-2 transition shadow-sm hover:shadow-md"
+    <div className="min-h-screen bg-gray-50">
+      <Nav />
+
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
+        {/* Back */}
+        <button
+          onClick={() => router.back()}
+          className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition"
         >
           <ArrowLeft className="w-4 h-4" />
           Retour aux annonces
         </button>
 
-        {/* Compact & Creative Title Card */}
-        <div className="relative bg-white rounded-2xl border-l-4 border-blue-600 p-6 mb-6 shadow-lg overflow-hidden">
-          {/* Decorative gradient blob */}
-          <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-blue-200/30 to-indigo-200/30 rounded-full blur-3xl"></div>
-          
-          <div className="relative z-10">
-            <div className="flex flex-wrap items-start justify-between gap-4 mb-3">
-              <div className="flex-1">
-                <div className="flex flex-wrap items-center gap-2 mb-3">
-                  <span className={`text-xs font-bold px-3 py-1.5 rounded-full shadow-sm ${
-                    announcement?.type === 'offer' 
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white' 
-                      : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
-                  }`}>
-                    {announcement?.type === 'offer' ? '💼 Offre d\'emploi' : '🔍 Recherche'}
-                  </span>
-                  {announcement?.urgency === 'high' && (
-                    <span className="text-xs font-bold px-3 py-1.5 rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-sm animate-pulse">
-                      🔥 Urgent
-                    </span>
-                  )}
-                  <span className="text-xs text-gray-500 flex items-center gap-1 bg-gray-100 px-3 py-1.5 rounded-full">
-                    <Clock className="w-3 h-3" />
-                    {new Date(announcement.posted_date).toLocaleDateString('fr-FR', { 
-                      day: 'numeric', 
-                      month: 'short' 
-                    })}
-                  </span>
-                </div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight mb-4">
-                  {announcement?.title}
-                </h1>
-              </div>
-            </div>
-
-            {/* Quick Info Pills */}
-            <div className="flex flex-wrap gap-3">
-              <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
-                <MapPin className="w-4 h-4 text-blue-700" />
-                <span className="text-sm font-semibold text-blue-900">{announcement?.location}</span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl">
-                <Briefcase className="w-4 h-4 text-indigo-600" />
-                <span className="text-sm font-semibold text-indigo-900">{announcement?.specialty}</span>
-              </div>
-              {announcement?.start_date && announcement?.end_date && (
-                <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
-                  <Calendar className="w-4 h-4 text-blue-700" />
-                  <span className="text-sm font-semibold text-blue-900">
-                    {new Date(announcement.start_date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' })} - {new Date(announcement.end_date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' })}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Main Grid */}
         <div className="grid gap-6 lg:grid-cols-3">
-          {/* Main Content */}
-          <div className="lg:col-span-2">
-            {/* Description Card with gradient border */}
-            <div className="relative bg-white rounded-2xl p-[2px] shadow-lg overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-2xl"></div>
-              <div className="relative bg-white rounded-2xl p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg flex items-center justify-center">
-                    <FileText className="w-4 h-4 text-blue-700" />
-                  </div>
-                  Description de la mission
-                </h2>
-                <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {announcement?.description}
-                </div>
+          {/* Left — main content */}
+          <div className="lg:col-span-2 space-y-4">
+
+            {/* Title card */}
+            <div className="bg-white border border-gray-200 rounded-xl p-6">
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <span className={`text-xs font-medium px-2.5 py-1 rounded-md ${
+                  announcement.type === 'offer'
+                    ? 'bg-blue-50 text-blue-700'
+                    : 'bg-purple-50 text-purple-700'
+                }`}>
+                  {announcement.type === 'offer' ? 'Offre' : 'Recherche'}
+                </span>
+                {announcement.urgency === 'high' && (
+                  <span className="text-xs font-medium px-2.5 py-1 rounded-md bg-red-50 text-red-600">
+                    Urgent
+                  </span>
+                )}
+                <span className="text-xs text-gray-400 flex items-center gap-1 ml-auto">
+                  <Clock className="w-3 h-3" />
+                  {new Date(announcement.posted_date).toLocaleDateString('fr-FR', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
+                </span>
+              </div>
+
+              <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4">
+                {announcement.title}
+              </h1>
+
+              <div className="flex flex-wrap gap-2">
+                <span className="flex items-center gap-1.5 text-sm text-gray-600 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg">
+                  <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                  {announcement.location}
+                </span>
+                <span className="flex items-center gap-1.5 text-sm text-gray-600 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg">
+                  <Briefcase className="w-3.5 h-3.5 text-gray-400" />
+                  {announcement.specialty}
+                </span>
+                {announcement.start_date && announcement.end_date && (
+                  <span className="flex items-center gap-1.5 text-sm text-gray-600 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg">
+                    <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                    {new Date(announcement.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                    {' – '}
+                    {new Date(announcement.end_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                  </span>
+                )}
               </div>
             </div>
+
+            {/* Description */}
+            <div className="bg-white border border-gray-200 rounded-xl p-6">
+              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4 flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Description
+              </h2>
+              <p className="text-gray-700 leading-relaxed whitespace-pre-line text-sm">
+                {announcement.description}
+              </p>
+            </div>
+
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-5">
-            {/* Creative Contact Card */}
-            <div className="relative bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-2xl p-6 shadow-xl overflow-hidden sticky top-24">
-              {/* Decorative circles */}
-              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
-              <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
-              
-              <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-5">
-                  <Sparkles className="w-5 h-5 text-blue-200" />
-                  <h3 className="text-lg font-bold text-white">Contact</h3>
+          {/* Right — sidebar */}
+          <div className="space-y-4">
+            <div className="bg-white border border-gray-200 rounded-xl p-5 sticky top-6">
+              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
+                Annonceur
+              </h3>
+
+              {/* Author */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-700 font-semibold text-sm flex-shrink-0">
+                  {authorName[0].toUpperCase()}
                 </div>
-
-                {/* Annonceur Info */}
-                <div className="bg-white/15 backdrop-blur-md rounded-xl p-4 mb-4 border border-white/20">
-                  <p className="text-xs text-white/70 mb-2 uppercase tracking-wide font-semibold">Annonceur</p>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-black text-lg shadow-lg">
-                      {authorName[0].toUpperCase()}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-white truncate">{authorName}</p>
-                      <p className="text-xs text-white/80 truncate">{announcement?.specialty}</p>
-                    </div>
-                  </div>
-
-                  {announcement?.hide_contact && (
-                    <button
-                      onClick={() => setShowPhone((prev) => !prev)}
-                      className="w-full mt-2 px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 border border-white/30 text-white text-xs font-semibold transition flex items-center justify-center gap-2"
-                    >
-                      <Phone className="w-3.5 h-3.5" />
-                      {showPhone && announcement?.phone ? announcement.phone : "Afficher téléphone"}
-                    </button>
-                  )}
-                </div>
-
-                {/* CTA Button */}
-                <Button className="w-full bg-white hover:bg-gray-50 text-purple-700 font-bold py-3.5 rounded-xl shadow-xl transition-all active:scale-95">
-                  <Send className="w-4 h-4 mr-2" />
-                  Postuler maintenant
-                </Button>
-
-                {/* Trust Badge */}
-                <div className="mt-4 flex items-center justify-center gap-2 text-white/80 text-xs">
-                  <Shield className="w-4 h-4 text-green-300" />
-                  <span className="font-semibold">Annonce vérifiée ✓</span>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">{authorName}</p>
+                  <p className="text-xs text-gray-400 truncate">{announcement.specialty}</p>
                 </div>
               </div>
-            </div>
 
+              {/* Phone */}
+              {announcement.hide_contact && (
+                <button
+                  onClick={() => setShowPhone(prev => !prev)}
+                  className="w-full mb-4 flex items-center justify-center gap-2 text-sm text-gray-600 border border-gray-200 rounded-lg py-2 hover:bg-gray-50 transition"
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  {showPhone && announcement.phone ? announcement.phone : 'Afficher le téléphone'}
+                </button>
+              )}
+
+              {/* CTA */}
+              <Button
+                onClick={() => setShowContactForm(true)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg"
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Postuler maintenant
+              </Button>
+
+              <p className="mt-3 text-center text-xs text-gray-400 flex items-center justify-center gap-1">
+                <Shield className="w-3.5 h-3.5" />
+                Annonce vérifiée
+              </p>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Contact Form Modal */}
+      {showContactForm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+          onClick={e => { if (e.target === e.currentTarget) closeForm(); }}
+        >
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-gray-200">
+            {/* Modal header */}
+            <div className="flex items-start justify-between px-6 py-4 border-b border-gray-100">
+              <div>
+                <h2 className="text-base font-semibold text-gray-900">Envoyer une candidature</h2>
+                <p className="text-sm text-gray-400 truncate max-w-xs mt-0.5">{announcement.title}</p>
+              </div>
+              <button onClick={closeForm} className="text-gray-400 hover:text-gray-600 transition mt-0.5">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {submitted ? (
+              <div className="px-6 py-10 text-center">
+                <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-6 h-6 text-green-500" />
+                </div>
+                <h3 className="text-base font-semibold text-gray-900 mb-1">Message envoyé !</h3>
+                <p className="text-sm text-gray-500 mb-6">
+                  L'annonceur vous contactera directement par email.
+                </p>
+                <Button onClick={closeForm} variant="outline" className="px-8">
+                  Fermer
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="senderName" className="text-sm text-gray-700">
+                      Nom complet <span className="text-red-400">*</span>
+                    </Label>
+                    <Input
+                      id="senderName"
+                      name="senderName"
+                      value={formData.senderName}
+                      onChange={handleFormChange}
+                      placeholder="Dr. Dupont"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="senderPhone" className="text-sm text-gray-700">
+                      Téléphone
+                    </Label>
+                    <Input
+                      id="senderPhone"
+                      name="senderPhone"
+                      value={formData.senderPhone}
+                      onChange={handleFormChange}
+                      placeholder="+212 6XX XXX XXX"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="senderEmail" className="text-sm text-gray-700">
+                    Email <span className="text-red-400">*</span>
+                  </Label>
+                  <Input
+                    id="senderEmail"
+                    name="senderEmail"
+                    type="email"
+                    value={formData.senderEmail}
+                    onChange={handleFormChange}
+                    placeholder="votre@email.com"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="message" className="text-sm text-gray-700">
+                    Message <span className="text-red-400">*</span>
+                  </Label>
+                  <Textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleFormChange}
+                    placeholder="Présentez-vous et expliquez pourquoi vous êtes intéressé(e)..."
+                    rows={4}
+                    className="resize-none"
+                    required
+                  />
+                </div>
+
+                {formError && (
+                  <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+                    {formError}
+                  </p>
+                )}
+
+                <div className="flex gap-3 pt-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={closeForm}
+                    disabled={submitting}
+                    className="flex-1"
+                  >
+                    Annuler
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={submitting}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    {submitting ? (
+                      <span className="flex items-center gap-2">
+                        <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                        Envoi...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <Send className="w-3.5 h-3.5" />
+                        Envoyer
+                      </span>
+                    )}
+                  </Button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+function Nav() {
+  return (
+    <header className="bg-white border-b border-gray-200">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
+        <Link href="/" className="flex items-center gap-2.5">
+          <img src="/logo.png" alt="DoctoNest" className="w-7 h-7 rounded-lg" />
+          <span className="font-semibold text-gray-900">DoctoNest</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/login">
+            <Button variant="ghost" size="sm" className="text-gray-600">
+              Connexion
+            </Button>
+          </Link>
+          <Link href="/register">
+            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+              S'inscrire
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </header>
   );
 }

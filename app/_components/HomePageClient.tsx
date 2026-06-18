@@ -155,6 +155,12 @@ export default function HomePage() {
               <Link href="/annonces/new" onClick={() => setMobileOpen(false)} className="w-full">
                 <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-xl font-semibold shadow-lg">Publier une mission</button>
               </Link>
+              <Link href="/login" onClick={() => setMobileOpen(false)} className="w-full">
+                <Button variant="ghost" className="w-full text-gray-300 hover:text-white px-6 py-2 rounded-xl font-semibold hover:bg-slate-800 border border-slate-800">Connexion</Button>
+              </Link>
+              <Link href="/register" onClick={() => setMobileOpen(false)} className="w-full">
+                <Button className="w-full bg-white text-slate-950 px-6 py-2 rounded-xl font-semibold shadow-lg hover:bg-gray-100">S'inscrire</Button>
+              </Link>
             </nav>
           </div>
         )}
@@ -172,7 +178,7 @@ export default function HomePage() {
           <div className="relative z-20 w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between p-4 sm:p-10 md:gap-20">
             <div className="flex w-full flex-col justify-center items-center md:items-start text-center md:text-left gap-8 md:gap-10 mt-10 md:mt-0">
               <h1
-                className="text-white text-4xl sm:text-5xl md:text-6xl font-bold mb-2 md:mb-6 drop-shadow-lg tracking-tight"
+                className="text-white text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold mb-2 md:mb-6 drop-shadow-lg tracking-tight"
                 style={{ fontFamily: '', letterSpacing: '-0.01em' }}
               >
                 Votre Réseau Médical,<br/> Toujours Connecté.<br />Votre Remplacement, Assuré

@@ -114,8 +114,8 @@ export default function LoginPage() {
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
           
           <div className="flex flex-col lg:flex-row">
-            {/* Left Side - Image et description */}
-            <div className="lg:w-3/6 p-6 lg:p-8 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-gray-900 border-r border-gray-700">
+            {/* Left Side - Image et description (cachée sur mobile pour afficher le formulaire directement) */}
+            <div className="hidden lg:flex lg:w-3/6 p-6 lg:p-8 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-gray-900 border-r border-gray-700">
               <div className="h-full flex flex-col">
                 {/* Logo et titre */}
                 <div className="mb-6 lg:mb-8">
@@ -189,6 +189,26 @@ export default function LoginPage() {
 
             {/* Right Side - Formulaire */}
             <div className="lg:w-3/6 p-6 lg:p-8">
+              {/* Logo compact visible uniquement sur mobile/tablette */}
+              <Link href="/" className="lg:hidden flex items-center gap-3 mb-6 hover:opacity-90 transition-opacity cursor-pointer">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                  <img
+                    src="/logo.png"
+                    alt="DoctoNest"
+                    className="w-8 h-8 rounded-lg"
+                    onError={(e) => {
+                      e.currentTarget.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyNCIgY3k9IjI0IiByPSIyNCIgZmlsbD0idXJsKCNwYWludDBfYW5ndWxhcl8xXzExMjMpIi8+PHBhdGggZD0iTTE2LjUgMzEuNUwxOC41IDI4LjVMMjEuNSAzMS41TDI2LjUgMjQuNUwyOS41IDI3LjVMMzIuNSAyMi41IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiLz48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9InBhaW50MF9hbmd1bGFyXzFfMTEyMyIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFRyYW5zZm9ybT0ibWF0cml4KDI0IDAgMCAyNCAyNCAyNCkiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjNjA3QUQxIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSI4QzVDRTUiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48L3N2Zz4="
+                    }}
+                  />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                    DoctoNest
+                  </h1>
+                  <p className="text-xs text-gray-400">Espace professionnel</p>
+                </div>
+              </Link>
+
               <CardHeader className="px-0 pt-0 pb-6">
                 <CardTitle className="text-2xl font-bold text-white">
                   Connexion à votre compte
