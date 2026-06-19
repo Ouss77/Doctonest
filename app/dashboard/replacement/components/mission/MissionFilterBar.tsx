@@ -1,4 +1,4 @@
-import { Stethoscope, MapPin, Search, RefreshCcw } from "lucide-react";
+import { Stethoscope, MapPin, Search, RotateCcw } from "lucide-react";
 
 interface MissionFilterBarProps {
   specialtyFilter: string;
@@ -11,74 +11,94 @@ interface MissionFilterBarProps {
 
 export default function MissionFilterBar({
   specialtyFilter,
-  setSpecialtyFilter, 
+  setSpecialtyFilter,
   locationFilter,
   setLocationFilter,
   keywordFilter,
   setKeywordFilter,
 }: MissionFilterBarProps) {
+  const reset = () => {
+    setSpecialtyFilter("");
+    setLocationFilter("");
+    setKeywordFilter("");
+  };
+
+  const hasFilters = !!(specialtyFilter || locationFilter || keywordFilter);
+
   return (
-    <div className="flex flex-col md:flex-row gap-4 mb-8 items-end bg-white p-4 rounded-2xl shadow-sm border">
-      {/* Specialty */}
-      <div className="flex-1">
-        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-          <Stethoscope className="w-4 h-4 text-blue-500" /> Spécialité
-        </label>
-        <div className="relative">
-          <Stethoscope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
-            type="text"
-            className="w-full pl-10 border border-gray-300 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-400"
-            placeholder="Ex: Cardiologie"
-            value={specialtyFilter}
-            onChange={e => setSpecialtyFilter(e.target.value)}
-          />
+    <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.12)] border border-gray-100/80 p-5 sm:p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_auto] gap-4 items-end">
+
+        {/* Keyword */}
+        <div>
+          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+            Mot clé
+          </label>
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Ex : cardiologue, urgence..."
+              value={keywordFilter}
+              onChange={e => setKeywordFilter(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-sm bg-gray-50 focus:bg-white transition-all outline-none"
+            />
+          </div>
         </div>
-      </div>
-      {/* Location */}
-      <div className="flex-1">
-        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-          <MapPin className="w-4 h-4 text-blue-500" /> Localisation
-        </label>
-        <div className="relative">
-          <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
-            type="text"
-            className="w-full pl-10 border border-gray-300 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-400"
-            placeholder="Ex: Paris"
-            value={locationFilter}
-            onChange={e => setLocationFilter(e.target.value)}
-          />
+
+        {/* Location */}
+        <div>
+          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+            Localisation
+          </label>
+          <div className="relative">
+            <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Ex : Rabat, Casablanca..."
+              value={locationFilter}
+              onChange={e => setLocationFilter(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-sm bg-gray-50 focus:bg-white transition-all outline-none"
+            />
+          </div>
         </div>
-      </div>
-      {/* Keywords */}
-      <div className="flex-1">
-        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-          <Search className="w-4 h-4 text-blue-500" /> Mots-clés
-        </label>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
-            type="text"
-            className="w-full pl-10 border border-gray-300 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-400"
-            placeholder="Ex: urgence, nuit, clinique..."
-            value={keywordFilter}
-            onChange={e => setKeywordFilter(e.target.value)}
-          />
+
+        {/* Specialty */}
+        <div>
+          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+            Spécialité
+          </label>
+          <div className="relative">
+            <Stethoscope className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Ex : Cardiologie..."
+              value={specialtyFilter}
+              onChange={e => setSpecialtyFilter(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-sm bg-gray-50 focus:bg-white transition-all outline-none"
+            />
+          </div>
         </div>
-      </div>
-      {/* Reset button */}
-      <div className="flex-shrink-0">
-        <button
-          onClick={() => {
-            setSpecialtyFilter("");
-            setLocationFilter("");
-            setKeywordFilter("");
-          }}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 text-sm"
-        >
-          <RefreshCcw className="w-4 h-4" /> Réinitialiser
-        </button>
+
+        {/* Action buttons */}
+        <div className="flex gap-2.5">
+          <button
+            onClick={reset}
+            title="Réinitialiser les filtres"
+            className={`flex items-center gap-2 px-4 py-3 rounded-xl border-2 font-medium text-sm transition-all duration-200 whitespace-nowrap ${
+              hasFilters
+                ? "border-blue-200 text-blue-600 bg-blue-50 hover:bg-blue-100"
+                : "border-gray-200 text-gray-500 bg-gray-50 hover:bg-gray-100"
+            }`}
+          >
+            <RotateCcw className="w-4 h-4 flex-shrink-0" />
+            <span className="hidden sm:inline">Réinitialiser</span>
+          </button>
+          <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold px-5 py-3 rounded-xl transition-all duration-200 shadow-md shadow-blue-600/25 hover:shadow-blue-600/35 text-sm whitespace-nowrap">
+            <Search className="w-4 h-4" />
+            Rechercher
+          </button>
+        </div>
       </div>
     </div>
   );

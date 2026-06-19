@@ -1,6 +1,9 @@
 import type { Metadata } from "next"
-import AnnoncesClient from "./_components/AnnoncesClient"
+import AnnoncesClient, { type Announcement } from "./_components/AnnoncesClient"
 import JsonLd from "@/components/JsonLd"
+import { missionsService } from "@/lib/services/missions"
+
+export const revalidate = 60
 
 export const metadata: Metadata = {
   title: "Annonces de Remplacement Médical au Maroc",
@@ -48,11 +51,35 @@ const annoncesPageSchema = {
   inLanguage: "fr-MA",
 }
 
-export default function AnnoncesPage() {
+export default async function AnnoncesPage() {
+  let initialAnnouncements: Announcement[] = []
+
+  try {
+    const rows = await missionsService.list({}, { visibility: 'public' })
+    initialAnnouncements = rows.map((m: any) => ({
+      id: String(m.id),
+      title: m.title ?? '',
+      specialty: m.specialty_required ?? '',
+      location: m.location ?? '',
+      type: m.mission_type ?? 'offer',
+      description: m.description ?? '',
+      posted_date: m.created_at ? new Date(m.created_at).toISOString() : '',
+      urgency: m.is_urgent ? 'high' : '',
+      authorName:
+        m.organization_name ||
+        [m.first_name, m.last_name].filter(Boolean).join(' ') ||
+        undefined,
+      phone: m.phone ?? '',
+      hideContact: typeof m.hide_contact === 'boolean' ? m.hide_contact : Boolean(m.phone),
+    }))
+  } catch (err) {
+    console.error('SSR fetch announcements failed:', err)
+  }
+
   return (
     <>
       <JsonLd data={annoncesPageSchema} />
-      <AnnoncesClient />
+      <AnnoncesClient initialAnnouncements={initialAnnouncements} />
     </>
   )
 }

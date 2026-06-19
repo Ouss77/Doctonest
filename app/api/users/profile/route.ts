@@ -1,8 +1,10 @@
 export const dynamic = "force-dynamic"
 
 import { type NextRequest, NextResponse } from "next/server"
-import jwt from "jsonwebtoken" 
+import jwt from "jsonwebtoken"
 import { sql, db } from "@/lib/database"
+import { existsSync, readdirSync } from "fs"
+import path from "path"
 
 const JWT_SECRET = process.env.JWT_SECRET || "medical-replacement-platform-secret-key-2024"
 
@@ -32,6 +34,30 @@ export async function GET(request: NextRequest) {
        profile = await db.getEmployerProfile(user.id)
     }
 
+    // Validate photo_url exists on disk; auto-heal with most recent upload if stale
+    let resolvedPhotoUrl = profile?.photo_url ?? null;
+    if (resolvedPhotoUrl) {
+      const relativePath = resolvedPhotoUrl.startsWith("/") ? resolvedPhotoUrl.slice(1) : resolvedPhotoUrl;
+      const fullPath = path.join(process.cwd(), "public", relativePath);
+      if (!existsSync(fullPath)) {
+        const uploadDir = path.join(process.cwd(), "public", "uploads");
+        try {
+          const candidates = readdirSync(uploadDir)
+            .filter(f => f.startsWith(user.id + "_") && /\.(png|jpe?g|webp|JPG|PNG)$/.test(f))
+            .sort()
+            .reverse(); // highest timestamp first = most recent
+          if (candidates.length > 0) {
+            resolvedPhotoUrl = `/uploads/${candidates[0]}`;
+            await db.updateProfilePhoto(user.id, user.user_type as "replacement" | "employer", resolvedPhotoUrl);
+          } else {
+            resolvedPhotoUrl = null;
+          }
+        } catch {
+          resolvedPhotoUrl = null;
+        }
+      }
+    }
+
     // Format profile data to match frontend expectations
     let formattedProfile = null;
     if (profile) {
@@ -44,7 +70,7 @@ export async function GET(request: NextRequest) {
           languages: Array.isArray(profile.languages) ? profile.languages : (profile.languages ? [profile.languages] : []),
           bio: profile.bio,
           is_available: profile.is_available,
-          photo_url: profile.photo_url,
+          photo_url: resolvedPhotoUrl,
           profile_status: profile.profile_status,
         };
       } else if (user.user_type === "employer") {
@@ -55,7 +81,7 @@ export async function GET(request: NextRequest) {
           address: profile.address,
           description: profile.description,
           fonction: profile.fonction,
-          photo_url: profile.photo_url,
+          photo_url: resolvedPhotoUrl,
         };
       }
     }

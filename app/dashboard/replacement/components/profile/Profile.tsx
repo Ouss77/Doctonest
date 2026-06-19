@@ -1,14 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import {  MapPin,  User,  Pencil,  FileText,  Briefcase,  Languages,  BookOpen,  CheckCircle,  XCircle,  MessageSquare,  Calendar,  Mail,  Phone,
+import {
+  MapPin, User, Pencil, FileText, Briefcase, BookOpen,
+  CheckCircle, XCircle, Calendar, Mail, Phone,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import {
-  Dialog,  DialogContent,  DialogHeader,  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 
 interface ProfileProps {
   profileData: any;
@@ -18,13 +15,9 @@ interface ProfileProps {
 
 async function fetchProfileData() {
   try {
-    const res = await fetch("/api/users/profile", {
-      credentials: "include",
-    });
+    const res = await fetch("/api/users/profile", { credentials: "include" });
     if (!res.ok) return null;
-
     const { user, profile } = await res.json();
-
     return {
       userId: user?.id || "",
       firstName: user?.firstName || "",
@@ -46,265 +39,160 @@ async function fetchProfileData() {
   }
 }
 
-export default function Profile({
-  profileData,
-  setProfileData,
-  setIsEditProfileOpen,
-}: ProfileProps) {
-  const { user } = useAuth();
-  const [contactDialogOpen, setContactDialogOpen] = useState(false);
+export default function Profile({ profileData, setProfileData, setIsEditProfileOpen }: ProfileProps) {
+  const { user, refreshUser } = useAuth();
+  const [imgError, setImgError] = useState(false);
+
+  // Reset error flag when the image URL changes (e.g. after auto-heal provides a new URL)
+  useEffect(() => {
+    setImgError(false);
+  }, [profileData.imageProfile]);
 
   useEffect(() => {
     (async () => {
       const data = await fetchProfileData();
-      if (data) setProfileData(data);
+      if (data) {
+        setProfileData(data);
+        // Re-sync useAuth so the header avatar also gets the healed photo_url
+        refreshUser();
+      }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setProfileData]);
 
   if (!profileData) return null;
 
-  const ContactDialog = () => (
-    <Dialog open={contactDialogOpen} onOpenChange={setContactDialogOpen}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5" />
-            Contacter {profileData.firstName} {profileData.lastName}
-          </DialogTitle>
-          <DialogDescription>
-            Coordonnées de contact
-          </DialogDescription>
-        </DialogHeader>
-         
-        <div className="space-y-4 py-4">
-          {profileData.email && (
-            <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                <Mail className="w-5 h-5 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-slate-700">Email</p>
-                <a 
-                  href={`mailto:${profileData.email}`}
-                  className="text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  {profileData.email}
-                </a>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  navigator.clipboard.writeText(profileData.email);
-                  alert("Email copié !");
-                }}
-                className="h-8 w-8"
-              >
-                <FileText className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
-
-          {profileData.phone && (
-            <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                <Phone className="w-5 h-5 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-slate-700">Téléphone</p>
-                <a 
-                  href={`tel:${profileData.phone}`}
-                  className="text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  {profileData.phone}
-                </a>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  navigator.clipboard.writeText(profileData.phone);
-                  alert("Numéro copié !");
-                }}
-                className="h-8 w-8"
-              >
-                <FileText className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
-        </div>
-
-        <div className="flex gap-3">
-          <Button
-            variant="outline"
-            onClick={() => setContactDialogOpen(false)}
-            className="flex-1"
-          >
-            Fermer
-          </Button>
-          {profileData.email && (
-            <Button
-              className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
-              onClick={() => window.location.href = `mailto:${profileData.email}`}
-            >
-              <Mail className="w-4 h-4 mr-2" />
-              Envoyer un email
-            </Button>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-
   return (
     <>
-      <ContactDialog />
-      
-      <div className="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden mb-6 hover:shadow-lg transition-shadow">
-        {/* Bandeau bleu */}
-        <div className="h-10 bg-gradient-to-r from-blue-600 to-blue-700" />
+      <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(0,0,0,0.08)] border border-gray-100 mb-6">
 
-        {/* Contenu avec layout responsive */}
-        <div className="px-4 md:px-8 py-6 md:py-8">
-          {/* Section photo + infos en flex-col sur mobile */}
-          <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-            {/* Photo */}
-            <div className="w-40 h-40 md:w-48 md:h-48 rounded-2xl overflow-hidden border-4 border-white bg-slate-100 flex-shrink-0 shadow-lg mx-auto md:mx-0 -mt-20 md:-mt-6">
-              {profileData.imageProfile ? (
+        {/* Gradient hero banner */}
+        <div className="relative h-36 sm:h-44 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-t-2xl overflow-hidden">
+          {/* Decorative shapes */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
+            <div className="absolute -top-10 -right-10 w-56 h-56 rounded-full bg-white/5" />
+            <div className="absolute top-1/3 right-1/3  w-28 h-28 rounded-full bg-blue-500/15" />
+            <div className="absolute -bottom-10 -left-8  w-44 h-44 rounded-full bg-indigo-700/50" />
+          </div>
+
+          {/* Banner action buttons */}
+          {user && (
+            <div className="absolute top-4 right-4 sm:top-5 sm:right-5 flex gap-2">
+              <button
+                onClick={() => setIsEditProfileOpen(true)}
+                className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/30 hover:bg-white/30 active:scale-95 transition-all"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Modifier le profil</span>
+              </button>
+              <button className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/30 hover:bg-white/30 active:scale-95 transition-all">
+                <FileText className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Documents</span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Card body */}
+        <div className="px-5 sm:px-8 pb-7 sm:pb-8">
+
+          {/* Avatar + contact info row — overlaps hero banner */}
+          <div className="relative z-10 flex flex-wrap items-end justify-between gap-4 -mt-16 sm:-mt-20 mb-5">
+            <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl overflow-hidden border-4 border-white bg-blue-50 shadow-xl flex-shrink-0">
+              {profileData.imageProfile && !imgError ? (
                 <img
                   src={profileData.imageProfile}
                   alt="Photo de profil"
-                  className="w-full h-full object-contain object-center bg-white"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
+                  className="w-full h-full object-cover"
+                  onError={() => setImgError(true)}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-blue-100">
-                  <User className="w-16 h-16 md:w-20 md:h-20 text-blue-600" />
+                  <User className="w-16 h-16 text-blue-400" />
                 </div>
               )}
             </div>
 
-            {/* Infos principales - pleine largeur sur mobile */}
-            <div className="flex-1">
-              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-6">
-                {/* Informations gauche */}
-                <div className="flex-1">
-                  <div className="space-y-2">
-                    <h1 className="text-2xl md:text-3xl font-bold text-slate-900 text-center md:text-left">
-                      {profileData.firstName} {profileData.lastName}
-                    </h1>
-
-                    {/* Profession et spécialité */}
-                    <div className="flex text-center md:text-left">
-                      {profileData.profession && (
-                        <span className="text-lg md:text-xl text-blue-700 font-semibold flex items-center justify-center md:justify-start gap-2">
-                          <Briefcase className="w-4 h-4 md:w-5 md:h-5" />
-                          {profileData.profession} 
-                        </span>
-                      )}
-                      {profileData.specialty && profileData.specialty !== profileData.profession && (
-                        <span className="text-base md:text-lg text-slate-600">
-                           ({profileData.specialty})
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Localisation et expérience - responsive */}
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 mt-4">
-                      {profileData.location && (
-                        <div className="flex items-center gap-2 text-slate-600 justify-center sm:justify-start">
-                          <MapPin className="w-4 h-4" />
-                          <span className="font-medium">{profileData.location}</span>
-                        </div>
-                      )}
-                      {profileData.experience_years && profileData.experience_years > 0 && (
-                        <div className="flex items-center gap-2 text-slate-600 justify-center sm:justify-start">
-                          <Calendar className="w-4 h-4" />
-                          <span className="font-medium">
-                            {profileData.experience_years} an{profileData.experience_years > 1 ? 's' : ''} d'expérience
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Disponibilité */}
-                    <div className="mt-4 flex justify-center sm:justify-start">
-                      <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg ${profileData.is_available ? "bg-green-100" : "bg-red-100"}`}>
-                        {profileData.is_available ? (
-                          <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-700" />
-                        ) : (
-                          <XCircle className="w-4 h-4 md:w-5 md:h-5 text-red-700" />
-                        )}
-                        <span className={`font-semibold text-xs sm:text-sm ${profileData.is_available ? "text-green-800" : "text-red-800"}`}>
-                          {profileData.is_available ? "🟢 Disponible" : "🔴 Non disponible"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Boutons - responsive */}
-                <div className="flex flex-col sm:flex-row lg:flex-col gap-3">
-                  {user ? (
-                    <>
-                      <div className="flex flex-col sm:flex-row lg:flex-col gap-3">
-                        <Button
-                          variant="outline"
-                          className="font-semibold border-slate-300 hover:bg-slate-50"
-                          onClick={() => setIsEditProfileOpen(true)}
-                        >
-                          <Pencil className="w-4 h-4 mr-2" />
-                          Modifier
-                        </Button>
-
-                        <Button
-                          variant="outline"
-                          className="font-semibold text-blue-700 border-blue-200 hover:bg-blue-50"
-                        >
-                          <FileText className="w-4 h-4 mr-2" />
-                          Documents
-                        </Button>
-                      </div>
-                      <Button
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
-                        onClick={() => setContactDialogOpen(true)}
-                      >
-                        <MessageSquare className="w-4 h-4 mr-2" />
-                        Contacter
-                      </Button>
-                    </>
-                  ) : (
-                    <Button
-                      className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
-                      onClick={() => setContactDialogOpen(true)}
-                    >
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      Contacter
-                    </Button>
-                  )}
-                </div>
+            {/* Contact info — beside the avatar to fill the empty space */}
+            {(profileData.email || profileData.phone) && (
+              <div className="flex flex-wrap gap-2 justify-end pb-1">
+                {profileData.email && (
+                  <a
+                    href={`mailto:${profileData.email}`}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 border border-blue-100 text-blue-700 text-sm font-medium rounded-xl hover:bg-blue-100 transition-colors"
+                  >
+                    <Mail className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="truncate max-w-[180px]">{profileData.email}</span>
+                  </a>
+                )}
+                {profileData.phone && (
+                  <a
+                    href={`tel:${profileData.phone}`}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 border border-blue-100 text-blue-700 text-sm font-medium rounded-xl hover:bg-blue-100 transition-colors"
+                  >
+                    <Phone className="w-3.5 h-3.5 flex-shrink-0" />
+                    {profileData.phone}
+                  </a>
+                )}
               </div>
-
-              {/* Bio - pleine largeur sans espacement gauche */}
-              {profileData.bio && (
-                <div className="ml-[-200px] mt-6 md:mt-8">
-                  <div className="flex items-center gap-2 mb-3">
-                    <BookOpen className="w-5 h-5 text-blue-600" />
-                    <p className="text-sm uppercase text-slate-600 font-semibold">
-                      À propos
-                    </p>
-                  </div>
-                  <div className="p-4 md:p-6 bg-slate-50 rounded-lg border border-slate-200">
-                    <p className="text-slate-700 leading-relaxed text-sm md:text-base whitespace-pre-line">
-                      {profileData.bio}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
+            )}
           </div>
+
+          {/* Name & profession */}
+          <div className="mb-4">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 leading-tight">
+              {profileData.firstName} {profileData.lastName}
+            </h1>
+            {profileData.profession && (
+              <p className="flex items-center gap-2 text-blue-600 font-semibold text-base mt-1.5">
+                <Briefcase className="w-4 h-4 flex-shrink-0" />
+                {profileData.profession}
+                {profileData.specialty && profileData.specialty !== profileData.profession && (
+                  <span className="text-gray-500 font-normal text-sm">({profileData.specialty})</span>
+                )}
+              </p>
+            )}
+          </div>
+
+          {/* Stats chips */}
+          <div className="flex flex-wrap gap-2">
+            {profileData.location && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 text-gray-700 text-sm font-medium rounded-xl">
+                <MapPin className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+                {profileData.location}
+              </span>
+            )}
+            {profileData.experience_years > 0 && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 text-gray-700 text-sm font-medium rounded-xl">
+                <Calendar className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+                {profileData.experience_years} an{profileData.experience_years > 1 ? "s" : ""} d'expérience
+              </span>
+            )}
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold rounded-xl border ${
+              profileData.is_available
+                ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                : "bg-red-50 border-red-200 text-red-700"
+            }`}>
+              {profileData.is_available ? (
+                <><CheckCircle className="w-3.5 h-3.5 flex-shrink-0" /> Disponible</>
+              ) : (
+                <><XCircle className="w-3.5 h-3.5 flex-shrink-0" /> Non disponible</>
+              )}
+            </span>
+          </div>
+
+          {/* Bio */}
+          {profileData.bio && (
+            <div className="mt-5 pt-5 border-t border-gray-100">
+              <div className="flex items-center gap-2 mb-3">
+                <BookOpen className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">À propos</p>
+              </div>
+              <p className="text-gray-700 leading-relaxed text-sm whitespace-pre-line">
+                {profileData.bio}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </>

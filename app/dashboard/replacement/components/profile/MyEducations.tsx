@@ -190,11 +190,11 @@ export default function MyEducations() {
   return (
     <>
       {/* Card Section */}
-      <Card className="bg-white rounded-xl border border-slate-100 shadow-md hover:shadow-lg transition-shadow overflow-hidden">
-        <CardHeader className="pb-4 border-b border-slate-200 bg-slate-50 px-4 sm:px-6">
+      <Card className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(37,99,235,0.08)] transition-all duration-300 overflow-hidden">
+        <CardHeader className="pb-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white px-5 sm:px-6 pt-5">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3 w-full sm:w-auto">
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-blue-100 border border-blue-200 flex items-center justify-center flex-shrink-0">
                 <GraduationCap className="w-5 h-5 text-blue-600" />
               </div>
               <div className="min-w-0">
@@ -210,7 +210,7 @@ export default function MyEducations() {
               size="sm"
               variant="outline"
               onClick={() => setOpenDialog(true)}
-              className="border-blue-600 text-blue-600 hover:bg-blue-50 font-medium h-10 px-4 w-full sm:w-auto mt-2 sm:mt-0"
+              className="border-blue-500 text-blue-600 hover:bg-blue-50 font-semibold h-9 px-4 rounded-xl text-sm w-full sm:w-auto"
             >
               <Plus className="w-4 h-4 mr-1" />
               Ajouter une formation
@@ -218,7 +218,7 @@ export default function MyEducations() {
           </div>
         </CardHeader>
 
-        <CardContent className="p-4 sm:p-6">
+        <CardContent className="p-4 sm:p-5">
           {error && (
             <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200">
               {error}
@@ -257,12 +257,12 @@ export default function MyEducations() {
               {diplomas.map((diploma) => (
                 <div
                   key={diploma.id}
-                  className="border border-slate-200 rounded-lg p-4 hover:border-slate-300 hover:shadow-sm transition-all bg-white group"
+                  className="border border-gray-100 rounded-xl p-4 hover:border-blue-200 hover:shadow-md hover:shadow-blue-600/5 transition-all duration-200 bg-white group"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex flex-col sm:flex-row items-start gap-4 mb-2">
-                        <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                        <div className="w-12 h-12 rounded-xl bg-blue-100 border border-blue-200 flex items-center justify-center flex-shrink-0">
                           <GraduationCap className="w-6 h-6 text-blue-600" />
                         </div>
                         <div className="flex-1 min-w-0">
