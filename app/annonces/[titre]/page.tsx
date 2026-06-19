@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, MapPin, Clock, Phone, X, Shield, CheckCircle, Send, Briefcase, FileText, Calendar } from 'lucide-react';
+import {
+  ArrowLeft, MapPin, Clock, Phone, X, Shield,
+  CheckCircle, Send, Briefcase, FileText, Calendar,
+} from 'lucide-react';
 import Link from "next/link";
 
 interface AnnouncementDetail {
@@ -40,7 +43,6 @@ export default function AnnouncementDetailPage() {
   const [announcement, setAnnouncement] = useState<AnnouncementDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [showPhone, setShowPhone] = useState(false);
-
   const [showContactForm, setShowContactForm] = useState(false);
   const [formData, setFormData] = useState<ContactForm>({
     senderName: '',
@@ -101,7 +103,7 @@ export default function AnnouncementDetailPage() {
         if (data.success && data.announcement) {
           setAnnouncement(data.announcement);
         } else {
-          throw new Error(data.error || "Erreur lors du chargement");
+          throw new Error(data.error || 'Erreur lors du chargement');
         }
       } catch (err) {
         console.error(err);
@@ -117,30 +119,34 @@ export default function AnnouncementDetailPage() {
     [announcement?.first_name, announcement?.last_name].filter(Boolean).join(' ') ||
     'Annonceur';
 
+  /* ── Loading ──────────────────────────────────────────────── */
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="min-h-screen bg-[#f4f6fa] flex flex-col">
         <Nav />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-sm text-gray-500">Chargement...</p>
+            <p className="text-sm text-gray-400">Chargement…</p>
           </div>
         </div>
       </div>
     );
   }
 
+  /* ── Not found ────────────────────────────────────────────── */
   if (!announcement) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="min-h-screen bg-[#f4f6fa] flex flex-col">
         <Nav />
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="text-center max-w-sm">
-            <p className="text-4xl mb-4">😞</p>
-            <h1 className="text-xl font-semibold text-gray-900 mb-2">Annonce introuvable</h1>
-            <p className="text-sm text-gray-500 mb-6">Cette annonce n'existe plus ou a été supprimée.</p>
-            <Button onClick={() => router.back()} variant="outline" className="gap-2">
+            <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
+              <FileText className="w-6 h-6 text-blue-400" />
+            </div>
+            <h1 className="text-lg font-semibold text-gray-900 mb-1">Annonce introuvable</h1>
+            <p className="text-sm text-gray-400 mb-6">Cette annonce n'existe plus ou a été supprimée.</p>
+            <Button onClick={() => router.back()} variant="outline" size="sm" className="gap-2">
               <ArrowLeft className="w-4 h-4" />
               Retour
             </Button>
@@ -150,161 +156,180 @@ export default function AnnouncementDetailPage() {
     );
   }
 
+  /* ── Page ─────────────────────────────────────────────────── */
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#f4f6fa]">
       <Nav />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
-        {/* Back */}
-        <button
-          onClick={() => router.back()}
-          className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Retour aux annonces
-        </button>
+      {/* ── Hero — dark navy ──────────────────────────────────── */}
+      <div className="bg-[#0d1b3e]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-5 pb-8">
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Left — main content */}
-          <div className="lg:col-span-2 space-y-4">
+          {/* Back */}
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-1.5 text-sm text-blue-300 hover:text-white transition mb-6"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Retour aux annonces
+          </button>
 
-            {/* Title card */}
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className={`text-xs font-medium px-2.5 py-1 rounded-md ${
-                  announcement.type === 'offer'
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'bg-purple-50 text-purple-700'
-                }`}>
-                  {announcement.type === 'offer' ? 'Offre' : 'Recherche'}
-                </span>
-                {announcement.urgency === 'high' && (
-                  <span className="text-xs font-medium px-2.5 py-1 rounded-md bg-red-50 text-red-600">
-                    Urgent
-                  </span>
-                )}
-                <span className="text-xs text-gray-400 flex items-center gap-1 ml-auto">
-                  <Clock className="w-3 h-3" />
-                  {new Date(announcement.posted_date).toLocaleDateString('fr-FR', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
-                </span>
-              </div>
+          {/* Badges */}
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <span className={`inline-flex items-center text-xs font-semibold px-3 py-1 rounded-full ${
+              announcement.type === 'offer'
+                ? 'bg-blue-500/20 text-blue-200 ring-1 ring-blue-400/40'
+                : 'bg-violet-500/20 text-violet-200 ring-1 ring-violet-400/40'
+            }`}>
+              {announcement.type === 'offer' ? 'Offre de remplacement' : 'Recherche de remplacement'}
+            </span>
 
-              <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4">
-                {announcement.title}
-              </h1>
-
-              <div className="flex flex-wrap gap-2">
-                <span className="flex items-center gap-1.5 text-sm text-gray-600 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg">
-                  <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                  {announcement.location}
-                </span>
-                <span className="flex items-center gap-1.5 text-sm text-gray-600 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg">
-                  <Briefcase className="w-3.5 h-3.5 text-gray-400" />
-                  {announcement.specialty}
-                </span>
-                {announcement.start_date && announcement.end_date && (
-                  <span className="flex items-center gap-1.5 text-sm text-gray-600 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg">
-                    <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                    {new Date(announcement.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
-                    {' – '}
-                    {new Date(announcement.end_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Description */}
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4 flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                Description
-              </h2>
-              <p className="text-gray-700 leading-relaxed whitespace-pre-line text-sm">
-                {announcement.description}
-              </p>
-            </div>
-
+            {announcement.urgency === 'high' && (
+              <span className="inline-flex items-center text-xs font-semibold px-3 py-1 rounded-full bg-red-500/20 text-red-300 ring-1 ring-red-400/40">
+                Urgent
+              </span>
+            )}
           </div>
 
-          {/* Right — sidebar */}
-          <div className="space-y-4">
-            <div className="bg-white border border-gray-200 rounded-xl p-5 sticky top-6">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
-                Annonceur
-              </h3>
+          {/* Title */}
+          <h1 className="text-2xl sm:text-[1.8rem] font-bold text-white leading-snug mb-6">
+            {announcement.title}
+          </h1>
 
-              {/* Author */}
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-700 font-semibold text-sm flex-shrink-0">
-                  {authorName[0].toUpperCase()}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{authorName}</p>
-                  <p className="text-xs text-gray-400 truncate">{announcement.specialty}</p>
-                </div>
-              </div>
-
-              {/* Phone */}
-              {announcement.hide_contact && (
-                <button
-                  onClick={() => setShowPhone(prev => !prev)}
-                  className="w-full mb-4 flex items-center justify-center gap-2 text-sm text-gray-600 border border-gray-200 rounded-lg py-2 hover:bg-gray-50 transition"
-                >
-                  <Phone className="w-3.5 h-3.5" />
-                  {showPhone && announcement.phone ? announcement.phone : 'Afficher le téléphone'}
-                </button>
-              )}
-
-              {/* CTA */}
-              <Button
-                onClick={() => setShowContactForm(true)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg"
-              >
-                <Send className="w-4 h-4 mr-2" />
-                Postuler maintenant
-              </Button>
-
-              <p className="mt-3 text-center text-xs text-gray-400 flex items-center justify-center gap-1">
-                <Shield className="w-3.5 h-3.5" />
-                Annonce vérifiée
-              </p>
-            </div>
+          {/* Meta */}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-blue-200/80">
+            <span className="flex items-center gap-1.5">
+              <MapPin className="w-4 h-4 text-blue-400" />
+              {announcement.location}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Briefcase className="w-4 h-4 text-blue-400" />
+              {announcement.specialty}
+            </span>
+            {announcement.start_date && announcement.end_date && (
+              <span className="flex items-center gap-1.5">
+                <Calendar className="w-4 h-4 text-blue-400" />
+                {new Date(announcement.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                {' – '}
+                {new Date(announcement.end_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+              </span>
+            )}
+            <span className="flex items-center gap-1.5 sm:ml-auto text-blue-300/60">
+              <Clock className="w-4 h-4" />
+              Publié le {new Date(announcement.posted_date).toLocaleDateString('fr-FR', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Contact Form Modal */}
+      {/* ── Body ──────────────────────────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-7">
+        <div className="grid gap-6 lg:grid-cols-3">
+
+          {/* Description */}
+          <div className="lg:col-span-2">
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+              <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
+                  <FileText className="w-3.5 h-3.5 text-blue-600" />
+                </div>
+                <h2 className="text-sm font-semibold text-gray-800">Description de la mission</h2>
+              </div>
+              <div className="px-6 py-5">
+                <p className="text-[0.9rem] text-gray-600 leading-7 whitespace-pre-line">
+                  {announcement.description}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div>
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm sticky top-6">
+
+              {/* Author — blue header */}
+              <div className="bg-blue-600 px-5 py-5">
+                <p className="text-[10px] font-bold text-blue-200 uppercase tracking-widest mb-3">
+                  Annonceur
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-full bg-white text-blue-600 font-bold text-base flex items-center justify-center flex-shrink-0 shadow-md">
+                    {authorName[0].toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-white truncate">{authorName}</p>
+                    <p className="text-xs text-blue-200 truncate mt-0.5">{announcement.specialty}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="px-5 py-5 space-y-3">
+                {announcement.hide_contact && (
+                  <button
+                    onClick={() => setShowPhone(prev => !prev)}
+                    className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-xl py-2.5 hover:bg-gray-50 hover:border-blue-300 hover:text-blue-600 transition"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    {showPhone && announcement.phone ? announcement.phone : 'Afficher le téléphone'}
+                  </button>
+                )}
+
+                <Button
+                  onClick={() => setShowContactForm(true)}
+                  className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-sm shadow-blue-200"
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  Postuler maintenant
+                </Button>
+
+                <div className="flex items-center justify-center gap-1.5 pt-0.5">
+                  <Shield className="w-3.5 h-3.5 text-emerald-500" />
+                  <span className="text-xs text-gray-400">Annonce vérifiée par DoctoNest</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ── Contact Modal ──────────────────────────────────────── */}
       {showContactForm && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
           onClick={e => { if (e.target === e.currentTarget) closeForm(); }}
         >
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-gray-200">
-            {/* Modal header */}
-            <div className="flex items-start justify-between px-6 py-4 border-b border-gray-100">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[440px] overflow-hidden border border-gray-200/80">
+
+            {/* Header */}
+            <div className="bg-[#0d1b3e] px-6 pt-5 pb-4 flex items-start justify-between">
               <div>
-                <h2 className="text-base font-semibold text-gray-900">Envoyer une candidature</h2>
-                <p className="text-sm text-gray-400 truncate max-w-xs mt-0.5">{announcement.title}</p>
+                <h2 className="text-base font-semibold text-white">Envoyer une candidature</h2>
+                <p className="text-xs text-blue-300 mt-0.5 truncate max-w-[300px]">{announcement.title}</p>
               </div>
-              <button onClick={closeForm} className="text-gray-400 hover:text-gray-600 transition mt-0.5">
+              <button
+                onClick={closeForm}
+                className="p-1 rounded-lg text-blue-300 hover:text-white hover:bg-white/10 transition"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {submitted ? (
               <div className="px-6 py-10 text-center">
-                <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="w-6 h-6 text-green-500" />
+                <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4 ring-8 ring-emerald-50">
+                  <CheckCircle className="w-7 h-7 text-emerald-500" />
                 </div>
-                <h3 className="text-base font-semibold text-gray-900 mb-1">Message envoyé !</h3>
-                <p className="text-sm text-gray-500 mb-6">
-                  L'annonceur vous contactera directement par email.
+                <h3 className="text-base font-semibold text-gray-900 mb-1.5">Message envoyé !</h3>
+                <p className="text-sm text-gray-400 mb-7 max-w-[260px] mx-auto">
+                  L'annonceur va recevoir votre message et vous contactera par email.
                 </p>
-                <Button onClick={closeForm} variant="outline" className="px-8">
+                <Button onClick={closeForm} variant="outline" size="sm" className="px-8">
                   Fermer
                 </Button>
               </div>
@@ -312,7 +337,7 @@ export default function AnnouncementDetailPage() {
               <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label htmlFor="senderName" className="text-sm text-gray-700">
+                    <Label htmlFor="senderName" className="text-xs font-medium text-gray-600">
                       Nom complet <span className="text-red-400">*</span>
                     </Label>
                     <Input
@@ -321,11 +346,12 @@ export default function AnnouncementDetailPage() {
                       value={formData.senderName}
                       onChange={handleFormChange}
                       placeholder="Dr. Dupont"
+                      className="h-9 text-sm rounded-lg"
                       required
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="senderPhone" className="text-sm text-gray-700">
+                    <Label htmlFor="senderPhone" className="text-xs font-medium text-gray-600">
                       Téléphone
                     </Label>
                     <Input
@@ -334,12 +360,13 @@ export default function AnnouncementDetailPage() {
                       value={formData.senderPhone}
                       onChange={handleFormChange}
                       placeholder="+212 6XX XXX XXX"
+                      className="h-9 text-sm rounded-lg"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="senderEmail" className="text-sm text-gray-700">
+                  <Label htmlFor="senderEmail" className="text-xs font-medium text-gray-600">
                     Email <span className="text-red-400">*</span>
                   </Label>
                   <Input
@@ -349,12 +376,13 @@ export default function AnnouncementDetailPage() {
                     value={formData.senderEmail}
                     onChange={handleFormChange}
                     placeholder="votre@email.com"
+                    className="h-9 text-sm rounded-lg"
                     required
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="message" className="text-sm text-gray-700">
+                  <Label htmlFor="message" className="text-xs font-medium text-gray-600">
                     Message <span className="text-red-400">*</span>
                   </Label>
                   <Textarea
@@ -362,38 +390,38 @@ export default function AnnouncementDetailPage() {
                     name="message"
                     value={formData.message}
                     onChange={handleFormChange}
-                    placeholder="Présentez-vous et expliquez pourquoi vous êtes intéressé(e)..."
+                    placeholder="Présentez-vous et expliquez pourquoi vous êtes intéressé(e)…"
                     rows={4}
-                    className="resize-none"
+                    className="text-sm rounded-lg resize-none"
                     required
                   />
                 </div>
 
                 {formError && (
-                  <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+                  <p className="text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2.5">
                     {formError}
                   </p>
                 )}
 
-                <div className="flex gap-3 pt-1">
+                <div className="flex gap-2.5 pt-1">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={closeForm}
                     disabled={submitting}
-                    className="flex-1"
+                    className="flex-1 h-9 rounded-lg text-sm"
                   >
                     Annuler
                   </Button>
                   <Button
                     type="submit"
                     disabled={submitting}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                    className="flex-1 h-9 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold"
                   >
                     {submitting ? (
                       <span className="flex items-center gap-2">
-                        <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                        Envoi...
+                        <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Envoi…
                       </span>
                     ) : (
                       <span className="flex items-center gap-2">
@@ -412,22 +440,23 @@ export default function AnnouncementDetailPage() {
   );
 }
 
+/* ── Nav ──────────────────────────────────────────────────────── */
 function Nav() {
   return (
-    <header className="bg-white border-b border-gray-200">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
-        <Link href="/" className="flex items-center gap-2.5">
+        <Link href="/" className="flex items-center gap-2.5 group">
           <img src="/logo.png" alt="DoctoNest" className="w-7 h-7 rounded-lg" />
-          <span className="font-semibold text-gray-900">DoctoNest</span>
+          <span className="font-semibold text-gray-900 group-hover:text-blue-600 transition">DoctoNest</span>
         </Link>
         <div className="flex items-center gap-2">
           <Link href="/login">
-            <Button variant="ghost" size="sm" className="text-gray-600">
+            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
               Connexion
             </Button>
           </Link>
           <Link href="/register">
-            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4">
               S'inscrire
             </Button>
           </Link>
