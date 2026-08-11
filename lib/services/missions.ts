@@ -102,6 +102,23 @@ async function createMission(payload: CreateMissionInput) {
   return result[0]
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+async function getPublicMissionById(id: string) {
+  if (!UUID_RE.test(id)) return null
+
+  const result = await sql`
+    SELECT m.*, ep.organization_name, u.first_name, u.last_name, u.phone
+    FROM missions m
+    LEFT JOIN users u ON m.employer_id = u.id
+    LEFT JOIN employer_profiles ep ON u.id = ep.user_id
+    WHERE m.id = ${id} AND m.status = 'public'
+    LIMIT 1
+  `
+
+  return result[0] || null
+}
+
 async function getMissionByEditToken(editToken: string) {
   const result = await sql`
     SELECT m.*, ep.organization_name, u.first_name, u.last_name, u.phone
@@ -145,7 +162,8 @@ async function deleteMissionByEditToken(editToken: string) {
 
 export const missionsService = {
   list: listMissions,
-  create: createMission, 
+  create: createMission,
+  getPublicById: getPublicMissionById,
   getByEditToken: getMissionByEditToken,
   updateByEditToken: updateMissionByEditToken,
   deleteByEditToken: deleteMissionByEditToken,
