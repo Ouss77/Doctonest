@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import crypto from "crypto"
 import jwt from "jsonwebtoken"
-import { missionsService } from "@/lib/services/missions"
+import { db } from "@/lib/database"
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"
 
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       filters.location = searchParams.get("location")
     }
 
-    const missions = await missionsService.list(filters, {
+    const missions = await db.listMissions(filters, {
       visibility,
       userId: decoded?.userId,
       userType: decoded?.userType as "replacement" | "employer" | "admin" | undefined,
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
     const isEmployer = decoded?.userType === "employer" && decoded?.userId
 
     if (isEmployer) {
-      const mission = await missionsService.create({
+      const mission = await db.createMission({
         title: String(title).trim(),
         description: String(description).trim(),
         specialty_required: String(specialty_required).trim(),
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
     }
 
     const editToken = crypto.randomBytes(32).toString("hex")
-    const mission = await missionsService.create({
+    const mission = await db.createMission({
       title: String(title).trim(),
       description: String(description).trim(),
       specialty_required: String(specialty_required).trim(),

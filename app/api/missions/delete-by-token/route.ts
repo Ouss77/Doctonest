@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { missionsService } from "@/lib/services/missions"
+import { db } from "@/lib/database"
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -10,13 +10,13 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Mission not found" }, { status: 404 })
     }
 
-    const mission = await missionsService.getByEditToken(token)
+    const mission = await db.getMissionByEditToken(token)
 
     if (!mission) {
       return NextResponse.json({ error: "Mission not found" }, { status: 404 })
     }
 
-    const deleted = await missionsService.deleteByEditToken(token)
+    const deleted = await db.deleteMissionByEditToken(token)
 
     if (!deleted) {
       return NextResponse.json({ error: "Mission not found" }, { status: 404 })
