@@ -46,7 +46,7 @@ export function useAdminUsersData() {
           specialty: u.specialty || undefined,
           location: u.location || "",
           created_at: u.created_at
-            ? new Date(u.created_at).toLocaleDateString()
+            ? new Date(u.created_at).toLocaleDateString("fr-FR")
             : "",
           status: u.profile_status || u.rp_status || "pending",
           documents: [],
@@ -63,7 +63,7 @@ export function useAdminUsersData() {
           specialty: undefined,
           location: u.address || u.city || "",
           created_at: u.created_at
-            ? new Date(u.created_at).toLocaleDateString()
+            ? new Date(u.created_at).toLocaleDateString("fr-FR")
             : "",
           status: u.profile_status || u.ep_status || "pending",
           documents: [],
