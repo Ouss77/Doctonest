@@ -1,6 +1,6 @@
 "use client"
 
-import Candidature from "../components/Candidature"
+import Candidature from "../_components/Candidature"
 import { useEmployerDashboardData } from "../hooks/useEmployerDashboardData"
 
 export default function EmployerApplicationsPage() {

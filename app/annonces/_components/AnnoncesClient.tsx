@@ -6,7 +6,7 @@ import {
   Clock, Phone, AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
-import Headerannonces from '@/components/annonces/Headerannonces';
+import Headerannonces from './Headerannonces';
 
 export interface Announcement {
   id: string;

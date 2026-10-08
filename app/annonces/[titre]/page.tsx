@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { missionsService } from "@/lib/services/missions"
-import AnnouncementDetailClient, { type AnnouncementDetail } from "./AnnouncementDetailClient"
+import AnnouncementDetailClient, { type AnnouncementDetail } from "./_components/AnnouncementDetailClient"
 
 export const revalidate = 60
 

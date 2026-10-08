@@ -2,8 +2,8 @@
 
 import type React from "react";
 import { useState, useEffect } from "react";
-import EmployerRegisterForm from "./EmployerRegisterForm";
-import ReplacementRegisterForm from "./ReplacementRegisterForm";
+import EmployerRegisterForm from "./_components/EmployerRegisterForm";
+import ReplacementRegisterForm from "./_components/ReplacementRegisterForm";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CheckCircle, Shield, Stethoscope, Clock, Users, Building, UserPlus, ChevronLeft } from "lucide-react";

@@ -1,6 +1,6 @@
 "use client"
 
-import ComingSoonFeed from "@/app/dashboard/replacement/components/feed/ComingSoonFeed"
+import ComingSoonFeed from "../_components/feed/ComingSoonFeed"
 
 export default function FeedPage() {
   return (

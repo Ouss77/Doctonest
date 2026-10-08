@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import MissionsList from "../components/mission/MissionsList"
+import MissionsList from "../_components/mission/MissionsList"
 import { useEmployerDashboardData } from "../hooks/useEmployerDashboardData"
 
 export default function EmployerMissionsPage() {

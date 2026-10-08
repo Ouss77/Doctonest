@@ -1,6 +1,6 @@
 "use client"
 
-import EmployerDocumentsSection from "../components/profile/EmployerDocumentsSection"
+import EmployerDocumentsSection from "../_components/profile/EmployerDocumentsSection"
 import { useEmployerDashboardData } from "../hooks/useEmployerDashboardData"
 
 export default function EmployerDocumentsPage() {

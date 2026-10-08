@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import ProfileTabs from "../components/profile/ProfileTabs"
+import ProfileTabs from "../_components/profile/ProfileTabs"
 
 export default function EmployerProfilePage() {
   const router = useRouter()

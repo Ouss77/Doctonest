@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {  ArrowRight,  FileText,  User,  Phone,  Mail,  MapPin,  Building2,  Stethoscope,  CheckCircle2,  AlertCircle,
   Shield,   Eye,  EyeOff,  Loader2,  Info } from 'lucide-react';
-import Header from '@/components/annonces/header';
+import Header from './_components/header';
 
 type FormField =
   | 'title'

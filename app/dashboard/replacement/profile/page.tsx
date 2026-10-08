@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useAuth } from "@/lib/auth"
-import Profile from "@/app/dashboard/replacement/components/profile/Profile"
-import MyExperiences from "@/app/dashboard/replacement/components/profile/MyExperiences"
-import MyEducations from "@/app/dashboard/replacement/components/profile/MyEducations"
-import EditProfile from "@/app/dashboard/replacement/components/profile/EditProfile"
+import Profile from "../_components/profile/Profile"
+import MyExperiences from "../_components/profile/MyExperiences"
+import MyEducations from "../_components/profile/MyEducations"
+import EditProfile from "../_components/profile/EditProfile"
 
 export default function ProfilePage() {
   const { user, profile } = useAuth()

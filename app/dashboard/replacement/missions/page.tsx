@@ -1,6 +1,6 @@
 "use client"
 
-import AvailableMissionsSection from "@/app/dashboard/replacement/components/mission/AvailableMissionsSection"
+import AvailableMissionsSection from "../_components/mission/AvailableMissionsSection"
 
 export default function MissionsPage() {
   return (
