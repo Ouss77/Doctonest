@@ -28,7 +28,7 @@ export async function getApprovedReplacementDoctors() {
       JOIN replacement_profiles rp ON u.id = rp.user_id
       WHERE u.user_type = 'replacement'
         AND rp.profile_status = 'approved'
-      ORDER BY u.first_name, u.last_name
+      ORDER BY u.created_at DESC NULLS LAST, rp.created_at DESC NULLS LAST
     `
     return result
   } catch (error) {
