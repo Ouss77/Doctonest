@@ -10,7 +10,7 @@ export default function AdminMissionsPage() {
   const { missions, loading, error } = useAdminMissionsData()
 
   if (loading) {
-    return <div className="p-8 text-center text-blue-600">Chargement des missions...</div>
+    return <div className="p-8 text-center text-slate-500">Chargement des missions...</div>
   }
 
   if (error) {
