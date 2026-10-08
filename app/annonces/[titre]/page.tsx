@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { missionsService } from "@/lib/services/missions"
+import { db } from "@/lib/database"
 import AnnouncementDetailClient, { type AnnouncementDetail } from "./_components/AnnouncementDetailClient"
 
 export const revalidate = 60
@@ -26,7 +26,7 @@ function toDetail(m: any): AnnouncementDetail {
 }
 
 export async function generateMetadata({ params }: { params: { titre: string } }): Promise<Metadata> {
-  const mission = await missionsService.getPublicById(params.titre)
+  const mission = await db.getPublicMissionById(params.titre)
   if (!mission) {
     return { robots: { index: false, follow: true } }
   }
@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: { params: { titre: string } }
 }
 
 export default async function AnnouncementDetailPage({ params }: { params: { titre: string } }) {
-  const mission = await missionsService.getPublicById(params.titre)
+  const mission = await db.getPublicMissionById(params.titre)
   if (!mission) {
     notFound()
   }

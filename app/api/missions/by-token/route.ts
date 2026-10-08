@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic"
 
 import { NextRequest, NextResponse } from "next/server"
-import { missionsService } from "@/lib/services/missions"
+import { db } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Mission not found" }, { status: 404 })
     }
 
-    const mission = await missionsService.getByEditToken(token)
+    const mission = await db.getMissionByEditToken(token)
 
     if (!mission) {
       return NextResponse.json({ error: "Mission not found" }, { status: 404 })

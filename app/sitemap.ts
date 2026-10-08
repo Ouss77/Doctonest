@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next"
-import { missionsService } from "@/lib/services/missions"
+import { db } from "@/lib/database"
 
 const baseUrl = "https://www.doctonest.com"
 
@@ -13,7 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let missionRoutes: MetadataRoute.Sitemap = []
   try {
-    const missions = await missionsService.list({}, { visibility: "public" })
+    const missions = await db.listMissions({}, { visibility: "public" })
     missionRoutes = missions
       .filter((m: any) => m.id)
       .map((m: any) => ({

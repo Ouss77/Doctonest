@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import AnnoncesClient, { type Announcement } from "./_components/AnnoncesClient"
 import JsonLd from "@/components/JsonLd"
-import { missionsService } from "@/lib/services/missions"
+import { db } from "@/lib/database"
 
 export const revalidate = 60
 
@@ -55,7 +55,7 @@ export default async function AnnoncesPage() {
   let initialAnnouncements: Announcement[] = []
 
   try {
-    const rows = await missionsService.list({}, { visibility: 'public' })
+    const rows = await db.listMissions({}, { visibility: 'public' })
     initialAnnouncements = rows.map((m: any) => ({
       id: String(m.id),
       title: m.title ?? '',
