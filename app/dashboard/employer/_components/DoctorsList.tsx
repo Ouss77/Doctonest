@@ -8,6 +8,7 @@ import { Eye, Users, Star, MapPin, Euro, Search, Mail, Phone } from "lucide-reac
 import React, { useEffect, useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import DoctorProfileModal from "./DoctorProfileModal";
+import VerifiedProfileBadge from "@/components/VerifiedProfileBadge";
 
   interface Doctor {
     id: string;
@@ -236,6 +237,9 @@ import DoctorProfileModal from "./DoctorProfileModal";
                         <h3 className="font-semibold text-xl text-slate-900">
                           Dr. {doctor.first_name} {doctor.last_name}
                         </h3>
+                        <div className="mt-2">
+                          <VerifiedProfileBadge />
+                        </div>
                         <Badge className="mt-2 rounded-full border border-blue-100 bg-white/80 px-2.5 py-0.5 text-xs text-blue-700 shadow-sm backdrop-blur-sm">
                           {doctor.specialty}
                         </Badge>

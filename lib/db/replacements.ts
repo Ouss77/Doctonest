@@ -59,6 +59,11 @@ export async function createReplacementProfile(profileData: {
   }
 }
 
+export async function isReplacementApproved(user_id: string) {
+  const profile = await getReplacementProfile(user_id)
+  return Boolean(profile && profile.profile_status === "approved")
+}
+
 export async function getReplacementProfile(user_id: string) {
   try {
     const result = await sql`

@@ -10,6 +10,7 @@ interface MissionCardProps {
   onApply: (missionId: string) => void;
   applied: boolean;
   applyStatus: string | undefined;
+  canApply?: boolean;
 }
 
 const specialtyConfig: Record<string, {
@@ -69,7 +70,7 @@ function formatDateRange(start?: string, end?: string): string {
 }
 
 export default function MissionCard({
-  mission, onContact, onApply, applied, applyStatus,
+  mission, onContact, onApply, applied, applyStatus, canApply = true,
 }: MissionCardProps) {
   const specialty = mission.specialty_required || "";
   const spec = getSpecialtyConfig(specialty);
@@ -82,6 +83,7 @@ export default function MissionCard({
 
   const isApplied = applied || applyStatus?.startsWith("Candidature");
   const isLoading = applyStatus === "Envoi en cours...";
+  const isBlocked = !canApply && !isApplied;
   const dateRange = formatDateRange(mission.start_date, mission.end_date);
 
   return (
@@ -170,18 +172,20 @@ export default function MissionCard({
           {/* Action buttons — desktop */}
           <div className="hidden sm:flex flex-col items-stretch gap-2 flex-shrink-0 min-w-[148px]">
             <button
-              onClick={() => !isApplied && !isLoading && onApply(mission.id)}
-              disabled={isApplied || isLoading}
+              onClick={() => !isApplied && !isLoading && !isBlocked && onApply(mission.id)}
+              disabled={isApplied || isLoading || isBlocked}
               className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 whitespace-nowrap ${
                 isApplied
                   ? "bg-emerald-50 text-emerald-700 border-2 border-emerald-200 cursor-default"
+                  : isBlocked
+                  ? "bg-slate-100 text-slate-400 border-2 border-slate-200 cursor-not-allowed"
                   : isLoading
                   ? "bg-blue-400 text-white cursor-wait"
                   : "bg-blue-600 hover:bg-blue-700 active:scale-95 text-white shadow-md shadow-blue-600/25 hover:shadow-blue-600/35 hover:shadow-lg"
               }`}
             >
               <Send className="w-4 h-4" />
-              {isApplied ? "Candidature envoyée" : isLoading ? "Envoi..." : "Postuler"}
+              {isApplied ? "Candidature envoyée" : isBlocked ? "Profil non vérifié" : isLoading ? "Envoi..." : "Postuler"}
             </button>
             <button
               onClick={() => onContact(mission)}
@@ -213,16 +217,18 @@ export default function MissionCard({
             Contacter
           </button>
           <button
-            onClick={() => !isApplied && !isLoading && onApply(mission.id)}
-            disabled={isApplied || isLoading}
+            onClick={() => !isApplied && !isLoading && !isBlocked && onApply(mission.id)}
+            disabled={isApplied || isLoading || isBlocked}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-95 ${
               isApplied
                 ? "bg-emerald-50 text-emerald-700 border-2 border-emerald-200"
+                : isBlocked
+                ? "bg-slate-100 text-slate-400 border-2 border-slate-200 cursor-not-allowed"
                 : "bg-blue-600 text-white shadow-sm shadow-blue-600/25 hover:bg-blue-700"
             }`}
           >
             <Send className="w-4 h-4" />
-            {isApplied ? "Postulé" : "Postuler"}
+            {isApplied ? "Postulé" : isBlocked ? "Non vérifié" : "Postuler"}
           </button>
         </div>
       </div>

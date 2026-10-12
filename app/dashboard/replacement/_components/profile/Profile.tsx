@@ -6,6 +6,7 @@ import {
   CheckCircle, XCircle, Calendar, Mail, Phone,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import VerifiedProfileBadge from "@/components/VerifiedProfileBadge";
 
 interface ProfileProps {
   profileData: any;
@@ -140,9 +141,22 @@ export default function Profile({ profileData, setProfileData, setIsEditProfileO
 
           {/* Name & profession */}
           <div className="mb-4">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 leading-tight">
-              {profileData.firstName} {profileData.lastName}
-            </h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 leading-tight">
+                {profileData.firstName} {profileData.lastName}
+              </h1>
+              {profileData.profile_status === "approved" && <VerifiedProfileBadge />}
+            </div>
+            {profileData.profile_status === "pending" && (
+              <p className="mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+                Votre profil est en cours de vérification. Vous pourrez postuler aux missions une fois qu'il sera approuvé.
+              </p>
+            )}
+            {profileData.profile_status === "rejected" && (
+              <p className="mt-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
+                Votre profil a été refusé. Vous ne pouvez pas postuler aux missions pour le moment.
+              </p>
+            )}
             {profileData.profession && (
               <p className="flex items-center gap-2 text-blue-600 font-semibold text-base mt-1.5">
                 <Briefcase className="w-4 h-4 flex-shrink-0" />

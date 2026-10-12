@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import VerifiedProfileBadge from "@/components/VerifiedProfileBadge";
 
 interface CandidatureProps {
   missions: any[];
@@ -175,6 +176,11 @@ export default function Candidature({ missions }: CandidatureProps) {
                     <h3 className="font-bold text-slate-900">
                       {app.first_name} {app.last_name}
                     </h3>
+                    {app.profile_status === "approved" && (
+                      <div className="mt-1">
+                        <VerifiedProfileBadge />
+                      </div>
+                    )}
                     {app.specialty && (
                       <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-xs mt-1">
                         {app.specialty}
