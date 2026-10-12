@@ -5,6 +5,7 @@ export const fetchCache = "force-no-store"
 import { NextResponse } from "next/server"
 import { db } from "@/lib/database"
 
+
 const noStoreHeaders = {
   "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
 }
