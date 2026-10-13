@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Mail, Phone } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import VerifiedProfileBadge from "@/components/VerifiedProfileBadge";
 
 interface DoctorProfileModalProps {
   open: boolean;
@@ -22,7 +23,7 @@ export default function DoctorProfileModal({ open, onOpenChange, doctorId }: Doc
     if (!open || !doctorId) return;
     setLoading(true); 
     setError("");
-    fetch(`/api/doctors/${doctorId}`)
+    fetch(`/api/doctors/${doctorId}`, { cache: "no-store" })
       .then((res) => {
         if (!res.ok) throw new Error("Erreur lors du chargement du profil médecin");
         
@@ -66,9 +67,12 @@ export default function DoctorProfileModal({ open, onOpenChange, doctorId }: Doc
             {/* Basic info, right side */}
             <div className="flex-1 flex flex-col justify-start ">
               <div className="mb-2">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Dr. {(doctor.profile?.first_name || doctor.first_name) ?? ""} {(doctor.profile?.last_name || doctor.last_name) ?? ""}
-                </h2>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Dr. {(doctor.profile?.first_name || doctor.first_name) ?? ""} {(doctor.profile?.last_name || doctor.last_name) ?? ""}
+                  </h2>
+                  <VerifiedProfileBadge />
+                </div>
                 <div className="flex items-center gap-2 text-gray-600 mt-1">
                   <span>{doctor.profile?.specialty || doctor.specialty || "Spécialité non renseignée"}</span>
                   {doctor.profile?.location && <span>• {doctor.profile.location}</span>}

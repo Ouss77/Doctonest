@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic"
 import { type NextRequest, NextResponse } from "next/server"
 import jwt from "jsonwebtoken"
 import { db } from "@/lib/database"
+import { isReplacementApproved } from "@/lib/db/replacements"
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"
 
@@ -50,6 +51,14 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     if (decoded.userType !== "replacement") {
       return NextResponse.json({ error: "Only replacement doctors can apply to missions" }, { status: 403 })
+    }
+
+    const approved = await isReplacementApproved(decoded.userId)
+    if (!approved) {
+      return NextResponse.json(
+        { error: "Votre profil doit être vérifié par l'administration avant de postuler." },
+        { status: 403 }
+      )
     }
 
     const body = await request.json()

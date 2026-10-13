@@ -29,7 +29,7 @@ export async function getApplications(filters?: {
     let base = sql`
       SELECT a.*, m.title as mission_title, m.specialty_required,
              u.id as user_id, u.first_name, u.last_name, u.email, u.phone,
-             rp.photo_url, rp.specialty, rp.location
+             rp.photo_url, rp.specialty, rp.location, rp.profile_status
       FROM applications a
       JOIN missions m ON a.mission_id = m.id
       JOIN users u ON a.replacement_id = u.id

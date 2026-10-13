@@ -1,38 +1,78 @@
 "use client"
-import { Users, FileText, CheckCircle, BarChart3, ChevronLeft, ChevronRight } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import React from "react"
+
+import { ChevronLeft, ChevronRight, LogOut } from "lucide-react"
+import { useAuth } from "@/lib/auth"
 
 interface SidebarProps {
-  sidebarCollapsed: boolean;
-  setSidebarCollapsed: (collapsed: boolean) => void;
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-  sidebarItems: { id: string; label: string; icon: any; badge: any }[];
+  sidebarCollapsed: boolean
+  setSidebarCollapsed: (collapsed: boolean) => void
+  activeTab: string
+  setActiveTab: (tab: string) => void
+  sidebarItems: { id: string; label: string; icon: any; badge: any }[]
 }
 
-export default function Sidebar({ sidebarCollapsed, setSidebarCollapsed, activeTab, setActiveTab, sidebarItems }: SidebarProps) {
+export default function Sidebar({
+  sidebarCollapsed,
+  setSidebarCollapsed,
+  activeTab,
+  setActiveTab,
+  sidebarItems,
+}: SidebarProps) {
+  const { user, logout } = useAuth()
+
+  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim()
+  const displayName = fullName || "Administrateur"
+  const email = user?.email || ""
+  const initials = (user?.firstName?.[0] || "A") + (user?.lastName?.[0] || "")
+
   return (
-    <div className={`${sidebarCollapsed ? 'w-20' : 'w-64'} h-screen bg-white shadow-xl transition-all duration-300 ease-in-out border-r border-gray-100 flex flex-col fixed left-0 top-0`}>
-      {/* Logo Section */}
-      <div className="flex items-center justify-between p-6 border-b border-gray-100 flex-shrink-0">
+    <div
+      className={`${
+        sidebarCollapsed ? "w-20" : "w-64"
+      } h-screen bg-[#071d45] shadow-xl transition-all duration-300 ease-in-out flex flex-col fixed left-0 top-0 z-40`}
+    >
+      <div className="flex items-center justify-between p-5 border-b border-white/10 flex-shrink-0">
         {!sidebarCollapsed && (
-          <div className="flex items-center gap-3">
-            <img src="/placeholder-logo.png" alt="Logo" className="h-10 w-10 rounded-full shadow" />
-            <span className="text-xl font-bold bg-gradient-to-r from-indigo-500 via-blue-600 to-purple-600 bg-clip-text text-transparent tracking-wide">
-              MedReplace
+          <div className="flex items-center gap-3 min-w-0">
+            <img
+              src="/logo.png"
+              alt="DoctoNest"
+              className="h-10 w-10 rounded-xl object-cover shadow-md border border-white/10"
+            />
+            <span className="text-lg font-semibold text-white tracking-tight truncate">
+              DoctoNest
             </span>
           </div>
         )}
+        {sidebarCollapsed && (
+          <img
+            src="/logo.png"
+            alt="DoctoNest"
+            className="h-10 w-10 rounded-xl object-cover shadow-md mx-auto border border-white/10"
+          />
+        )}
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+          className={`p-2 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors ${
+            sidebarCollapsed ? "hidden" : ""
+          }`}
+          aria-label={sidebarCollapsed ? "Agrandir le menu" : "Réduire le menu"}
         >
           {sidebarCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
         </button>
       </div>
-      {/* Navigation */}
-      <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
+
+      {sidebarCollapsed && (
+        <button
+          onClick={() => setSidebarCollapsed(false)}
+          className="mx-auto mt-3 p-2 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors"
+          aria-label="Agrandir le menu"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      )}
+
+      <nav className="p-3 space-y-1 flex-1 overflow-y-auto">
         {sidebarItems.map((item) => {
           const Icon = item.icon
           const isActive = activeTab === item.id
@@ -40,44 +80,49 @@ export default function Sidebar({ sidebarCollapsed, setSidebarCollapsed, activeT
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group relative ${
+              className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ${
                 isActive
-                  ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg transform scale-105'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-900/40"
+                  : "text-blue-100/80 hover:bg-white/10 hover:text-white"
+              } ${sidebarCollapsed ? "justify-center" : ""}`}
             >
-              <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-600'}`} />
+              <Icon className="w-5 h-5 flex-shrink-0" />
               {!sidebarCollapsed && (
-                <span className="font-medium flex-1 text-left">{item.label}</span>
+                <span className="font-medium flex-1 text-left text-sm">{item.label}</span>
               )}
             </button>
           )
         })}
       </nav>
-      {/* User Profile Section & Logout */}
-      <div className="p-4 border-t border-gray-100 bg-white flex-shrink-0 flex flex-col gap-3">
+
+      <div className="p-3 border-t border-white/10 flex-shrink-0 flex flex-col gap-3">
         {!sidebarCollapsed ? (
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50">
-            <img src="/placeholder-user.jpg" alt="Admin" className="h-10 w-10 rounded-full border-2 border-indigo-400 shadow" />
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-white/10">
+            <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+              {initials.toUpperCase()}
+            </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-gray-900 truncate">Admin</p>
-              <p className="text-xs text-gray-500 truncate">admin@medreplace.com</p>
+              <p className="font-semibold text-white text-sm truncate">
+                Admin · {displayName}
+              </p>
+              <p className="text-xs text-blue-200 truncate">{email}</p>
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-2">
-            <img src="/placeholder-user.jpg" alt="Admin" className="h-10 w-10 rounded-full border-2 border-indigo-400 shadow" />
+          <div className="flex flex-col items-center">
+            <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center text-white text-sm font-semibold">
+              {initials.toUpperCase()}
+            </div>
           </div>
         )}
         <button
-          onClick={async () => {
-            await fetch('/api/auth/logout', { method: 'POST' });
-            window.location.href = '/login';
-          }}
-          className={`mt-2 w-full flex items-center justify-center gap-2 p-2 rounded-xl text-sm font-medium transition-colors duration-200 border border-gray-200 shadow-sm bg-white hover:bg-red-50 text-red-600 hover:text-red-800 ${sidebarCollapsed ? 'justify-center' : ''}`}
+          onClick={() => logout()}
+          className={`w-full flex items-center gap-2 p-2.5 rounded-xl text-sm font-medium transition-colors border border-white/10 bg-white/5 text-red-300 hover:bg-red-500/20 hover:text-red-100 hover:border-red-400/30 ${
+            sidebarCollapsed ? "justify-center" : "justify-center"
+          }`}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" /></svg>
-          {!sidebarCollapsed && 'Se déconnecter'}
+          <LogOut className="h-4 w-4" />
+          {!sidebarCollapsed && "Se déconnecter"}
         </button>
       </div>
     </div>

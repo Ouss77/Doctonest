@@ -28,7 +28,7 @@ export async function getApprovedReplacementDoctors() {
       JOIN replacement_profiles rp ON u.id = rp.user_id
       WHERE u.user_type = 'replacement'
         AND rp.profile_status = 'approved'
-      ORDER BY u.first_name, u.last_name
+      ORDER BY u.created_at DESC NULLS LAST, rp.created_at DESC NULLS LAST
     `
     return result
   } catch (error) {
@@ -57,6 +57,11 @@ export async function createReplacementProfile(profileData: {
     console.error("Error creating replacement profile:", error)
     throw new Error("Failed to create replacement profile")
   }
+}
+
+export async function isReplacementApproved(user_id: string) {
+  const profile = await getReplacementProfile(user_id)
+  return Boolean(profile && profile.profile_status === "approved")
 }
 
 export async function getReplacementProfile(user_id: string) {

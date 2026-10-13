@@ -3,7 +3,7 @@ import { sql } from "./client"
 export async function getEmployers() {
   try {
     const result = await sql`
-      SELECT u.id, u.first_name, u.last_name, u.email, u.phone,
+      SELECT u.id, u.first_name, u.last_name, u.email, u.phone, u.created_at,
       ep.organization_name, ep.organization_type, ep.address, ep.city, ep.contact_person, ep.description, ep.profile_status
       FROM users u
       JOIN employer_profiles ep ON u.id = ep.user_id

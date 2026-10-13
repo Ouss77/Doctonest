@@ -16,7 +16,7 @@ export default function AdminUsersPage() {
   }
 
   if (loading) {
-    return <div className="p-8 text-center text-blue-600">Chargement des utilisateurs...</div>
+    return <div className="p-8 text-center text-slate-500">Chargement des utilisateurs...</div>
   }
 
   if (error) {
@@ -25,22 +25,22 @@ export default function AdminUsersPage() {
 
   return (
     <>
-      <div className="mb-4 flex gap-2">
+      <div className="mb-6 inline-flex rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
         <button
-          className={`px-4 py-2 rounded-xl border ${
+          className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
             userTypeFilter === "doctor"
-              ? "bg-blue-600 text-white"
-              : "bg-white text-blue-600 border-blue-600"
+              ? "bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-sm"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
           }`}
           onClick={() => setUserTypeFilter("doctor")}
         >
           Médecins remplaçants
         </button>
         <button
-          className={`px-4 py-2 rounded-xl border ${
+          className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
             userTypeFilter === "employer"
-              ? "bg-blue-600 text-white"
-              : "bg-white text-blue-600 border-blue-600"
+              ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-sm"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
           }`}
           onClick={() => setUserTypeFilter("employer")}
         >

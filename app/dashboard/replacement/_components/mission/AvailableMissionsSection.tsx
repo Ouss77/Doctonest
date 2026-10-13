@@ -53,7 +53,12 @@ function HeroIllustration() {
 }
 
 export default function AvailableMissionsSection() {
-  const { user } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
+  const isApproved = profile?.profile_status === "approved";
+  const applyBlockedMessage =
+    profile?.profile_status === "rejected"
+      ? "Votre profil a été refusé. Vous ne pouvez pas postuler aux missions."
+      : "Votre profil doit être vérifié par l'administration avant de postuler.";
   const [missions, setMissions]                 = useState<any[]>([]);
   const [filteredMissions, setFilteredMissions] = useState<any[]>([]);
   const [specialtyFilter, setSpecialtyFilter]   = useState("");
@@ -73,14 +78,26 @@ export default function AvailableMissionsSection() {
       setApplyStatus(p => ({ ...p, [missionId]: "Vous devez être connecté pour postuler." }));
       return;
     }
+    if (!isApproved) {
+      setApplyStatus(p => ({ ...p, [missionId]: applyBlockedMessage }));
+      return;
+    }
     setApplyStatus(p => ({ ...p, [missionId]: "Envoi en cours..." }));
     try {
       const res = await fetch("/api/applications", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ missionId, userId: user.id }),
+        body: JSON.stringify({ missionId }),
       });
-      if (!res.ok) throw new Error();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setApplyStatus(p => ({
+          ...p,
+          [missionId]: data.error || "Erreur lors de la candidature",
+        }));
+        return;
+      }
       setApplyStatus(p => ({ ...p, [missionId]: "Candidature envoyée !" }));
       setAppliedMissions(prev => new Set(prev).add(missionId));
     } catch {
@@ -197,6 +214,11 @@ export default function AvailableMissionsSection() {
         </div>
 
         {/* ── Error ──────────────────────────────────────────────── */}
+        {!authLoading && user && !isApproved && (
+          <div className="mb-4 p-4 bg-amber-50 text-amber-800 rounded-2xl border border-amber-200 text-sm">
+            {applyBlockedMessage} Vous pouvez toutefois consulter les missions et modifier votre profil.
+          </div>
+        )}
         {error && (
           <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-2xl border border-red-200 text-sm flex items-center gap-2">
             ⚠️ {error}
@@ -309,6 +331,7 @@ export default function AvailableMissionsSection() {
                 onApply={handleApply}
                 applied={appliedMissions.has(String(mission.id))}
                 applyStatus={applyStatus[mission.id]}
+                canApply={isApproved}
               />
             ))}
           </div>

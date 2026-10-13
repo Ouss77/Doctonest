@@ -2,10 +2,23 @@
 
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardHeader, CardTitle, CardContent, CardDescription,} from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import {  FileText,  MapPin,  Calendar,  BarChart3,  Eye,  CheckCircle,  XCircle,  Trash2,  Search, Clock,  User,  Mail,} from "lucide-react"
+import {
+  FileText,
+  MapPin,
+  Calendar,
+  Eye,
+  CheckCircle,
+  XCircle,
+  Trash2,
+  Search,
+  Clock,
+  User,
+  Users,
+  Briefcase,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export type Mission = {
@@ -40,33 +53,38 @@ export default function TabMissions({
   const getStatusConfig = (status: Mission["status"]) => {
     const configs = {
       open: {
-        label: "En attente",
-        color: "text-amber-700",
-        bgColor: "bg-amber-50 border-amber-200",
+        label: "À valider",
+        color: "text-amber-800",
+        chip: "bg-amber-100 text-amber-900 border-amber-200",
+        bar: "from-amber-400 via-orange-400 to-yellow-400",
         icon: Clock,
       },
       pending: {
-        label: "En attente",
-        color: "text-amber-700",
-        bgColor: "bg-amber-50 border-amber-200",
+        label: "À valider",
+        color: "text-amber-800",
+        chip: "bg-amber-100 text-amber-900 border-amber-200",
+        bar: "from-amber-400 via-orange-400 to-yellow-400",
         icon: Clock,
       },
       public: {
-        label: "Publique",
-        color: "text-green-700",
-        bgColor: "bg-green-50 border-green-200",
+        label: "Publiée",
+        color: "text-teal-800",
+        chip: "bg-teal-100 text-teal-900 border-teal-200",
+        bar: "from-teal-400 to-emerald-500",
         icon: CheckCircle,
       },
       private: {
         label: "Privée",
-        color: "text-blue-700",
-        bgColor: "bg-blue-50 border-blue-200",
+        color: "text-indigo-800",
+        chip: "bg-indigo-100 text-indigo-900 border-indigo-200",
+        bar: "from-indigo-400 to-violet-500",
         icon: Eye,
       },
       refused: {
         label: "Refusée",
-        color: "text-red-700",
-        bgColor: "bg-red-50 border-red-200",
+        color: "text-rose-800",
+        chip: "bg-rose-100 text-rose-900 border-rose-200",
+        bar: "from-rose-400 to-pink-500",
         icon: XCircle,
       },
     }
@@ -160,143 +178,159 @@ export default function TabMissions({
     refused: localMissions.filter((m) => m.status === "refused").length,
   }
 
+  const filterLabels: Record<typeof statusFilter, string> = {
+    all: "Toutes",
+    pending: "À valider",
+    public: "Publiées",
+    private: "Privées",
+    refused: "Refusées",
+  }
+
   return (
     <div className="space-y-6">
-      {/* HEADER */}
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle>Gestion des missions</CardTitle>
-          <CardDescription>
-            Validation et modération des annonces
-          </CardDescription>
-        </CardHeader>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {(Object.keys(filterLabels) as Array<typeof statusFilter>).map((s) => {
+          const active = statusFilter === s
+          const tones: Record<string, string> = {
+            all: "bg-white text-[#071d45] border-slate-200",
+            pending: "bg-amber-50 text-amber-900 border-amber-200",
+            public: "bg-teal-50 text-teal-900 border-teal-200",
+            private: "bg-indigo-50 text-indigo-900 border-indigo-200",
+            refused: "bg-rose-50 text-rose-900 border-rose-200",
+          }
+          return (
+            <button
+              key={s}
+              onClick={() => setStatusFilter(s)}
+              className={`rounded-2xl border p-3 text-left transition-all ${tones[s]} ${
+                active ? "ring-2 ring-offset-2 ring-[#071d45]/30 shadow-md" : "hover:shadow-sm"
+              }`}
+            >
+              <p className="text-[11px] font-medium uppercase tracking-wide opacity-70">{filterLabels[s]}</p>
+              <p className="text-2xl font-bold mt-0.5">{statusCounts[s]}</p>
+            </button>
+          )
+        })}
+      </div>
 
-        <CardContent className="space-y-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                className="pl-9"
-                placeholder="Rechercher..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <Input
+          className="pl-11 h-12 rounded-2xl border-slate-200 bg-white shadow-sm"
+          placeholder="Rechercher un titre ou une ville..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
 
-            <div className="flex gap-2 flex-wrap">
-              {(
-                ["all", "pending", "public", "private", "refused"] as const
-              ).map((s) => (
-                <Button
-                  key={s}
-                  variant={statusFilter === s ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setStatusFilter(s)}
-                >
-                  {s} ({statusCounts[s]})
-                </Button>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* LIST */}
       {filteredMissions.length === 0 ? (
-        <Card>
+        <Card className="border-dashed border-2 border-slate-200 bg-white/60">
           <CardContent className="py-16 text-center">
-            <FileText className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-            <p className="text-gray-500">Aucune mission trouvée</p>
+            <Briefcase className="w-12 h-12 mx-auto text-slate-300 mb-3" />
+            <p className="text-slate-500">Aucune mission trouvée</p>
           </CardContent>
         </Card>
       ) : (
-        filteredMissions.map((mission) => {
-          const config = getStatusConfig(mission.status)
-          const Icon = config.icon
-          const isProcessing = processingIds.includes(mission.id)
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {filteredMissions.map((mission) => {
+            const config = getStatusConfig(mission.status)
+            const Icon = config.icon
+            const isProcessing = processingIds.includes(mission.id)
 
-          return (
-            <Card key={mission.id} className="shadow-sm">
-              <CardContent className="p-6 flex flex-col lg:flex-row gap-6">
-                <div className="flex-1 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <h3 className="text-lg font-bold">{mission.title}</h3>
-                    <Badge
-                      className={`${config.bgColor} ${config.color} border`}
-                    >
+            return (
+              <article
+                key={mission.id}
+                className="overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all flex flex-col"
+              >
+                <div className={`h-1.5 bg-gradient-to-r ${config.bar}`} />
+                <div className="p-5 flex-1 flex flex-col">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
+                        <FileText className="w-3.5 h-3.5 text-teal-600" />
+                        Annonce
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-900 leading-snug">{mission.title}</h3>
+                    </div>
+                    <Badge className={`${config.chip} border shrink-0`}>
                       <Icon className="w-3 h-3 mr-1" />
                       {config.label}
                     </Badge>
                   </div>
 
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <BarChart3 className="w-4 h-4" />
-                    {mission.applicants} candidature(s)
+                  <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-slate-600">
+                    <span className="flex items-center gap-2 min-w-0">
+                      <MapPin className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                      <span className="truncate">{mission.location || "Lieu non renseigné"}</span>
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                      {mission.applicants} candidature{mission.applicants !== 1 ? "s" : ""}
+                    </span>
+                    {mission.publishedDate && (
+                      <span className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        {new Date(mission.publishedDate).toLocaleDateString("fr-FR")}
+                      </span>
+                    )}
+                    {mission.author && (
+                      <span className="flex items-center gap-2 min-w-0">
+                        <User className="w-4 h-4 text-teal-600 flex-shrink-0" />
+                        <span className="truncate">{mission.author}</span>
+                      </span>
+                    )}
                   </div>
 
-                  {mission.publishedDate && (
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <Calendar className="w-4 h-4" />
-                      {new Date(mission.publishedDate).toLocaleDateString("fr-FR")}
-                    </div>
-                  )}
+                  <div className="mt-5 pt-4 border-t border-slate-100 flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setSelectedMission(mission)}
+                      disabled={isProcessing}
+                      className="rounded-xl border-slate-200"
+                    >
+                      <Eye className="w-4 h-4 mr-1" />
+                      Détails
+                    </Button>
 
-                  {mission.author && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <User className="w-4 h-4" />
-                      {mission.author}
-                    </div>
-                  )}
+                    {isAwaitingReview(mission.status) && (
+                      <>
+                        <Button
+                          size="sm"
+                          onClick={() => updateStatus(mission.id, "public")}
+                          disabled={isProcessing}
+                          className="rounded-xl bg-teal-600 hover:bg-teal-700 text-white"
+                        >
+                          Approuver
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          onClick={() => updateStatus(mission.id, "refused")}
+                          disabled={isProcessing}
+                          className="rounded-xl bg-amber-500 hover:bg-amber-600 text-white"
+                        >
+                          Refuser
+                        </Button>
+                      </>
+                    )}
+
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => deleteMission(mission.id)}
+                      disabled={isProcessing}
+                      className="rounded-xl bg-rose-600 hover:bg-rose-700 ml-auto"
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Supprimer
+                    </Button>
+                  </div>
                 </div>
-
-                {/* ACTIONS */}
-                <div className="flex flex-col gap-2 min-w-[180px]">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setSelectedMission(mission)}
-                    disabled={isProcessing}
-                  >
-                    <Eye className="w-4 h-4 mr-2" />
-                    Détails
-                  </Button>
-
-                  {isAwaitingReview(mission.status) && (
-                    <>
-                      <Button
-                        size="sm"
-                        onClick={() => updateStatus(mission.id, "public")}
-                        disabled={isProcessing}
-                        className="bg-green-600 hover:bg-green-700 text-white"
-                      >
-                        Approuver
-                      </Button>
-
-                      <Button
-                        size="sm"
-                        onClick={() => updateStatus(mission.id, "refused")}
-                        disabled={isProcessing}
-                        className="bg-amber-600 hover:bg-amber-700 text-white"
-                      >
-                        Refuser
-                      </Button>
-                    </>
-                  )}
-
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => deleteMission(mission.id)}
-                    disabled={isProcessing}
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Supprimer
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })
+              </article>
+            )
+          })}
+        </div>
       )}
     </div>
   )
