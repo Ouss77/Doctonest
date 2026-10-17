@@ -138,6 +138,7 @@ export default function TabMissions({
     try {
       const res = await fetch(`/api/missions/${missionId}`, {
         method: "DELETE",
+        credentials: "include",
       })
 
       if (!res.ok) throw new Error("Erreur suppression")
