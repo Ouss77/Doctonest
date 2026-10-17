@@ -1,9 +1,71 @@
 import { type NextRequest, NextResponse } from "next/server"
 import crypto from "crypto"
 import jwt from "jsonwebtoken"
+import nodemailer from "nodemailer"
 import { db } from "@/lib/database"
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"
+const ADMIN_MISSION_NOTIFY_EMAIL = "ousssamasassour24@gmail.com"
+const PENDING_PUBLIC_STATUSES = new Set(["pending", "open"])
+
+function getAdminOrigin(request: NextRequest) {
+  return process.env.NEXT_PUBLIC_BASE_URL || request.nextUrl.origin
+}
+
+async function notifyAdminOfPendingPublicMission(mission: any, origin: string) {
+  if (!mission?.id) return
+  if (mission.status === "public" || mission.status === "private") return
+  if (!PENDING_PUBLIC_STATUSES.has(mission.status)) return
+
+  const hasSmtpConfig =
+    process.env.SMTP_HOST &&
+    process.env.SMTP_PORT &&
+    process.env.SMTP_USER &&
+    process.env.SMTP_PASS
+
+  if (!hasSmtpConfig) {
+    console.warn("SMTP not configured, pending public mission email skipped:", mission.id)
+    return
+  }
+
+  const authorName = mission.guest_name || mission.organization_name || null
+  const publishedAt = mission.created_at
+    ? new Date(mission.created_at).toLocaleString("fr-FR", {
+        dateStyle: "long",
+        timeStyle: "short",
+      })
+    : "Non renseignée"
+  const adminUrl = `${origin.replace(/\/$/, "")}/dashboard/admin/missions`
+
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT),
+    secure: Number(process.env.SMTP_PORT) === 465,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  })
+
+  await transporter.sendMail({
+    from: process.env.SMTP_FROM || "no-reply@doctonest.com",
+    to: ADMIN_MISSION_NOTIFY_EMAIL,
+    subject: `Nouvelle mission à valider : ${mission.title}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a;">
+        <h2 style="margin: 0 0 12px; color: #1d4ed8;">Nouvelle mission publique en attente</h2>
+        <p>Une mission publique vient d'être publiée et attend une validation.</p>
+        <ul>
+          <li><strong>Titre :</strong> ${mission.title || "Non renseigné"}</li>
+          <li><strong>Auteur :</strong> ${authorName || "Non renseigné"}</li>
+          <li><strong>Date de publication :</strong> ${publishedAt}</li>
+          <li><strong>Statut :</strong> en attente de validation</li>
+        </ul>
+        <p><a href="${adminUrl}">Consulter la mission et l'accepter ou la refuser</a></p>
+      </div>
+    `,
+  })
+}
 
 type DecodedToken = {
   userId: string
@@ -135,6 +197,12 @@ export async function POST(request: NextRequest) {
       guest_name: String(guestName).trim(),
       edit_token: editToken,
     });
+
+    try {
+      await notifyAdminOfPendingPublicMission(mission, getAdminOrigin(request))
+    } catch (mailError) {
+      console.error("Pending public mission email delivery failed:", mailError)
+    }
 
     return NextResponse.json({ mission }, { status: 201 });
   }
