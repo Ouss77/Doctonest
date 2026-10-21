@@ -6,6 +6,7 @@ type User = {
   id: number
   name: string
   email: string
+  phone?: string
   type: string
   specialty?: string
   location: string
@@ -42,8 +43,9 @@ export function useAdminUsersData() {
             (u.first_name ? u.first_name : "") +
             (u.last_name ? " " + u.last_name : ""),
           email: u.email,
+          phone: u.phone || undefined,
           type: "Médecin remplaçant",
-          specialty: u.specialty || undefined,
+          specialty: (u.specialty && String(u.specialty).trim()) || u.profession || undefined,
           location: u.location || "",
           created_at: u.created_at
             ? new Date(u.created_at).toLocaleDateString("fr-FR")
@@ -59,6 +61,7 @@ export function useAdminUsersData() {
             (u.first_name ? u.first_name : "") +
               (u.last_name ? " " + u.last_name : ""),
           email: u.email,
+          phone: u.phone || undefined,
           type: "Établissement",
           specialty: undefined,
           location: u.address || u.city || "",

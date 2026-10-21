@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import HomePageClient from "./_components/HomePageClient"
+import HomePageClient from "@/components/HomePageClient"
 import JsonLd from "@/components/JsonLd"
 
 export const metadata: Metadata = {
@@ -50,7 +50,7 @@ const websiteSchema = {
   name: "DoctoNest",
   url: "https://www.doctonest.com",
   description:
-    "Plateforme de remplacement médical au Maroc — médecins remplaçants, dentistes, kinésithérapeutes.",
+    "Plateforme de remplacement médical au Maroc — médecins remplaçants et dentistes.",
   potentialAction: {
     "@type": "SearchAction",
     target: {

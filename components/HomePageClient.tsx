@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { UserPlus, Search, MessageSquare } from 'lucide-react';
 
-import { Menu, X, ArrowRight, Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram,  Stethoscope, Heart, Pill, Syringe, Activity, Users
+import { Menu, X, ArrowRight, Mail, Phone, Facebook, Twitter, Linkedin, Instagram, Stethoscope, Heart, Activity
 } from "lucide-react";
 
 const socialLinks = [
@@ -47,8 +47,8 @@ const professionals = [
     hoverBorder: "group-hover:border-blue-500/50"
   },
   {
-    title: "Kinésithérapeutes",
-    description: "Connectez-vous avec des kinés expérimentés pour vos remplacements",
+    title: "Médecins Spécialistes",
+    description: "Des spécialistes pour assurer la continuité des soins dans votre établissement",
     icon: Activity,
     gradient: "from-purple-500 to-pink-500",
     bgColor: "bg-purple-500/10",
@@ -63,33 +63,6 @@ const professionals = [
     bgColor: "bg-emerald-500/10",
     borderColor: "border-emerald-500/20",
     hoverBorder: "group-hover:border-emerald-500/50"
-  },
-  {
-    title: "Infirmiers",
-    description: "Solutions de remplacement pour infirmiers et centres médicaux",
-    icon: Syringe,
-    gradient: "from-rose-500 to-orange-500",
-    bgColor: "bg-rose-500/10",
-    borderColor: "border-rose-500/20",
-    hoverBorder: "group-hover:border-rose-500/50"
-  },
-  {
-    title: "Pharmaciens",
-    description: "Trouvez des pharmaciens qualifiés pour vos remplacements temporaires",
-    icon: Pill,
-    gradient: "from-amber-500 to-yellow-500",
-    bgColor: "bg-amber-500/10",
-    borderColor: "border-amber-500/20",
-    hoverBorder: "group-hover:border-amber-500/50"
-  },
-  {
-    title: "Aides-Soignants",
-    description: "Connectez avec des aides-soignants dévoués pour assurer la continuité des soins",
-    icon: Users,
-    gradient: "from-indigo-500 to-blue-500",
-    bgColor: "bg-indigo-500/10",
-    borderColor: "border-indigo-500/20",
-    hoverBorder: "group-hover:border-indigo-500/50"
   }
 ];
 
@@ -183,6 +156,9 @@ export default function HomePage() {
               >
                 Votre Réseau Médical,<br/> Toujours Connecté.<br />Votre Remplacement, Assuré
               </h1>
+              <p className="text-gray-300 text-base sm:text-lg max-w-2xl -mt-4 md:-mt-6">
+                Plateforme dédiée aux médecins et dentistes au Maroc.
+              </p>
               
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center md:justify-start">
                 <Link href="/register?type=replacement">
@@ -213,13 +189,13 @@ export default function HomePage() {
   <div className="container mx-auto px-4 relative z-10">
     <div className="text-center mb-16">
       <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-        Tous les professionnels de{' '}
+        Médecins et{' '}
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
-          santé
+          dentistes
         </span>
       </h2>
       <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-        Notre plateforme couvre tous les domaines de la santé pour répondre à vos besoins
+        DoctoNest est réservé aux médecins, dentistes et établissements de santé.
       </p>
     </div>
 

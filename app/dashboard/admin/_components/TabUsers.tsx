@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Search, Mail, MapPin, Stethoscope, Calendar, Eye, UserCheck, UserX, Building2, Users } from "lucide-react"
+import { Search, Mail, MapPin, Stethoscope, Calendar, Eye, UserCheck, UserX, Building2, Users, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import React, { useMemo, useState } from "react"
 
@@ -11,6 +11,7 @@ type User = {
   id: number
   name: string
   email: string
+  phone?: string
   type: string
   specialty?: string
   location: string
@@ -72,7 +73,6 @@ export default function TabUsers({
   const [profileDetails, setProfileDetails] = useState<{
     experiences: any[]
     diplomas: any[]
-    documents?: Record<string, any[]>
   } | null>(null)
   const [loadingDetails, setLoadingDetails] = useState(false)
 
@@ -318,10 +318,17 @@ export default function TabUsers({
               <p className="text-sm text-slate-500 mb-4">{modalUser.type}</p>
               <div className="space-y-2 text-sm text-slate-700">
                 <div><span className="font-semibold text-slate-500">Email :</span> {modalUser.email}</div>
-                {modalUser.specialty && (
-                  <div><span className="font-semibold text-slate-500">Spécialité :</span> {modalUser.specialty}</div>
-                )}
-                <div><span className="font-semibold text-slate-500">Localisation :</span> {modalUser.location}</div>
+                <div className="flex items-center gap-2">
+                  <Phone className="h-3.5 w-3.5 text-slate-400" />
+                  <span className="font-semibold text-slate-500">Téléphone :</span>
+                  {modalUser.phone || "Non renseigné"}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Stethoscope className="h-3.5 w-3.5 text-slate-400" />
+                  <span className="font-semibold text-slate-500">Spécialité :</span>
+                  {modalUser.specialty || "Non renseignée"}
+                </div>
+                <div><span className="font-semibold text-slate-500">Localisation :</span> {modalUser.location || "Non renseigné"}</div>
                 <div><span className="font-semibold text-slate-500">Inscription :</span> {modalUser.created_at}</div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-slate-500">Statut :</span>
@@ -330,36 +337,6 @@ export default function TabUsers({
                   </Badge>
                 </div>
               </div>
-
-              {profileDetails?.documents && (
-                <div className="mt-5">
-                  <p className="font-semibold text-slate-800 mb-2">Documents</p>
-                  <div className="flex flex-col gap-1">
-                    {["cv", "cin", "diplome"].map((type) =>
-                      profileDetails.documents && profileDetails.documents[type]?.length > 0 ? (
-                        <div key={type}>
-                          {profileDetails.documents[type].map((doc: any, idx: number) => (
-                            <a
-                              key={doc.id || idx}
-                              href={doc.file_url || doc.url || `/api/documents/download/${doc.id}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-teal-700 underline hover:text-teal-900 text-sm mr-2"
-                            >
-                              Télécharger {type.toUpperCase()}{" "}
-                              {profileDetails.documents && profileDetails.documents[type].length > 1 ? idx + 1 : ""}
-                            </a>
-                          ))}
-                        </div>
-                      ) : null
-                    )}
-                    {profileDetails.documents &&
-                      ["cv", "cin", "diplome"].every((type) => !profileDetails.documents?.[type]?.length) && (
-                        <span className="text-slate-500 text-sm">Aucun document disponible.</span>
-                      )}
-                  </div>
-                </div>
-              )}
 
               <div className="mt-5">
                 <h3 className="font-semibold text-teal-800 mb-2">Expériences</h3>

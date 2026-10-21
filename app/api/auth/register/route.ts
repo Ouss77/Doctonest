@@ -1,10 +1,10 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-import { neon } from '@neondatabase/serverless';
 import jwt from 'jsonwebtoken';
 import { hash } from 'bcryptjs';
+import { sql } from "@/lib/database";
 
-const sql = neon(process.env.DATABASE_URL!);
+const REPLACEMENT_PROFESSIONS = ["Médecin", "Dentiste"] as const
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,12 +31,20 @@ if (!password || !email || !userType || !firstName) {
     );
 }
 
-    // Validate medical specialty for doctors
-    if (userType === 'replacement' && profession === 'Médecin' && !specialty) {
-      return NextResponse.json(
-        { error: 'La spécialité médicale est requise pour les médecins' },
-        { status: 400 }
-      );
+    if (userType === "replacement") {
+      const allowedProfession = (REPLACEMENT_PROFESSIONS as readonly string[]).includes(profession)
+      if (!allowedProfession) {
+        return NextResponse.json(
+          { error: "Profession non autorisée. Choisissez Médecin ou Dentiste." },
+          { status: 400 }
+        )
+      }
+      if (!String(specialty || "").trim()) {
+        return NextResponse.json(
+          { error: "La spécialité est requise" },
+          { status: 400 }
+        )
+      }
     }
 
     // Check if user already exists
@@ -51,8 +59,9 @@ if (!password || !email || !userType || !firstName) {
       );
     }
 
-    // Create user
-    const normalizedPhone = hideContact ? phone : null;
+    // Create user — always persist the phone entered at signup
+    const normalizedPhone =
+      typeof phone === "string" && phone.trim() ? phone.trim() : null;
     const hashedPassword = await hash(password, 12);
 
     const user = await sql`
@@ -63,11 +72,14 @@ if (!password || !email || !userType || !firstName) {
 
     const userId = user[0].id;
 
-    // Create profile based on user type
     if (userType === 'replacement') {
+      const trimmedSpecialty = typeof specialty === "string" ? specialty.trim() : ""
+      const trimmedProfession = typeof profession === "string" ? profession.trim() : ""
+      const normalizedSpecialty = trimmedSpecialty || (trimmedProfession === "Médecin" ? "Médecine générale" : trimmedProfession)
+
       await sql`
         INSERT INTO replacement_profiles (user_id, profession, specialty, location)
-        VALUES (${userId}, ${profession || ''}, ${specialty || ''}, ${location || ''})
+        VALUES (${userId}, ${trimmedProfession}, ${normalizedSpecialty}, ${location || ''})
       `;
     } else if (userType === 'employer') {
   // Map frontend fields to DB schema
@@ -115,12 +127,14 @@ if (!password || !email || !userType || !firstName) {
     });
 
     // Set HTTP-only cookie
-    response.cookies.set('token', token, {
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-    });
+      sameSite: 'lax' as const,
+      maxAge: 7 * 24 * 60 * 60,
+    }
+    response.cookies.set('auth-token', token, cookieOptions)
+    response.cookies.set('token', token, cookieOptions)
 
     return response;
 

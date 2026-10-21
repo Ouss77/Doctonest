@@ -1,22 +1,23 @@
-"use client";
+"use client"
 
-import type React from "react";
-import { useState, useEffect } from "react";
-import EmployerRegisterForm from "./_components/EmployerRegisterForm";
-import ReplacementRegisterForm from "./_components/ReplacementRegisterForm";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { CheckCircle, Shield, Stethoscope, Clock, Users, Building, UserPlus, ChevronLeft } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import type React from "react"
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import EmployerRegisterForm from "./_components/EmployerRegisterForm"
+import ReplacementRegisterForm from "./_components/ReplacementRegisterForm"
+import { AlertCircle, ArrowLeft, Building2, CheckCircle2, Shield, Stethoscope } from "lucide-react"
+import { cn } from "@/lib/utils"
+
+type UserType = "replacement" | "employer"
 
 export default function RegisterPage() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [userType, setUserType] = useState<"replacement" | "employer">("replacement");
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-  const [showLeftPanel, setShowLeftPanel] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
+  const [showPassword, setShowPassword] = useState(false)
+  const [userType, setUserType] = useState<UserType>("replacement")
+  const [pathChosen, setPathChosen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [serverError, setServerError] = useState("")
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false)
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -28,57 +29,53 @@ export default function RegisterPage() {
     location: "",
     companyName: "",
     companyType: "",
-    profession: "",
-    specialty: "",
-  });
-  const router = useRouter();
+    profession: "Médecin",
+    specialty: "Médecine générale",
+  })
+  const router = useRouter()
 
   useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 1024;
-      setIsMobile(mobile);
-      setShowLeftPanel(!mobile);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const typeFromUrl = params.get("type");
-      if (typeFromUrl === "replacement" || typeFromUrl === "employer") {
-        setUserType(typeFromUrl as "replacement" | "employer");
-      }
+    const params = new URLSearchParams(window.location.search)
+    const typeFromUrl = params.get("type")
+    if (typeFromUrl === "replacement" || typeFromUrl === "employer") {
+      setUserType(typeFromUrl)
+      setPathChosen(true)
     }
-  }, []);
+  }, [])
+
+  const choosePath = (type: UserType) => {
+    setUserType(type)
+    setPathChosen(true)
+    setServerError("")
+    const url = new URL(window.location.href)
+    url.searchParams.set("type", type)
+    window.history.replaceState({}, "", url.pathname + "?" + url.searchParams.toString())
+  }
+
+  const changePath = () => {
+    setPathChosen(false)
+    setServerError("")
+    const url = new URL(window.location.href)
+    url.searchParams.delete("type")
+    window.history.replaceState({}, "", url.pathname)
+  }
 
   const handleInputChange = (field: string, value: string | boolean | File) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+    setFormData((prev) => ({ ...prev, [field]: value }))
+    if (serverError) setServerError("")
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
+    if (isSubmitting) return
 
-    if (!formData.acceptTerms) {
-      alert("Vous devez accepter les conditions d'utilisation");
-      return;
-    }
-
-    if (userType === "replacement" && formData.profession === "Médecin" && !formData.specialty) {
-      alert("Veuillez sélectionner une spécialité médicale");
-      return;
-    }
+    setIsSubmitting(true)
+    setServerError("")
 
     try {
       const response = await fetch("/api/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
@@ -92,335 +89,193 @@ export default function RegisterPage() {
           profession: formData.profession,
           specialty: formData.specialty,
         }),
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (response.ok) {
-        setShowSuccessPopup(true);
+        setShowSuccessPopup(true)
         setTimeout(() => {
-          if (userType === "replacement") {
-            router.push("/dashboard/replacement");
-          } else {
-            router.push("/dashboard/employer");
-          }
-        }, 2000);
+          router.push(userType === "replacement" ? "/dashboard/replacement" : "/dashboard/employer")
+        }, 1600)
       } else {
-        alert(data.error || "Erreur lors de l'inscription");
+        setServerError(data.error || "Impossible de créer le compte. Vérifiez vos informations.")
       }
     } catch (error) {
-      console.error("Registration error:", error);
-      alert("Erreur de connexion au serveur");
+      console.error("Registration error:", error)
+      setServerError("Erreur de connexion au serveur. Réessayez dans un instant.")
+    } finally {
+      setIsSubmitting(false)
     }
-  };
-
-  const companyTypes = [
-    "Hôpital public",
-    "Clinique privée",
-    "Cabinet médical",
-    "Maison de santé",
-    "Centre de soins",
-    "EHPAD",
-    "Médecin indépendant",
-  ];
-
-  // Définition des features selon le type d'utilisateur
-  const replacementFeatures = [
-    { icon: <Stethoscope className="h-4 w-4 text-blue-400" />, text: "Missions variées" },
-    { icon: <Clock className="h-4 w-4 text-purple-400" />, text: "Flexibilité" },
-    { icon: <Shield className="h-4 w-4 text-green-400" />, text: "Sécurité" },
-    { icon: <Users className="h-4 w-4 text-pink-400" />, text: "Réseau" }
-  ];
-
-  const employerFeatures = [
-    { icon: <Building className="h-4 w-4 text-blue-400" />, text: "Gestion simplifiée" },
-    { icon: <UserPlus className="h-4 w-4 text-purple-400" />, text: "Recrutement rapide" },
-    { icon: <Shield className="h-4 w-4 text-green-400" />, text: "Sécurité" },
-    { icon: <Users className="h-4 w-4 text-pink-400" />, text: "Large choix" }
-  ];
+  }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden bg-gradient-to-br from-gray-900 via-slate-900 to-gray-950">
-      <div className="absolute inset-0 bg-slate-950/60" />
+    <div className="min-h-screen bg-slate-100">
+      {showSuccessPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-7 text-center shadow-lg">
+            <CheckCircle2 className="mx-auto mb-3 h-11 w-11 text-emerald-600" />
+            <h3 className="text-lg font-semibold text-slate-900">Compte créé</h3>
+            <p className="mt-1.5 text-sm text-slate-600">Redirection vers votre espace DoctoNest…</p>
+          </div>
+        </div>
+      )}
 
-      <div className="relative z-10 w-full flex items-center justify-center">
-      <AnimatePresence>
-        {showSuccessPopup && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 backdrop-blur-sm"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }} 
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-gray-800 border border-gray-700 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl"
-            >
-              <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
-              <h3 className="text-2xl font-bold text-white mb-2">Inscription réussie !</h3>
-              <p className="text-gray-300 mb-4">
-                Votre compte {userType === "replacement" ? "médecin remplaçant" : "établissement"} est prêt.
-              </p>
-              <p className="text-sm text-gray-400 mb-6">Redirection en cours...</p>
-              <div className="mt-4 bg-gray-700 rounded-full h-2 overflow-hidden">
-                <motion.div
-                  initial={{ width: "0%" }}
-                  animate={{ width: "100%" }}
-                  transition={{ duration: 2, ease: "linear" }}
-                  className="bg-gradient-to-r from-green-400 to-blue-400 h-2 rounded-full"
-                />
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div className="mx-auto grid min-h-screen max-w-6xl lg:grid-cols-[0.92fr_1.08fr]">
+        <aside className="relative hidden overflow-hidden bg-slate-900 px-9 py-8 text-white lg:flex lg:flex-col">
+          <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-blue-500/20 blur-3xl" />
+          <div className="absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-cyan-400/10 blur-3xl" />
+          <Link href="/" className="relative z-10 flex items-center gap-3">
+            <img src="/logo.png" alt="DoctoNest" className="h-11 w-11 rounded-xl bg-white object-cover" />
+            <div>
+              <p className="text-lg font-semibold tracking-tight">DoctoNest</p>
+              <p className="text-xs text-slate-400">Remplacement médical au Maroc</p>
+            </div>
+          </Link>
 
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-        className="w-full max-w-5xl"
-      >
-        <Card className="border-gray-700 bg-gray-800/50 backdrop-blur-sm shadow-2xl rounded-2xl overflow-hidden">
-          {/* Gradient top bar */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
-          
-          <div className="flex w-full flex-col lg:flex-row">
-            {/* Bouton pour afficher/masquer le panneau gauche sur mobile */}
-            {isMobile && !showLeftPanel && (
-              <div className="p-4 border-b border-gray-700">
-                <button
-                  onClick={() => setShowLeftPanel(true)}
-                  className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
-                >
-                  <ChevronLeft className="w-5 h-5 rotate-180" />
-                  <span>Voir les informations</span>
-                </button>
-              </div>
-            )}
+          <div className="relative z-10 mt-10 max-w-md">
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-blue-300">Espace professionnel</p>
+            <h1 className="mt-2.5 text-3xl font-semibold leading-tight">Rejoignez DoctoNest</h1>
+            <p className="mt-3 text-sm leading-relaxed text-slate-300">
+              La plateforme de remplacement médical dédiée aux médecins, dentistes et établissements de santé.
+            </p>
+          </div>
 
-            {/* Left Side - Image et description */}
-            <AnimatePresence>
-              {showLeftPanel && (
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className={`${isMobile ? 'fixed inset-0 z-50 bg-gray-900' : 'lg:w-4/6'} p-6 lg:p-8 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-gray-900 border-r border-gray-700`}
-                >
-                  {/* Bouton de fermeture sur mobile */}
-                  {isMobile && (
+          <ul className="relative z-10 mt-8 space-y-3 text-sm text-slate-200">
+            {[
+              { icon: Stethoscope, text: "Missions ciblées selon votre profession et votre spécialité" },
+              { icon: Shield, text: "Profils et échanges réservés aux professionnels de santé" },
+              { icon: Building2, text: "Mise en relation directe avec les établissements" },
+            ].map((item) => (
+              <li key={item.text} className="flex gap-3 rounded-xl border border-white/10 bg-white/5 px-3.5 py-3">
+                <item.icon className="mt-0.5 h-5 w-5 shrink-0 text-blue-300" />
+                <span>{item.text}</span>
+              </li>
+            ))}
+          </ul>
+
+          <p className="relative z-10 mt-auto pt-8 text-xs text-slate-500">
+            Vos données ne sont utilisées que pour votre compte et la mise en relation professionnelle.
+          </p>
+        </aside>
+
+        <main className="flex items-start justify-center bg-slate-100 px-4 py-5 sm:px-6 lg:py-6">
+          <div className="w-full max-w-[440px]">
+            <Link href="/" className="mb-4 flex items-center gap-2.5 lg:hidden">
+              <img src="/logo.png" alt="DoctoNest" className="h-9 w-9 rounded-xl object-cover" />
+              <span className="text-base font-semibold text-slate-900">DoctoNest</span>
+            </Link>
+
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.06)] sm:p-6">
+              {!pathChosen ? (
+                <div>
+                  <div className="border-b border-slate-100 pb-4">
+                    <h2 className="text-xl font-semibold tracking-tight text-slate-900">Que recherchez-vous sur DoctoNest ?</h2>
+                    <p className="mt-1 text-sm text-slate-500">Choisissez votre parcours pour afficher le formulaire adapté.</p>
+                  </div>
+
+                  <div className="mt-4 grid gap-3">
                     <button
-                      onClick={() => setShowLeftPanel(false)}
-                      className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+                      type="button"
+                      onClick={() => choosePath("replacement")}
+                      className="group rounded-xl border border-slate-200 bg-white p-4 text-left transition-colors hover:border-blue-300 hover:bg-blue-50/40"
                     >
-                      <ChevronLeft className="w-6 h-6" />
+                      <span className="flex items-start gap-3">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
+                          <Stethoscope className="h-5 w-5" />
+                        </span>
+                        <span>
+                          <span className="block text-sm font-semibold text-slate-900">Je cherche une mission</span>
+                          <span className="mt-1 block text-sm leading-snug text-slate-500">
+                            Je suis médecin ou dentiste et je recherche des missions de remplacement adaptées à ma spécialité.
+                          </span>
+                        </span>
+                      </span>
                     </button>
+
+                    <button
+                      type="button"
+                      onClick={() => choosePath("employer")}
+                      className="group rounded-xl border border-slate-200 bg-white p-4 text-left transition-colors hover:border-blue-300 hover:bg-blue-50/40"
+                    >
+                      <span className="flex items-start gap-3">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
+                          <Building2 className="h-5 w-5" />
+                        </span>
+                        <span>
+                          <span className="block text-sm font-semibold text-slate-900">Je cherche un médecin</span>
+                          <span className="mt-1 block text-sm leading-snug text-slate-500">
+                            Je représente un établissement et je recherche un professionnel pour un remplacement.
+                          </span>
+                        </span>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="border-b border-slate-100 pb-4">
+                    <button
+                      type="button"
+                      onClick={changePath}
+                      className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-800"
+                    >
+                      <ArrowLeft className="h-3.5 w-3.5" />
+                      Changer de parcours
+                    </button>
+                    <h2 className="text-xl font-semibold tracking-tight text-slate-900">Créer un compte</h2>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {userType === "replacement"
+                        ? "Inscription réservée aux médecins et dentistes."
+                        : "Inscription destinée aux établissements de santé."}
+                    </p>
+                  </div>
+
+                  {serverError && (
+                    <div className="mt-4 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700" role="alert">
+                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                      <p>{serverError}</p>
+                    </div>
                   )}
-                  
-                  <div className="h-full flex flex-col">
-                    {/* Logo et titre */}
-                    <div className="mt-0">
-                      <Link href="/" className="flex items-center gap-3 mb-4 hover:opacity-90 transition-opacity cursor-pointer">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                          <img 
-                            src="/logo.png" 
-                            alt="DoctoNest" 
-                            className="w-10 h-10 rounded-lg"
-                            onError={(e) => {
-                              e.currentTarget.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyNCIgY3k9IjI0IiByPSIyNCIgZmlsbD0idXJsKCNwYWludDBfYW5ndWxhcl8xXzExMjMpIi8+PHBhdGggZD0iTTE2LjUgMzEuNUwxOC41IDI4LjVMMjEuNSAzMS41TDI2LjUgMjQuNUwyOS41IDI3LjVMMzIuNSAyMi41IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiLz48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9InBhaW50MF9hbmd1bGFyXzFfMTEyMyIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFRyYW5zZm9ybT0ibWF0cml4KDI0IDAgMCAyNCAyNCAyNCIpIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjNjA3QUQxIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSI4QzVDRTUiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48L3N2Zz4="
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-                            DoctoNest
-                          </h1>
-                          <p className="text-sm text-gray-400">Espace professionnel</p>
-                        </div>
-                      </Link>
-                      <p className="text-lg text-gray-200 font-medium">
-                        Rejoignez la communauté médicale
-                      </p>
-                    </div>
 
-                    {/* Image plus petite */}
-                    <div className="flex flex-col justify-center">
-                      <div className="relative mb-6 mt-5">
-                        <img
-                          src="/logo-login.png"
-                          alt="Inscription DoctoNest"
-                          className="w-full rounded-xl max-h-[220px] object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzFlMWUyZSIvPjx0ZXh0IHg9IjIwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiM2Mzc3ZGYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+RG9jdG9OZXN0PC90ZXh0Pjwvc3ZnPg=="
-                          }}
-                        />
-                        <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2">
-                          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium">
-                            {userType === "replacement" ? "Médecin remplaçant" : "Établissement recruteur"}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Texte descriptif */}
-                      <div className="text-center mb-8">
-                        <p className="text-gray-300 text-sm leading-relaxed">
-                          {userType === "replacement" 
-                            ? "Rejoignez notre plateforme pour trouver des missions de remplacement adaptées à votre profil médical."
-                            : "Trouvez les meilleurs médecins remplaçants pour assurer la continuité des soins dans votre établissement."
-                          }
-                        </p>
-                      </div>
-
-                      {/* Features list adaptée au type d'utilisateur */}
-                      <div className="grid grid-cols-2 gap-3">
-                        {(userType === "replacement" ? replacementFeatures : employerFeatures).map((feature, index) => (
-                          <div key={index} className="flex items-center gap-2 text-gray-300 text-sm bg-gray-800/50 rounded-lg p-3">
-                            {feature.icon}
-                            <span>{feature.text}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Footer de la section gauche */}
-                    <div className="mt-6 pt-4 border-t border-gray-700">
-                      <p className="text-xs text-gray-500 text-center">
-                        Plateforme certifiée pour les professionnels de santé
-                      </p>
-                    </div>
-                    
-                    {/* Bouton pour retourner au formulaire sur mobile */}
-                    {isMobile && (
-                      <div className="mt-6">
-                        <button
-                          onClick={() => setShowLeftPanel(false)}
-                          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-medium hover:opacity-90 transition-opacity"
-                        >
-                          Continuer l'inscription
-                        </button>
-                      </div>
+                  <div className="mt-4">
+                    {userType === "replacement" ? (
+                      <ReplacementRegisterForm
+                        key="replacement"
+                        formData={formData}
+                        setFormData={setFormData}
+                        showPassword={showPassword}
+                        setShowPassword={setShowPassword}
+                        handleInputChange={handleInputChange}
+                        handleSubmit={handleSubmit}
+                        isSubmitting={isSubmitting}
+                      />
+                    ) : (
+                      <EmployerRegisterForm
+                        key="employer"
+                        formData={formData}
+                        setFormData={setFormData}
+                        showPassword={showPassword}
+                        setShowPassword={setShowPassword}
+                        handleInputChange={handleInputChange}
+                        handleSubmit={handleSubmit}
+                        isSubmitting={isSubmitting}
+                      />
                     )}
                   </div>
-                </motion.div>
+                </>
               )}
-            </AnimatePresence>
+            </section>
 
-            {/* Right Side - Formulaire d'inscription */}
-            <div className={`${showLeftPanel && isMobile ? 'hidden' : 'lg:w-5/6'} w-full p-4 lg:p-5`}>
-              <div className="mb-2">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold text-white mb-1">
-                      Créer votre compte
-                    </h2>
-
-                  </div>
-                  {/* Bouton pour voir les informations sur mobile */}
-                  {isMobile && (
-                    <button
-                      onClick={() => setShowLeftPanel(true)}
-                      className="lg:hidden text-blue-400 hover:text-blue-300 transition-colors text-sm flex items-center gap-1"
-                    >
-                      <ChevronLeft className="w-4 h-4 rotate-180" />
-                      <span>Infos</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Tabs pour choisir le type de compte */}
-              <Tabs 
-                value={userType} 
-                onValueChange={(value: string) => setUserType(value as 'replacement' | 'employer')}
-                className="w-full"
-              >
-                <TabsList className="grid grid-cols-2 h-full w-full mb-3 bg-gray-900/50 p-1 rounded-xl border border-gray-700">
-                  <TabsTrigger
-                    value="replacement"
-                    className="text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=inactive]:bg-gray-800/50 data-[state=inactive]:border data-[state=inactive]:border-gray-600 rounded-lg py-3 transition-all hover:text-gray-100"
-                  >
-                    <div className="flex items-center gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 7.292M15 12h6m-3-3v6m-6 9a9 9 0 100-18 9 9 0 000 18z" />
-                      </svg>
-                      <span>Médecin</span>
-                    </div>
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="employer"
-                    className="text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=inactive]:bg-gray-800/50 data-[state=inactive]:border data-[state=inactive]:border-gray-600 rounded-lg py-3 transition-all hover:text-gray-100"
-                  >
-                    <div className="flex items-center gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2h5m3-9a4 4 0 118 0 4 4 0 01-8 0z" />
-                      </svg>
-                      <span>Recruteur</span>
-                    </div>
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="replacement" className="mt-0">
-                  <ReplacementRegisterForm 
-                    formData={formData}
-                    setFormData={setFormData}
-                    showPassword={showPassword}
-                    setShowPassword={setShowPassword}
-                    handleInputChange={handleInputChange}
-                    handleSubmit={handleSubmit}
-                  />
-                </TabsContent>
-
-                <TabsContent value="employer" className="mt-0">
-                  <EmployerRegisterForm
-                    formData={formData}
-                    setFormData={setFormData}
-                    showPassword={showPassword}
-                    setShowPassword={setShowPassword}
-                    handleInputChange={handleInputChange}
-                    handleSubmit={handleSubmit}
-                    companyTypes={companyTypes}
-                  />
-                </TabsContent>
-              </Tabs>
-
-              {/* Lien de connexion */}
-              <div className="text-center pt-4 border-t border-gray-700 mt-4">
-                <p className="text-gray-400 text-sm">
-                  Déjà inscrit ?{" "}
-                  <Link
-                    href="/login"
-                    className="text-blue-400 hover:text-blue-300 font-semibold hover:underline transition-colors"
-                  >
-                    Se connecter
-                  </Link>
-                </p>
-                <p className="text-gray-500 text-xs mt-2">
-                  En créant un compte, vous acceptez nos{" "}
-                  <Link href="/terms" className="text-blue-400 hover:underline">
-                    Conditions d'utilisation
-                  </Link>{" "}
-                  et notre{" "}
-                  <Link href="/privacy" className="text-blue-400 hover:underline">
-                    Politique de confidentialité
-                  </Link>
-                </p>
-              </div>
-            </div>
+            <p className="mt-4 text-center text-sm text-slate-500">
+              Déjà un compte ?{" "}
+              <Link href="/login" className="font-medium text-blue-700 hover:underline">
+                Se connecter
+              </Link>
+            </p>
           </div>
-        </Card>
-
-        {/* Copyright */}
-        <div className="text-center mt-6">
-          <p className="text-xs text-gray-600">
-            © {new Date().getFullYear()} DoctoNest. Tous droits réservés.
-          </p>
-        </div>
-      </motion.div>
+        </main>
       </div>
     </div>
-  );
+  )
 }
