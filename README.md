@@ -203,10 +203,3 @@ This project is currently unlicensed unless you specify one.
 
 For questions or collaboration, you can reach out through the project owner or contact details available on the live platform.
 
----
-
-If you want, I can also generate:
-- a more professional French version
-- a shorter “startup-friendly” README
-- a version specifically optimized for GitHub/portfolio presentation
-- a README with badges, screenshots, and deployment links
